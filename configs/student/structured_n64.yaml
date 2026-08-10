@@ -1,0 +1,26 @@
+schema_version: 0
+
+policy:
+  encoder:
+    hidden_widths: [64, 32]
+    activation: silu
+    output_dimension: 32
+  recurrence:
+    type: diagonal_linear_low_rank_innovation
+    state_dimension: 64
+    innovation_ranks: [0, 1, 2, 4]
+    activation: tanh
+    stable_diagonal_parameterisation: tanh
+    initial_time_constants_ms: [40, 2000]
+    include_previous_action: true
+  action_head:
+    hidden_width: 64
+    action_dimension: 2
+
+training:
+  sequence_length: 64
+  burn_in_steps: 16
+  loss_steps: 48
+  batch_size: 128
+  optimiser: adamw
+  gradient_clip_global_norm: 1.0

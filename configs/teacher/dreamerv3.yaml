@@ -1,0 +1,18 @@
+schema_version: 0
+status: draft_requires_upstream_audit
+
+teacher:
+  type: dreamerv3
+  deterministic_evaluation: true
+  observation_stack: false
+  privileged_state: false
+  puck_velocity: false
+  selection_metric: validation_save_rate_across_blackouts
+  upstream_config: null
+
+provenance:
+  drl_air_hockey_commit: null
+  air_hockey_challenge_commit: null
+  dreamerv3_repository: null
+  dreamerv3_commit: null
+  container_digest: null

@@ -1,0 +1,19 @@
+schema_version: 0
+status: draft
+
+policies:
+  - teacher
+  - feed_forward
+  - finite_stack_10
+  - structured_k0
+  - structured_k1
+  - structured_k2
+  - structured_k4
+  - gru_64
+
+student_training_seeds: 5
+blackout_steps: [0, 5, 10, 15, 20, 25]
+minimum_evaluation_episodes_per_cell: 200
+paired_evaluation_shots: true
+confidence_interval: paired_bootstrap_95
+final_test_seeds: null  # Freeze only after task calibration.
