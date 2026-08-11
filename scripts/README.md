@@ -21,13 +21,20 @@ workflow.
 - `validate_direct_launch_distribution.py` materialises a versioned shot
   manifest and optionally measures all approach times in MuJoCo with
   `--simulate`.
-- `smoke_test_teacher.py --output PATH --code-commit SHA` runs the bounded
-  DreamerV3 compatibility test using v2 train shots and uniformly sampled
-  0--20-step blackouts. It fails unless Dreamer writes training metrics and a
-  non-zero episode return. It is not a policy-quality experiment.
+- `smoke_test_teacher.py --profile PROFILE --output PATH --code-commit SHA`
+  runs a versioned DreamerV3 training profile. It supports exact-state resume,
+  retains the requested number of checkpoints and writes an explicit final
+  checkpoint. The `smoke` profile remains a compatibility test rather than a
+  policy-quality experiment.
 - `evaluate_teacher_checkpoint.py` evaluates an untrained or checkpointed
   Dreamer policy on identical held-out validation shots at fixed blackout
   lengths and records contact-aware outcomes and batch-one latency.
+- `evaluate_teacher_checkpoints.py` evaluates every retained checkpoint and
+  selects by validation save rate averaged across the configured blackout
+  durations. Mean return and then earlier step are deterministic tie-breaks.
+- `run_full_teacher_on_marvin.sh RUN_ID CODE_COMMIT` runs or resumes the
+  versioned full profile in the audited container, then performs checkpoint
+  validation selection. It refuses a dirty or mismatched Marvin checkout.
 
 The build and rendering scripts are intended to run on Marvin. They fail on a
 missing prerequisite and the video script refuses to overwrite its primary
@@ -36,7 +43,6 @@ artefacts. Exact commands and audited outputs are in
 
 ## Planned experiment entry points
 
-- `train_teacher.sh`
 - `collect_dataset.sh`
 - `train_core_students.sh`
 - `evaluate_core.sh`

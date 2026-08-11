@@ -28,6 +28,7 @@ from airhockey_distill.envs import (
     load_defence_reward,
     load_direct_launch_distribution,
 )
+from airhockey_distill.teachers import read_checkpoint_step
 
 ENVIRONMENT_ID = "AirHockeyDefendShotEvaluation-v0"
 SAVE_OUTCOMES = frozenset({"returned", "arrested", "safe_deflection"})
@@ -43,13 +44,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--code-commit", required=True)
+    parser.add_argument("--profile", default="diagnostic")
     return parser.parse_args()
 
 
 def run(args: argparse.Namespace) -> dict[str, Any]:
     config = _load_config(args.config)
-    diagnostic = config["diagnostic"]
-    evaluation = config["evaluation"]
+    if not isinstance(config.get(args.profile), dict):
+        raise ValueError(f"unknown teacher profile {args.profile!r}")
+    profile = config[args.profile]
+    evaluation_name = str(profile.get("evaluation", "evaluation"))
+    evaluation = config[evaluation_name]
     training = config["training"]
     output = args.output.resolve()
     if output.exists():
@@ -85,16 +90,16 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     )
     dreamer_config = elements.Config(upstream["defaults"])
     dreamer_config = dreamer_config.update(
-        upstream[str(diagnostic["model_preset"])]
+        upstream[str(profile["model_preset"])]
     )
     dreamer_config = dreamer_config.update(
         {
             "task": f"gymnasium_{ENVIRONMENT_ID}",
             "logdir": str(output.parent / f"{output.stem}-runtime"),
-            "seed": int(diagnostic["seed"]),
-            "batch_size": int(diagnostic["batch_size"]),
-            "batch_length": int(diagnostic["batch_length"]),
-            "report_length": int(diagnostic["report_length"]),
+            "seed": int(profile["seed"]),
+            "batch_size": int(profile["batch_size"]),
+            "batch_length": int(profile["batch_length"]),
+            "report_length": int(profile["report_length"]),
             "jax.platform": "cuda",
             "jax.prealloc": False,
             "run.envs": 1,
@@ -186,7 +191,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "status": "completed",
         "created_at": datetime.now(UTC).isoformat(),
         "policy": "checkpoint" if checkpoint is not None else "untrained",
+        "profile": args.profile,
         "checkpoint": str(checkpoint) if checkpoint is not None else None,
+        "checkpoint_step": (
+            read_checkpoint_step(checkpoint) if checkpoint is not None else None
+        ),
         "code_commit": args.code_commit,
         "config": config,
         "runtime": {
@@ -254,7 +263,7 @@ def _load_config(path: Path) -> dict[str, Any]:
     raw = yaml.safe_load(path.read_text())
     if not isinstance(raw, dict):
         raise TypeError("teacher config must be a mapping")
-    for key in ("teacher", "training", "diagnostic", "evaluation", "provenance"):
+    for key in ("teacher", "training", "evaluation", "provenance"):
         if not isinstance(raw.get(key), dict):
             raise TypeError(f"teacher config section {key!r} must be a mapping")
     return raw

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run a bounded DreamerV3 training compatibility test on Marvin."""
+"""Run a versioned DreamerV3 teacher training profile on Marvin."""
 
 from __future__ import annotations
 
@@ -18,6 +18,11 @@ import mujoco
 import yaml
 
 from airhockey_distill.envs import DirectLaunchTrainingEnv
+from airhockey_distill.teachers import (
+    RetainingCheckpointFactory,
+    build_training_arguments,
+    list_complete_checkpoints,
+)
 
 ENVIRONMENT_ID = "AirHockeyDefendShotTrackingLoss-v0"
 
@@ -31,24 +36,46 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--code-commit", required=True)
-    parser.add_argument("--profile", choices=("smoke", "diagnostic"), default="smoke")
+    parser.add_argument("--profile", default="smoke")
+    parser.add_argument("--resume", action="store_true")
     return parser.parse_args()
 
 
 def run(args: argparse.Namespace) -> dict[str, Any]:
     config = _load_config(args.config)
+    if not isinstance(config.get(args.profile), dict):
+        raise ValueError(f"unknown teacher training profile {args.profile!r}")
     run_config = config[args.profile]
     training = config["training"]
     output = args.output.resolve()
-    output.mkdir(parents=True, exist_ok=False)
+    metadata_path = output / f"{args.profile}_result.json"
+    previous: dict[str, Any] | None = None
+    if output.exists():
+        if not args.resume:
+            raise FileExistsError(output)
+        if metadata_path.exists():
+            previous = json.loads(metadata_path.read_text())
+            _validate_resume(previous, args, config)
+            if previous.get("status") == "completed":
+                return previous
+    else:
+        output.mkdir(parents=True)
 
     started_at = datetime.now(UTC)
     metadata: dict[str, Any] = {
         "status": "running",
-        "started_at": started_at.isoformat(),
+        "started_at": (
+            previous.get("started_at", started_at.isoformat())
+            if previous
+            else started_at.isoformat()
+        ),
         "code_commit": args.code_commit,
         "profile": args.profile,
         "config": config,
+        "attempts": [
+            *(previous.get("attempts", []) if previous else []),
+            {"started_at": started_at.isoformat()},
+        ],
         "runtime": {
             "hostname": platform.node(),
             "python": sys.version,
@@ -57,7 +84,6 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "mujoco": mujoco.__version__,
         },
     }
-    metadata_path = output / f"{args.profile}_result.json"
     _write_json(metadata_path, metadata)
 
     def make_environment(**kwargs: Any) -> DirectLaunchTrainingEnv:
@@ -77,46 +103,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     gymnasium.register(id=ENVIRONMENT_ID, entry_point=make_environment)
 
     dreamer_logdir = output / "dreamer"
-    dreamer_args = [
-        "--configs",
-        str(run_config["model_preset"]),
-        "--task",
-        f"gymnasium_{ENVIRONMENT_ID}",
-        "--logdir",
-        str(dreamer_logdir),
-        "--seed",
-        str(run_config["seed"]),
-        "--batch_size",
-        str(run_config["batch_size"]),
-        "--batch_length",
-        str(run_config["batch_length"]),
-        "--report_length",
-        str(run_config["report_length"]),
-        "--replay.size",
-        str(run_config["replay_size"]),
-        "--run.steps",
-        str(run_config["steps"]),
-        "--run.train_ratio",
-        str(run_config["train_ratio"]),
-        "--run.envs",
-        str(run_config.get("log_every", 1)),
-        "--run.log_every",
-        "1",
-        "--run.report_every",
-        str(run_config.get("report_every", 3600)),
-        "--run.save_every",
-        str(run_config.get("save_every", 1)),
-        "--run.debug",
-        "True",
-        "--jax.platform",
-        "cuda",
-        "--jax.prealloc",
-        "False",
-        "--logger.outputs",
-        "jsonl",
-        "--errfile",
-        "True",
-    ]
+    dreamer_args = build_training_arguments(
+        run_config,
+        environment_id=ENVIRONMENT_ID,
+        logdir=dreamer_logdir,
+    )
     metadata["dreamer_arguments"] = dreamer_args
     _write_json(metadata_path, metadata)
 
@@ -128,8 +119,24 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
         # The pinned fork references elements.Space without importing elements.
         from_gymnasium.elements = elements
-        dreamer_main.main(dreamer_args)
+        original_checkpoint = elements.Checkpoint
+        checkpoint_factory = RetainingCheckpointFactory(
+            original_checkpoint,
+            keep=int(run_config.get("checkpoint_keep", 1)),
+        )
+        elements.Checkpoint = checkpoint_factory
+        try:
+            dreamer_main.main(dreamer_args)
+            # The pinned loop otherwise saves only on a wall-clock interval and
+            # can leave the retained policy behind the completed run step.
+            checkpoint_factory.save_final()
+        finally:
+            elements.Checkpoint = original_checkpoint
     except BaseException as error:
+        metadata["attempts"][-1].update(
+            completed_at=datetime.now(UTC).isoformat(),
+            status="failed",
+        )
         metadata.update(
             status="failed",
             duration_seconds=monotonic() - before,
@@ -148,7 +155,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             if key.startswith("train/")
         }
     )
-    checkpoints = tuple((dreamer_logdir / "ckpt").glob("**/*"))
+    checkpoints = list_complete_checkpoints(dreamer_logdir / "ckpt")
     episode_scores = [
         float(record["episode/score"])
         for record in metrics
@@ -171,7 +178,13 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             if episode_scores
             else None
         ),
-        checkpoint_file_count=sum(path.is_file() for path in checkpoints),
+        checkpoint_file_count=sum(
+            path.is_file()
+            for _, checkpoint in checkpoints
+            for path in checkpoint.iterdir()
+        ),
+        checkpoint_steps=[step for step, _ in checkpoints],
+        final_checkpoint_step=(checkpoints[-1][0] if checkpoints else None),
     )
     if not training_metric_keys:
         metadata.update(
@@ -193,8 +206,22 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         )
         _write_json(metadata_path, metadata)
         raise RuntimeError("Dreamer run wrote no non-zero episode score")
+    if not checkpoints or checkpoints[-1][0] < int(run_config["steps"]):
+        metadata.update(
+            status="failed",
+            error={
+                "type": "TrainingCriterionError",
+                "message": "no final checkpoint at the requested training step",
+            },
+        )
+        _write_json(metadata_path, metadata)
+        raise RuntimeError("Dreamer run wrote no final checkpoint")
 
     metadata["status"] = "completed"
+    metadata["attempts"][-1].update(
+        completed_at=metadata["completed_at"],
+        status="completed",
+    )
     _write_json(metadata_path, metadata)
     return metadata
 
@@ -203,10 +230,25 @@ def _load_config(path: Path) -> dict[str, Any]:
     raw = yaml.safe_load(path.read_text())
     if not isinstance(raw, dict):
         raise TypeError("teacher config must be a mapping")
-    for key in ("teacher", "training", "smoke", "diagnostic", "evaluation", "provenance"):
+    for key in ("teacher", "training", "smoke", "evaluation", "provenance"):
         if not isinstance(raw.get(key), dict):
             raise TypeError(f"teacher config section {key!r} must be a mapping")
     return raw
+
+
+def _validate_resume(
+    previous: dict[str, Any],
+    args: argparse.Namespace,
+    config: dict[str, Any],
+) -> None:
+    expected = {
+        "code_commit": args.code_commit,
+        "profile": args.profile,
+        "config": config,
+    }
+    for key, value in expected.items():
+        if previous.get(key) != value:
+            raise ValueError(f"cannot resume with different {key}")
 
 
 def _read_json_lines(path: Path) -> list[dict[str, Any]]:

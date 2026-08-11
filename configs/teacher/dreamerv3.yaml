@@ -1,5 +1,5 @@
 schema_version: 1
-status: reward_smoke_validated_on_marvin
+status: corrected_procedure_ready_for_learning_check
 
 teacher:
   type: dreamerv3
@@ -45,11 +45,61 @@ diagnostic:
   save_every: 10
   purpose: short reward-bearing learning and held-out evaluation diagnostic
 
+learning_check:
+  seed: 6203
+  model_preset: size1m
+  steps: 20000
+  batch_size: 16
+  batch_length: 64
+  report_length: 32
+  replay_size: 200000
+  replay_fractions:
+    uniform: 0.2
+    priority: 0.6
+    recency: 0.2
+  train_ratio: 80.0
+  envs: 1
+  log_every: 30
+  report_every: 600
+  save_every: 300
+  checkpoint_keep: 8
+  debug: true
+  evaluation: evaluation
+  purpose: verify the corrected upstream-like optimisation and replay procedure
+
+full:
+  seed: 7201
+  model_preset: size1m
+  steps: 1000000
+  batch_size: 16
+  batch_length: 64
+  report_length: 32
+  replay_size: 2000000
+  replay_fractions:
+    uniform: 0.2
+    priority: 0.6
+    recency: 0.2
+  train_ratio: 80.0
+  envs: 1
+  log_every: 120
+  report_every: 600
+  save_every: 1800
+  checkpoint_keep: 64
+  debug: true
+  evaluation: full_evaluation
+  purpose: main teacher training with validation checkpoint selection
+
 evaluation:
   distribution_config: configs/env/direct_launch_v2.yaml
   distribution_split: validation
   shot_count: 30
   blackout_steps: [0, 10, 20]
+
+full_evaluation:
+  distribution_config: configs/env/direct_launch_v2.yaml
+  distribution_split: validation
+  shot_count: 100
+  blackout_steps: [0, 5, 10, 15, 20]
 
 provenance:
   drl_air_hockey_commit: a41081c4c3860877d7553c7eb9e84c1b7f5f7da0
