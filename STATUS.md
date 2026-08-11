@@ -5,8 +5,8 @@ Last updated: 2026-08-11
 ## Current phase
 
 Phase 0 — source audit and reproduction complete. Phase 1 — minimal
-direct-launch set-piece slice complete. The corrected `direct_launch_v2`
-distribution passes the teacher-training gate with a `GO` decision.
+direct-launch set-piece slice complete. Phase 2 — teacher integration started.
+The v2 task gate is `GO`, and the bounded DreamerV3 CUDA smoke test passes.
 
 ## Completed
 
@@ -55,10 +55,21 @@ distribution passes the teacher-training gate with a `GO` decision.
   approach times and zero faults.
 - Re-ran the paired gate on v2. Inactive and fixed-centre each conceded
   200/216; the privileged controller saved 216/216; every check passed.
+- Added a deterministic v2 training-shot sampler with uniformly sampled
+  0--20-step blackouts and no privileged observation path.
+- Connected the 19-observation, two-action Gymnasium task to the pinned
+  DreamerV3 fork, including a local shim for its missing `elements` import.
+- Clipped public normalisation overshoot to the declared `[-1,1]` range and
+  added pinned-MuJoCo space-contract coverage.
+- Completed a 1,000-step CUDA smoke run with 108 optimiser updates, finite
+  metrics and a step-1,000 checkpoint.
 
 ## Next actions
 
-- Run a short Dreamer training smoke test in the pinned Marvin image.
+- Implement and test the versioned teacher reward; the current upstream reward
+  is identically zero.
+- Run a short reward-bearing learning diagnostic before choosing the main
+  teacher budget and model size.
 - Add a scripted physical strike while retaining direct launch as a regression
   mode.
 - Select a backed-up artefact destination before large checkpoints or datasets.
@@ -87,11 +98,15 @@ distribution passes the teacher-training gate with a `GO` decision.
 | 2026-08-11 | Ran the paired gate on all 216 v1 shots | `NO_GO`; inactive conceded 41.7%, fixed centre 40.3%, privileged saved 100%; all technical checks passed |
 | 2026-08-11 | Generated and simulated `direct_launch_v2` | 216 distinct shots; all reached the approach plane in 0.42--0.94 s; manifest SHA-256 `6e2b61f71135c23c2c1d459c8d90c65e8a153cc645986103d95c67b2e0c2733c` |
 | 2026-08-11 | Ran the paired gate on all 216 v2 shots | `GO`; inactive and fixed centre each conceded 92.6%, privileged saved 100%, and all technical checks passed |
+| 2026-08-11 | Ran the 1,000-step DreamerV3 smoke test on Marvin | `PASS`; JAX 0.5.3 used `cuda:0`, 108 optimiser updates completed, all metrics were finite, and a step-1,000 checkpoint was written |
 
 ## Blockers
 
 - Marvin's experiment directory is not yet backed up to a durable artefact
   store.
+- Teacher policy training is blocked on a task reward; the upstream defence
+  environment returns zero at every step.
 - The Blackwell image deliberately overrides Dreamer's declared JAX 0.4.33 and
   CUDA NVCC 12.2 bounds with JAX 0.5.3 and CUDA NVCC 12.9.86. Device discovery
-  and interface smoke tests pass; `pip check` records the two conflicts.
+  and a 108-update training smoke test pass; `pip check` records the two
+  declared-version conflicts.

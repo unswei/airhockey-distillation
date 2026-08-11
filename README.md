@@ -59,8 +59,10 @@ balanced v1 manifest records the initial failed task calibration, while the
 corrected 216-shot
 [`direct_launch_v2`](docs/direct_launch_distribution_v2.md) is the current
 default. Inactive and fixed-centre each concede 92.6% of v2, and the privileged
-controller saves 100%. The next step is a short Dreamer training smoke test on
-Marvin, not a long teacher run.
+controller saves 100%. The bounded
+[`DreamerV3 smoke test`](docs/teacher_smoke_test.md) also passes on Marvin,
+including CUDA compilation and 108 optimiser updates. The next step is to add
+and validate the teacher reward before any longer training run.
 
 ## Scientific guardrails
 

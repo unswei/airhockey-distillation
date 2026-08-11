@@ -160,8 +160,10 @@ image digest and saved package freeze are authoritative for this audit.
 There is one known dependency inconsistency. The Dreamer package declares
 JAX 0.4.33 and `nvidia-cuda-nvcc-cu12<=12.2`; the Blackwell-compatible image
 overrides these with JAX 0.5.3 and CUDA NVCC 12.9.86. `pip check` reports these
-two conflicts. JAX device discovery and the MuJoCo interface probe pass, but a
-short Dreamer training smoke test is required before a long teacher run.
+two conflicts. JAX device discovery, the MuJoCo interface probe and a
+1,000-step Dreamer training smoke test with 108 optimiser updates pass. See
+[`teacher_smoke_test.md`](teacher_smoke_test.md). This validates runtime
+compatibility, not teacher performance.
 
 ## Marvin paths
 
