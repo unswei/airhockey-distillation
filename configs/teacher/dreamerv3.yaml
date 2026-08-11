@@ -22,12 +22,12 @@ training:
 smoke:
   seed: 6201
   model_preset: size1m
-  steps: 160
+  steps: 1000
   batch_size: 4
   batch_length: 16
   report_length: 8
   replay_size: 10000
-  train_ratio: 4.0
+  train_ratio: 8.0
   purpose: collection, replay, CUDA compilation, gradient and checkpoint test
 
 provenance:

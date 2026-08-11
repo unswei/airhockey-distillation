@@ -136,14 +136,39 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         raise
 
     metrics_path = dreamer_logdir / "metrics.jsonl"
+    metrics = _read_json_lines(metrics_path)
+    training_metric_keys = sorted(
+        {
+            key
+            for record in metrics
+            for key in record
+            if key.startswith("train/")
+        }
+    )
     checkpoints = tuple((dreamer_logdir / "ckpt").glob("**/*"))
     metadata.update(
-        status="completed",
         completed_at=datetime.now(UTC).isoformat(),
         duration_seconds=monotonic() - before,
-        metrics_lines=_line_count(metrics_path),
+        metrics_lines=len(metrics),
+        final_metrics_step=max(
+            (int(record.get("step", 0)) for record in metrics),
+            default=0,
+        ),
+        training_metric_keys=training_metric_keys,
         checkpoint_file_count=sum(path.is_file() for path in checkpoints),
     )
+    if not training_metric_keys:
+        metadata.update(
+            status="failed",
+            error={
+                "type": "SmokeCriterionError",
+                "message": "no train/* metrics were written",
+            },
+        )
+        _write_json(metadata_path, metadata)
+        raise RuntimeError("Dreamer smoke run wrote no train/* metrics")
+
+    metadata["status"] = "completed"
     _write_json(metadata_path, metadata)
     return metadata
 
@@ -158,11 +183,11 @@ def _load_config(path: Path) -> dict[str, Any]:
     return raw
 
 
-def _line_count(path: Path) -> int:
+def _read_json_lines(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
-        return 0
+        return []
     with path.open() as stream:
-        return sum(1 for _ in stream)
+        return [json.loads(line) for line in stream if line.strip()]
 
 
 def _write_json(path: Path, value: dict[str, Any]) -> None:
