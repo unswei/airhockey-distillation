@@ -18,6 +18,7 @@ import jax
 import mujoco
 import numpy as np
 import yaml
+from ruamel import yaml as ruamel_yaml
 
 from airhockey_distill.envs import (
     BlackoutSchedule,
@@ -79,7 +80,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     from embodied.envs import from_gymnasium
 
     from_gymnasium.elements = elements
-    upstream = yaml.safe_load(
+    upstream = ruamel_yaml.YAML(typ="safe").load(
         (Path(dreamer_agent.__file__).parent / "configs.yaml").read_text()
     )
     dreamer_config = elements.Config(upstream["defaults"])
