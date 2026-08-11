@@ -223,7 +223,7 @@ def _load_splits(
         name: {"observations": [], "teacher_actions": [], "puck_visible": []}
         for name in residues
     }
-    for shard_entry in manifest["shards"]:
+    for shard_number, shard_entry in enumerate(manifest["shards"], start=1):
         shard_path = dataset_directory / shard_entry["file"]
         if _sha256(shard_path) != shard_entry["sha256"]:
             raise ValueError(f"dataset shard hash mismatch: {shard_path}")
@@ -235,6 +235,10 @@ def _load_splits(
                 raise ValueError(f"invalid executed teacher actions: {shard_path}")
             offsets = shard["episode_offsets"]
             indices = shard["episode_indices"]
+            loaded_fields = {
+                field: np.asarray(shard[field])
+                for field in next(iter(collected.values()))
+            }
             for local_index, episode_index in enumerate(indices):
                 residue = int(episode_index) % modulus
                 split = next(
@@ -244,7 +248,18 @@ def _load_splits(
                     int(offsets[local_index]), int(offsets[local_index + 1])
                 )
                 for field in collected[split]:
-                    collected[split][field].append(np.asarray(shard[field][selection]))
+                    collected[split][field].append(loaded_fields[field][selection])
+        if shard_number % 10 == 0 or shard_number == len(manifest["shards"]):
+            print(
+                json.dumps(
+                    {
+                        "dataset_shards_loaded": shard_number,
+                        "dataset_shards_total": len(manifest["shards"]),
+                    },
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
 
     result: dict[str, dict[str, np.ndarray[Any, Any]]] = {}
     for split, fields in collected.items():
