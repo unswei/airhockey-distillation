@@ -1,0 +1,21 @@
+schema_version: 1
+reward_id: defend_shot_v1
+status: marvin_validation_pending
+
+rewards:
+  first_contact: 0.2
+  terminal_outcomes:
+    goal_conceded: -1.0
+    returned: 1.0
+    arrested: 1.0
+    safe_deflection: 1.0
+    missed_goal_without_contact: 0.0
+    timeout_after_contact: 0.0
+    timeout_without_contact: 0.0
+    upstream_terminal_after_contact: 0.0
+    upstream_terminal_without_contact: 0.0
+
+notes:
+  - Misses and unresolved timeouts are neutral, not saves.
+  - Reward uses evaluation-only contact and outcome state, never policy input.
+  - Safety and action-rate penalties remain zero until their signals are defined.

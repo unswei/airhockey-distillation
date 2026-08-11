@@ -12,6 +12,7 @@ from numpy.typing import ArrayLike, NDArray
 
 from .outcomes import ContactAwareOutcomeTracker
 from .policy_interface import PlanarActionAdapter, PublicObservationAdapter
+from .reward import DefenceRewardTracker
 from .shot import DEFAULT_DIRECT_LAUNCH_SHOT, ShotSpec
 from .tracking_loss import BlackoutSchedule
 
@@ -209,6 +210,7 @@ class DefendShotTrackingLoss(gym.Env[NDArray[np.float32], NDArray[np.float32]]):
         observation_adapter: PublicObservationAdapter | None = None,
         action_adapter: PlanarActionAdapter | None = None,
         outcome_tracker: ContactAwareOutcomeTracker | None = None,
+        reward_tracker: DefenceRewardTracker | None = None,
     ) -> None:
         if timeout_steps <= 0:
             raise ValueError("timeout_steps must be positive")
@@ -218,6 +220,7 @@ class DefendShotTrackingLoss(gym.Env[NDArray[np.float32], NDArray[np.float32]]):
         self.observation_adapter = observation_adapter or PublicObservationAdapter()
         self.action_adapter = action_adapter or PlanarActionAdapter()
         self.outcome_tracker = outcome_tracker or ContactAwareOutcomeTracker()
+        self.reward_tracker = reward_tracker or DefenceRewardTracker()
         self.observation_space = gym.spaces.Box(
             low=-1.0,
             high=1.0,
@@ -258,6 +261,7 @@ class DefendShotTrackingLoss(gym.Env[NDArray[np.float32], NDArray[np.float32]]):
         self._episode_done = False
         self._outcome = None
         self.outcome_tracker.reset()
+        self.reward_tracker.reset()
         self._snapshot = self.backend.reset(shot)
         return self._public_observation(), self._public_info()
 
@@ -283,15 +287,19 @@ class DefendShotTrackingLoss(gym.Env[NDArray[np.float32], NDArray[np.float32]]):
         truncated = self._observation_step >= self.timeout_steps and not terminated
         self._episode_done = terminated or truncated
 
-        info = self._public_info()
         if truncated:
             self._outcome = self.outcome_tracker.timeout_outcome()
+        reward = self.reward_tracker.observe(
+            puck_mallet_contact=self._snapshot.puck_mallet_contact,
+            outcome=self._outcome,
+        )
+        info = self._public_info()
         if self._outcome is not None:
             info["outcome"] = self._outcome
 
         return (
             self._public_observation(),
-            self._snapshot.reward,
+            reward,
             terminated,
             truncated,
             info,

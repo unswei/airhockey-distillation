@@ -13,11 +13,12 @@ teacher:
 training:
   distribution_config: configs/env/direct_launch_v2.yaml
   distribution_split: train
+  reward_config: configs/reward/defend_shot_v1.yaml
   sampling_seed: 5201
   blackout_start_observation_step: 5
   minimum_blackout_steps: 0
   maximum_blackout_steps: 20
-  reward: upstream_zero_compatibility_only
+  reward: defend_shot_v1
 
 smoke:
   seed: 6201

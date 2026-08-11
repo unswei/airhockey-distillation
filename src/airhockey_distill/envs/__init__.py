@@ -3,6 +3,11 @@
 from .defend_shot import DefendShotTrackingLoss, MujocoDirectLaunchBackend
 from .outcomes import ContactAwareOutcomeTracker, OutcomeThresholds
 from .policy_interface import PlanarActionAdapter, PublicObservationAdapter
+from .reward import (
+    DefenceRewardSpecification,
+    DefenceRewardTracker,
+    load_defence_reward,
+)
 from .shot import DEFAULT_DIRECT_LAUNCH_SHOT, ShotSpec
 from .shot_distribution import (
     DirectLaunchDistribution,
@@ -21,6 +26,8 @@ __all__ = [
     "DefendShotTrackingLoss",
     "DirectLaunchDistribution",
     "DirectLaunchTrainingEnv",
+    "DefenceRewardSpecification",
+    "DefenceRewardTracker",
     "GeneratedShot",
     "MujocoDirectLaunchBackend",
     "OutcomeThresholds",
@@ -28,6 +35,7 @@ __all__ = [
     "PublicObservationAdapter",
     "ShotSpec",
     "load_direct_launch_distribution",
+    "load_defence_reward",
     "manifest_sha256",
     "summarise_distribution",
 ]

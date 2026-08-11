@@ -202,15 +202,19 @@ def test_environment_terminates_early_on_confirmed_return() -> None:
     environment = DefendShotTrackingLoss(backend, timeout_steps=10)
     environment.reset(shot=DEFAULT_DIRECT_LAUNCH_SHOT)
 
-    _, _, first_terminated, first_truncated, first_info = environment.step((0, 0))
-    _, _, terminated, truncated, info = environment.step((0, 0))
+    _, first_reward, first_terminated, first_truncated, first_info = (
+        environment.step((0, 0))
+    )
+    _, reward, terminated, truncated, info = environment.step((0, 0))
 
+    assert first_reward == 0.2
     assert not first_terminated
     assert not first_truncated
     assert "outcome" not in first_info
     assert terminated
     assert not truncated
     assert info["outcome"] == "returned"
+    assert reward == 1.0
 
 
 def test_environment_reports_bare_timeout_separately() -> None:
@@ -224,8 +228,9 @@ def test_environment_reports_bare_timeout_separately() -> None:
     environment.reset(shot=DEFAULT_DIRECT_LAUNCH_SHOT)
     environment.step((0, 0))
 
-    _, _, terminated, truncated, info = environment.step((0, 0))
+    _, reward, terminated, truncated, info = environment.step((0, 0))
 
     assert not terminated
     assert truncated
     assert info["outcome"] == "timeout_without_contact"
+    assert reward == 0.0

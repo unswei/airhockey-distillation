@@ -54,3 +54,7 @@ shot_distribution:
   config: direct_launch_v2.yaml
   calibration_split: calibration
   status: validated_on_marvin
+
+reward:
+  config: ../reward/defend_shot_v1.yaml
+  status: marvin_validation_pending

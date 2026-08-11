@@ -8,6 +8,7 @@ import numpy as np
 
 from .defend_shot import DefendShotTrackingLoss, DirectLaunchBackend
 from .shot_distribution import load_direct_launch_distribution
+from .reward import DefenceRewardTracker, load_defence_reward
 from .tracking_loss import BlackoutSchedule
 
 
@@ -20,6 +21,7 @@ class DirectLaunchTrainingEnv(DefendShotTrackingLoss):
         self,
         *,
         distribution_config: str | Path = "configs/env/direct_launch_v2.yaml",
+        reward_config: str | Path = "configs/reward/defend_shot_v1.yaml",
         split: str = "train",
         sampling_seed: int = 5201,
         blackout_start_observation_step: int = 5,
@@ -55,6 +57,7 @@ class DirectLaunchTrainingEnv(DefendShotTrackingLoss):
                 start_observation_step=blackout_start_observation_step,
                 length_steps=minimum_blackout_steps,
             ),
+            reward_tracker=DefenceRewardTracker(load_defence_reward(reward_config)),
         )
 
     def reset(

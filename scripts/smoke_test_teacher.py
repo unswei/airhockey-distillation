@@ -61,6 +61,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     def make_environment(**kwargs: Any) -> DirectLaunchTrainingEnv:
         return DirectLaunchTrainingEnv(
             distribution_config=training["distribution_config"],
+            reward_config=training["reward_config"],
             split=training["distribution_split"],
             sampling_seed=int(training["sampling_seed"]),
             blackout_start_observation_step=int(
@@ -146,6 +147,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         }
     )
     checkpoints = tuple((dreamer_logdir / "ckpt").glob("**/*"))
+    episode_scores = [
+        float(record["episode/score"])
+        for record in metrics
+        if "episode/score" in record
+    ]
+    nonzero_episode_scores = [score for score in episode_scores if score != 0.0]
     metadata.update(
         completed_at=datetime.now(UTC).isoformat(),
         duration_seconds=monotonic() - before,
@@ -155,6 +162,13 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             default=0,
         ),
         training_metric_keys=training_metric_keys,
+        episode_score_count=len(episode_scores),
+        nonzero_episode_score_count=len(nonzero_episode_scores),
+        episode_score_range=(
+            {"minimum": min(episode_scores), "maximum": max(episode_scores)}
+            if episode_scores
+            else None
+        ),
         checkpoint_file_count=sum(path.is_file() for path in checkpoints),
     )
     if not training_metric_keys:
@@ -167,6 +181,16 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         )
         _write_json(metadata_path, metadata)
         raise RuntimeError("Dreamer smoke run wrote no train/* metrics")
+    if not nonzero_episode_scores:
+        metadata.update(
+            status="failed",
+            error={
+                "type": "SmokeCriterionError",
+                "message": "no non-zero episode score was written",
+            },
+        )
+        _write_json(metadata_path, metadata)
+        raise RuntimeError("Dreamer smoke run wrote no non-zero episode score")
 
     metadata["status"] = "completed"
     _write_json(metadata_path, metadata)
