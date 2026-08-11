@@ -53,14 +53,14 @@ slice has one deterministic shot and blackout, the 19-dimensional public
 observation, the two-dimensional action adapter, deterministic replay and
 three task-validity controls; see
 [`docs/minimal_task_slice.md`](docs/minimal_task_slice.md). The pre-training
-gate currently returns `NO_GO`; see
-[`docs/teacher_training_gate.md`](docs/teacher_training_gate.md). A calibrated,
-versioned 216-shot direct-launch distribution is now available for the paired
-rate evaluation; see
-[`docs/direct_launch_distribution.md`](docs/direct_launch_distribution.md).
-Contact-aware evaluation confirms that the privileged controller saves all
-216 shots, but v1 remains too easy for inactive and fixed-centre defenders.
-Teacher work remains blocked until a recalibrated v2 distribution passes.
+gate now returns `GO`; see
+[`docs/teacher_training_gate.md`](docs/teacher_training_gate.md). The preserved
+balanced v1 manifest records the initial failed task calibration, while the
+corrected 216-shot
+[`direct_launch_v2`](docs/direct_launch_distribution_v2.md) is the current
+default. Inactive and fixed-centre each concede 92.6% of v2, and the privileged
+controller saves 100%. The next step is a short Dreamer training smoke test on
+Marvin, not a long teacher run.
 
 ## Scientific guardrails
 

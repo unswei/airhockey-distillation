@@ -32,7 +32,7 @@ Pure tests cover every outcome above, stable arrest confirmation, contact
 precedence, early return termination and timeout separation. A pinned-MuJoCo
 integration test confirms that the original privileged control produces a real
 puck--mallet contact and terminates as `returned` before 2.5 seconds. The full
-Marvin suite passes 32 tests.
+Marvin suite passes 33 tests after adding the v2 distribution checks.
 
 On the 216-shot `direct_launch_v1` calibration manifest, the privileged
 controller saved every shot:
@@ -44,3 +44,8 @@ controller saved every shot:
 
 Its measured save rate is therefore 100%, above the 80% gate. No privileged
 controller change or removal of unsaveable shots is needed.
+
+On the corrected 216-shot `direct_launch_v2` calibration manifest, the same
+controller again saved every shot: 205 returns and 11 arrests. Inactive and
+fixed-centre each conceded 200/216, so the contact-aware gate now returns
+`GO`.

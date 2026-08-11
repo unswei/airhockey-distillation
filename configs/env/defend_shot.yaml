@@ -51,6 +51,6 @@ tracking_loss:
   trigger_approach_line: null  # Used after scripted strikes are implemented.
 
 shot_distribution:
-  config: direct_launch_v1.yaml
+  config: direct_launch_v2.yaml
   calibration_split: calibration
   status: validated_on_marvin

@@ -73,6 +73,7 @@ Reproduce the manifest and MuJoCo timing sweep with:
 
 ```bash
 python3 scripts/validate_direct_launch_distribution.py \
+  --config configs/env/direct_launch_v1.yaml \
   --split calibration \
   --simulate \
   --output /run-output/calibration.json
@@ -84,7 +85,8 @@ This validates deterministic coverage, geometry, timing and simulator
 stability. The subsequent contact-aware gate showed that the privileged
 controller saves 100% of v1, but inactive and fixed-centre concession rates are
 only 41.7% and 40.3%. The balanced target mixture therefore sends too many
-shots through the neutral mallet. Preserve v1 as evidence; a versioned v2
-should reduce centre-target weight and move near-post ranges outward while
-retaining all required regions. Direct launch also remains a development mode;
+shots through the neutral mallet. V1 is preserved as evidence and is no longer
+the default. The corrected
+[`direct_launch_v2`](direct_launch_distribution_v2.md) retains every required
+region and passes the gate. Direct launch also remains a development mode;
 physical realism must be checked again when scripted strikes are introduced.

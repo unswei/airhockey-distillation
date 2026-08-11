@@ -36,16 +36,64 @@ class NumericRange:
 @dataclass(frozen=True)
 class DistributionSplit:
     seed: int
-    shots_per_region_pair: int
     purpose: str
+    shots_per_region_pair: int | None = None
+    shots_per_target_region: tuple[tuple[str, int], ...] = ()
+    shots_per_launch_target_pair: tuple[tuple[str, int], ...] = ()
 
     def __post_init__(self) -> None:
         if self.seed < 0:
             raise ValueError("split seed must be non-negative")
-        if self.shots_per_region_pair <= 0:
-            raise ValueError("shots_per_region_pair must be positive")
         if not self.purpose:
             raise ValueError("split purpose must not be empty")
+        specified_count_modes = sum(
+            (
+                self.shots_per_region_pair is not None,
+                bool(self.shots_per_target_region),
+                bool(self.shots_per_launch_target_pair),
+            )
+        )
+        if specified_count_modes != 1:
+            raise ValueError(
+                "split must define exactly one shot-count mode"
+            )
+        if (
+            self.shots_per_region_pair is not None
+            and self.shots_per_region_pair <= 0
+        ):
+            raise ValueError("shots_per_region_pair must be positive")
+        if self.shots_per_target_region:
+            _require_unique_names(
+                self.shots_per_target_region,
+                "shots_per_target_region",
+            )
+            if any(count <= 0 for _, count in self.shots_per_target_region):
+                raise ValueError("shots_per_target_region counts must be positive")
+        if self.shots_per_launch_target_pair:
+            _require_unique_names(
+                self.shots_per_launch_target_pair,
+                "shots_per_launch_target_pair",
+            )
+            if any(count <= 0 for _, count in self.shots_per_launch_target_pair):
+                raise ValueError(
+                    "shots_per_launch_target_pair counts must be positive"
+                )
+
+    def shots_for_pair(self, launch_name: str, target_name: str) -> int:
+        if self.shots_per_region_pair is not None:
+            return self.shots_per_region_pair
+        if self.shots_per_target_region:
+            try:
+                return dict(self.shots_per_target_region)[target_name]
+            except KeyError as error:
+                raise KeyError(
+                    f"split has no count for target {target_name!r}"
+                ) from error
+        pair_name = f"{launch_name}->{target_name}"
+        try:
+            return dict(self.shots_per_launch_target_pair)[pair_name]
+        except KeyError as error:
+            raise KeyError(f"split has no count for pair {pair_name!r}") from error
 
 
 @dataclass(frozen=True)
@@ -128,6 +176,32 @@ class DirectLaunchDistribution:
         for _, region in self.goal_target_regions:
             if region.minimum <= -goal_half_width or region.maximum >= goal_half_width:
                 raise ValueError("target regions must lie inside the goal")
+        target_names = {name for name, _ in self.goal_target_regions}
+        launch_names = {name for name, _ in self.lateral_launch_regions}
+        pair_names = {
+            f"{launch_name}->{target_name}"
+            for launch_name in launch_names
+            for target_name in target_names
+        }
+        for _, split in self.splits:
+            if split.shots_per_target_region:
+                split_target_names = {
+                    name for name, _ in split.shots_per_target_region
+                }
+                if split_target_names != target_names:
+                    raise ValueError(
+                        "shots_per_target_region names must exactly match goal target "
+                        "region names"
+                    )
+            if split.shots_per_launch_target_pair:
+                split_pair_names = {
+                    name for name, _ in split.shots_per_launch_target_pair
+                }
+                if split_pair_names != pair_names:
+                    raise ValueError(
+                        "shots_per_launch_target_pair names must exactly match all "
+                        "launch/target region pairs"
+                    )
 
     def split(self, split_name: str) -> DistributionSplit:
         try:
@@ -137,10 +211,10 @@ class DirectLaunchDistribution:
 
     def expected_shot_count(self, split_name: str) -> int:
         split = self.split(split_name)
-        return (
-            len(self.lateral_launch_regions)
-            * len(self.goal_target_regions)
-            * split.shots_per_region_pair
+        return sum(
+            split.shots_for_pair(launch_name, target_name)
+            for launch_name, _ in self.lateral_launch_regions
+            for target_name, _ in self.goal_target_regions
         )
 
     def generate(self, split_name: str) -> tuple[GeneratedShot, ...]:
@@ -152,7 +226,7 @@ class DirectLaunchDistribution:
             for target_name, target_y_range in self.goal_target_regions:
                 samples = _latin_hypercube(
                     rng,
-                    rows=split.shots_per_region_pair,
+                    rows=split.shots_for_pair(launch_name, target_name),
                     columns=4,
                 )
                 for index, values in enumerate(samples):
@@ -215,6 +289,44 @@ def load_direct_launch_distribution(path: str | Path) -> DirectLaunchDistributio
     geometry = _mapping(raw, "geometry")
     sampling = _mapping(raw, "sampling")
     splits = _mapping(raw, "splits")
+    split_definitions: list[tuple[str, DistributionSplit]] = []
+    for name in splits:
+        split_raw = _mapping(splits, name)
+        uniform_count = split_raw.get("shots_per_region_pair")
+        target_counts = split_raw.get("shots_per_target_region")
+        pair_counts = split_raw.get("shots_per_launch_target_pair")
+        if target_counts is not None and not isinstance(target_counts, dict):
+            raise TypeError("shots_per_target_region must be a mapping")
+        if pair_counts is not None and not isinstance(pair_counts, dict):
+            raise TypeError("shots_per_launch_target_pair must be a mapping")
+        split_definitions.append(
+            (
+                str(name),
+                DistributionSplit(
+                    seed=int(split_raw["seed"]),
+                    purpose=str(split_raw["purpose"]),
+                    shots_per_region_pair=(
+                        int(uniform_count) if uniform_count is not None else None
+                    ),
+                    shots_per_target_region=(
+                        tuple(
+                            (str(target_name), int(count))
+                            for target_name, count in target_counts.items()
+                        )
+                        if target_counts is not None
+                        else ()
+                    ),
+                    shots_per_launch_target_pair=(
+                        tuple(
+                            (str(pair_name), int(count))
+                            for pair_name, count in pair_counts.items()
+                        )
+                        if pair_counts is not None
+                        else ()
+                    ),
+                ),
+            )
+        )
     return DirectLaunchDistribution(
         schema_version=int(raw["schema_version"]),
         distribution_id=str(raw["distribution_id"]),
@@ -238,19 +350,7 @@ def load_direct_launch_distribution(path: str | Path) -> DirectLaunchDistributio
         goal_target_regions=_named_ranges(
             sampling["goal_target_regions"], "goal_target_regions"
         ),
-        splits=tuple(
-            (
-                str(name),
-                DistributionSplit(
-                    seed=int(_mapping(splits, name)["seed"]),
-                    shots_per_region_pair=int(
-                        _mapping(splits, name)["shots_per_region_pair"]
-                    ),
-                    purpose=str(_mapping(splits, name)["purpose"]),
-                ),
-            )
-            for name in splits
-        ),
+        splits=tuple(split_definitions),
     )
 
 

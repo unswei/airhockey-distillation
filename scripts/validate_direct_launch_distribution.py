@@ -24,7 +24,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--config",
         type=Path,
-        default=Path("configs/env/direct_launch_v1.yaml"),
+        default=Path("configs/env/direct_launch_v2.yaml"),
     )
     parser.add_argument("--split", default="calibration")
     parser.add_argument("--output", type=Path)

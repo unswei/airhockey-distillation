@@ -36,7 +36,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--distribution-config",
         type=Path,
-        default=Path("configs/env/direct_launch_v1.yaml"),
+        default=Path("configs/env/direct_launch_v2.yaml"),
     )
     parser.add_argument("--distribution-split", default="calibration")
     parser.add_argument("--minimum-distinct-shots", type=int, default=200)
@@ -116,6 +116,20 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "fixed_centre": _outcome_counts(fixed_traces),
             "privileged_intercept": _outcome_counts(privileged_traces),
         }
+        report["baseline_outcome_counts_by_region_pair"] = {
+            "inactive": _outcome_counts_by_region_pair(
+                generated_shots,
+                inactive_traces,
+            ),
+            "fixed_centre": _outcome_counts_by_region_pair(
+                generated_shots,
+                fixed_traces,
+            ),
+            "privileged_intercept": _outcome_counts_by_region_pair(
+                generated_shots,
+                privileged_traces,
+            ),
+        }
         return report
     finally:
         environment.close()
@@ -133,6 +147,24 @@ def _require_finite_trace(trace: EpisodeTrace) -> None:
 
 def _outcome_counts(traces: list[EpisodeTrace]) -> dict[str, int]:
     return dict(sorted(Counter(trace.outcome for trace in traces).items()))
+
+
+def _outcome_counts_by_region_pair(
+    generated_shots: tuple[Any, ...],
+    traces: list[EpisodeTrace],
+) -> dict[str, dict[str, int]]:
+    if len(generated_shots) != len(traces):
+        raise ValueError("generated shots and traces must have equal lengths")
+    counts: dict[str, Counter[str]] = {}
+    for generated, trace in zip(generated_shots, traces, strict=True):
+        if generated.shot.shot_id != trace.shot_id:
+            raise ValueError("generated shot and trace order must match")
+        pair = f"{generated.launch_region}->{generated.target_region}"
+        counts.setdefault(pair, Counter())[trace.outcome] += 1
+    return {
+        pair: dict(sorted(outcomes.items()))
+        for pair, outcomes in sorted(counts.items())
+    }
 
 
 def main() -> None:

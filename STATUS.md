@@ -5,8 +5,8 @@ Last updated: 2026-08-11
 ## Current phase
 
 Phase 0 — source audit and reproduction complete. Phase 1 — minimal
-direct-launch set-piece slice complete. The teacher-training gate is `NO_GO`
-because `direct_launch_v1` is too easy for inactive and fixed-centre defenders.
+direct-launch set-piece slice complete. The corrected `direct_launch_v2`
+distribution passes the teacher-training gate with a `GO` decision.
 
 ## Completed
 
@@ -48,15 +48,19 @@ because `direct_launch_v1` is too easy for inactive and fixed-centre defenders.
   outcomes using MuJoCo collision events at every simulation substep.
 - Evaluated all controls on the paired 216-shot v1 manifest. The privileged
   controller saved 216/216 shots; no controller calibration was required.
+- Preserved v1 and added pair-weighted `direct_launch_v2`, retaining all nine
+  launch/target pairings while concentrating the task on physically useful
+  same-side and centre-to-near-post approaches.
+- Validated all 216 v2 calibration shots on Marvin: 0.42--0.94 s realised
+  approach times and zero faults.
+- Re-ran the paired gate on v2. Inactive and fixed-centre each conceded
+  200/216; the privileged controller saved 216/216; every check passed.
 
 ## Next actions
 
+- Run a short Dreamer training smoke test in the pinned Marvin image.
 - Add a scripted physical strike while retaining direct launch as a regression
   mode.
-- Preserve v1 and create `direct_launch_v2` with less goal-centre weight and
-  outward-shifted near-post targets so neutral defenders concede often enough.
-- Re-run the paired gate on v2.
-- Run a short Dreamer training smoke test only after the gate returns `GO`.
 - Select a backed-up artefact destination before large checkpoints or datasets.
 
 ## Commands and results
@@ -81,13 +85,13 @@ because `direct_launch_v1` is too easy for inactive and fixed-centre defenders.
 | 2026-08-11 | Simulated all calibration shots in the pinned Marvin image | 216/216 reached the approach plane in 0.40--0.94 s; zero faults |
 | 2026-08-11 | Ran the contact-aware suite in the pinned Marvin image | 32 passed |
 | 2026-08-11 | Ran the paired gate on all 216 v1 shots | `NO_GO`; inactive conceded 41.7%, fixed centre 40.3%, privileged saved 100%; all technical checks passed |
+| 2026-08-11 | Generated and simulated `direct_launch_v2` | 216 distinct shots; all reached the approach plane in 0.42--0.94 s; manifest SHA-256 `6e2b61f71135c23c2c1d459c8d90c65e8a153cc645986103d95c67b2e0c2733c` |
+| 2026-08-11 | Ran the paired gate on all 216 v2 shots | `GO`; inactive and fixed centre each conceded 92.6%, privileged saved 100%, and all technical checks passed |
 
 ## Blockers
 
 - Marvin's experiment directory is not yet backed up to a durable artefact
   store.
-- Teacher training is blocked because v1 inactive and fixed-centre concession
-  rates are below 80%; the privileged controller already passes at 100%.
 - The Blackwell image deliberately overrides Dreamer's declared JAX 0.4.33 and
   CUDA NVCC 12.2 bounds with JAX 0.5.3 and CUDA NVCC 12.9.86. Device discovery
   and interface smoke tests pass; `pip check` records the two conflicts.

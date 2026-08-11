@@ -8,11 +8,12 @@ from airhockey_distill.envs import (
     summarise_distribution,
 )
 
-CONFIG = Path("configs/env/direct_launch_v1.yaml")
+V1_CONFIG = Path("configs/env/direct_launch_v1.yaml")
+V2_CONFIG = Path("configs/env/direct_launch_v2.yaml")
 
 
 def test_calibration_split_has_balanced_216_distinct_shots() -> None:
-    distribution = load_direct_launch_distribution(CONFIG)
+    distribution = load_direct_launch_distribution(V1_CONFIG)
     shots = distribution.generate("calibration")
     summary = summarise_distribution(shots)
 
@@ -27,7 +28,7 @@ def test_calibration_split_has_balanced_216_distinct_shots() -> None:
 
 
 def test_distribution_covers_centre_posts_regions_angles_and_times() -> None:
-    distribution = load_direct_launch_distribution(CONFIG)
+    distribution = load_direct_launch_distribution(V1_CONFIG)
     shots = distribution.generate("calibration")
     launch_regions = {shot.launch_region for shot in shots}
     target_regions = {shot.target_region for shot in shots}
@@ -48,7 +49,7 @@ def test_distribution_covers_centre_posts_regions_angles_and_times() -> None:
 
 
 def test_velocity_reaches_approach_plane_on_time_and_goal_target_on_line() -> None:
-    distribution = load_direct_launch_distribution(CONFIG)
+    distribution = load_direct_launch_distribution(V1_CONFIG)
     for generated in distribution.generate("calibration"):
         position_x, position_y = generated.shot.position_table_xy
         velocity_x, velocity_y = generated.shot.velocity_table_xy
@@ -63,7 +64,7 @@ def test_velocity_reaches_approach_plane_on_time_and_goal_target_on_line() -> No
 
 
 def test_split_manifests_are_deterministic_and_independent() -> None:
-    distribution = load_direct_launch_distribution(CONFIG)
+    distribution = load_direct_launch_distribution(V1_CONFIG)
     first = distribution.generate("calibration")
     second = distribution.generate("calibration")
     validation = distribution.generate("validation")
@@ -71,6 +72,28 @@ def test_split_manifests_are_deterministic_and_independent() -> None:
     assert manifest_sha256(first) == manifest_sha256(second)
     assert [shot.as_dict() for shot in first] == [shot.as_dict() for shot in second]
     assert manifest_sha256(first) != manifest_sha256(validation)
+    assert distribution.expected_shot_count("train") == 900
+    assert distribution.expected_shot_count("validation") == 225
+    assert distribution.expected_shot_count("test") == 225
+
+
+def test_v2_calibration_preserves_coverage_but_emphasises_near_posts() -> None:
+    distribution = load_direct_launch_distribution(V2_CONFIG)
+    shots = distribution.generate("calibration")
+    summary = summarise_distribution(shots)
+
+    assert len(shots) == 216
+    assert summary["distinct_shot_ids"] == 216
+    assert summary["manifest_sha256"] == (
+        "6e2b61f71135c23c2c1d459c8d90c65e8a153cc645986103d95c67b2e0c2733c"
+    )
+    assert set(summary["launch_region_counts"].values()) == {72}
+    assert summary["target_region_counts"] == {
+        "goal_centre": 12,
+        "near_post_left": 102,
+        "near_post_right": 102,
+    }
+    assert set(summary["region_pair_counts"].values()) == {2, 4, 34, 66}
     assert distribution.expected_shot_count("train") == 900
     assert distribution.expected_shot_count("validation") == 225
     assert distribution.expected_shot_count("test") == 225

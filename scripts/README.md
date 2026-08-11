@@ -16,8 +16,8 @@ workflow.
   privileged controls on the deterministic direct-launch slice and verifies a
   repeated public trajectory.
 - `run_teacher_gate.py [--output PATH]` runs the fail-closed pre-training gate.
-  It uses the `direct_launch_v1` calibration split by default and exits with
-  status 2 when any criterion fails or lacks enough evidence.
+  It uses the validated `direct_launch_v2` calibration split by default and
+  exits with status 2 when any criterion fails or lacks enough evidence.
 - `validate_direct_launch_distribution.py` materialises a versioned shot
   manifest and optionally measures all approach times in MuJoCo with
   `--simulate`.
