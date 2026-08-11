@@ -56,7 +56,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     blackouts = tuple(int(value) for value in evaluation["blackout_steps"])
     reward_specification = load_defence_reward(dataset["reward_config"])
     environment = DefendShotTrackingLoss(
-        reward_tracker=DefenceRewardTracker(reward_specification)
+        reward_tracker=DefenceRewardTracker(reward_specification),
+        action_lock_steps=int(dataset.get("action_lock_steps", 0)),
     )
 
     episodes: list[dict[str, Any]] = []

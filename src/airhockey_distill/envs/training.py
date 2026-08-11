@@ -3,19 +3,20 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import ClassVar
 
 import numpy as np
 
 from .defend_shot import DefendShotTrackingLoss, DirectLaunchBackend
-from .shot_distribution import load_direct_launch_distribution
 from .reward import DefenceRewardTracker, load_defence_reward
+from .shot_distribution import load_direct_launch_distribution
 from .tracking_loss import BlackoutSchedule
 
 
 class DirectLaunchTrainingEnv(DefendShotTrackingLoss):
     """Sample versioned shots and blackout lengths without policy leakage."""
 
-    metadata = {"render_modes": ["rgb_array"]}
+    metadata: ClassVar[dict[str, list[str]]] = {"render_modes": ["rgb_array"]}
 
     def __init__(
         self,
@@ -27,6 +28,7 @@ class DirectLaunchTrainingEnv(DefendShotTrackingLoss):
         blackout_start_observation_step: int = 5,
         minimum_blackout_steps: int = 0,
         maximum_blackout_steps: int = 20,
+        action_lock_steps: int = 0,
         backend: DirectLaunchBackend | None = None,
         render_mode: str | None = None,
     ) -> None:
@@ -58,6 +60,7 @@ class DirectLaunchTrainingEnv(DefendShotTrackingLoss):
                 length_steps=minimum_blackout_steps,
             ),
             reward_tracker=DefenceRewardTracker(load_defence_reward(reward_config)),
+            action_lock_steps=action_lock_steps,
         )
 
     def reset(

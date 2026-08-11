@@ -10,6 +10,97 @@ import numpy as np
 SAVE_OUTCOMES = frozenset({"returned", "arrested", "safe_deflection"})
 
 
+def evaluate_causal_memory_ablation(
+    recurrent_episodes: Sequence[Mapping[str, Any]],
+    reset_episodes: Sequence[Mapping[str, Any]],
+    config: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Measure the paired effect of erasing teacher state at blackout onset."""
+
+    recurrent = _index(recurrent_episodes)
+    reset = _index(reset_episodes)
+    if set(recurrent) != set(reset):
+        raise ValueError("recurrent and reset-at-blackout episode keys differ")
+    rng = np.random.default_rng(int(config["bootstrap_seed"]))
+    samples = int(config["bootstrap_samples"])
+    by_blackout: dict[str, Any] = {}
+    for blackout in sorted({key[1] for key in recurrent}):
+        keys = sorted(key for key in recurrent if key[1] == blackout)
+        recurrent_saved = np.asarray(
+            [recurrent[key]["outcome"] in SAVE_OUTCOMES for key in keys],
+            dtype=np.float64,
+        )
+        reset_saved = np.asarray(
+            [reset[key]["outcome"] in SAVE_OUTCOMES for key in keys],
+            dtype=np.float64,
+        )
+        differences = recurrent_saved - reset_saved
+        bootstrap = differences[
+            rng.integers(0, len(differences), size=(samples, len(differences)))
+        ].mean(axis=1)
+        by_blackout[str(blackout)] = {
+            "episodes": len(keys),
+            "recurrent_save_rate": float(recurrent_saved.mean()),
+            "reset_at_blackout_save_rate": float(reset_saved.mean()),
+            "paired_save_rate_drop": float(differences.mean()),
+            "paired_save_rate_drop_ci95": [
+                float(np.quantile(bootstrap, 0.025)),
+                float(np.quantile(bootstrap, 0.975)),
+            ],
+        }
+
+    no_blackout_keys = sorted(key for key in recurrent if key[1] == 0)
+    identical_no_blackout = all(
+        recurrent[key]["outcome"] == reset[key]["outcome"]
+        and recurrent[key]["steps"] == reset[key]["steps"]
+        and recurrent[key]["score"] == reset[key]["score"]
+        for key in no_blackout_keys
+    )
+    long = by_blackout[str(int(config["long_blackout_steps"]))]
+    checks = [
+        _check(
+            "material_long_blackout_reset_drop",
+            long["paired_save_rate_drop"]
+            >= float(config["minimum_long_blackout_save_rate_drop"]),
+            long["paired_save_rate_drop"],
+            f">= {config['minimum_long_blackout_save_rate_drop']}",
+        )
+    ]
+    if bool(config["require_positive_long_drop_ci_lower"]):
+        checks.append(
+            _check(
+                "positive_long_blackout_reset_drop_ci",
+                long["paired_save_rate_drop_ci95"][0] > 0.0,
+                long["paired_save_rate_drop_ci95"][0],
+                "> 0.0",
+            )
+        )
+    if bool(config["require_identical_no_blackout_outcomes"]):
+        checks.append(
+            {
+                "check_id": "identical_no_blackout_control",
+                "passed": identical_no_blackout,
+                "observed": identical_no_blackout,
+                "required": "true",
+            }
+        )
+    blocking = [check["check_id"] for check in checks if not check["passed"]]
+    return {
+        "schema_version": 1,
+        "decision": "GO" if not blocking else "NO_GO",
+        "interpretation": (
+            "causal ablation supports use of recurrent state during blackout"
+            if not blocking
+            else "causal ablation does not yet establish use of recurrent state"
+        ),
+        "paired_episode_count": len(recurrent),
+        "identical_no_blackout_control": identical_no_blackout,
+        "by_blackout_steps": by_blackout,
+        "checks": checks,
+        "blocking_checks": blocking,
+    }
+
+
 def evaluate_memory_gate(
     teacher_episodes: Sequence[Mapping[str, Any]],
     feed_forward_episodes: Sequence[Mapping[str, Any]],

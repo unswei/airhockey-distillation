@@ -45,7 +45,7 @@ def parse_args() -> argparse.Namespace:
 def run(args: argparse.Namespace) -> dict[str, Any]:
     config = _load_config(args.config)
     if not isinstance(config.get(args.profile), dict):
-        raise ValueError(f"unknown teacher training profile {args.profile!r}")
+        raise TypeError(f"unknown teacher training profile {args.profile!r}")
     run_config = config[args.profile]
     training = config["training"]
     output = args.output.resolve()
@@ -98,6 +98,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             ),
             minimum_blackout_steps=int(training["minimum_blackout_steps"]),
             maximum_blackout_steps=int(training["maximum_blackout_steps"]),
+            action_lock_steps=int(training.get("action_lock_steps", 0)),
             **kwargs,
         )
 
@@ -116,8 +117,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     try:
         import elements
         import embodied
-        from embodied.envs import from_gymnasium
         from dreamerv3 import main as dreamer_main
+        from embodied.envs import from_gymnasium
 
         # The pinned fork references elements.Space without importing elements.
         from_gymnasium.elements = elements
@@ -158,12 +159,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     metrics_path = dreamer_logdir / "metrics.jsonl"
     metrics = _read_json_lines(metrics_path)
     training_metric_keys = sorted(
-        {
-            key
-            for record in metrics
-            for key in record
-            if key.startswith("train/")
-        }
+        {key for record in metrics for key in record if key.startswith("train/")}
     )
     checkpoints = list_complete_checkpoints(dreamer_logdir / "ckpt")
     episode_scores = [

@@ -10,6 +10,7 @@ from airhockey_distill.envs import (
 
 V1_CONFIG = Path("configs/env/direct_launch_v1.yaml")
 V2_CONFIG = Path("configs/env/direct_launch_v2.yaml")
+V3_CONFIG = Path("configs/env/direct_launch_v3.yaml")
 
 
 def test_calibration_split_has_balanced_216_distinct_shots() -> None:
@@ -97,3 +98,63 @@ def test_v2_calibration_preserves_coverage_but_emphasises_near_posts() -> None:
     assert distribution.expected_shot_count("train") == 900
     assert distribution.expected_shot_count("validation") == 225
     assert distribution.expected_shot_count("test") == 225
+
+
+def test_v3_calibration_contains_paired_alias_families_and_support_shots() -> None:
+    distribution = load_direct_launch_distribution(V3_CONFIG)
+    shots = distribution.generate("calibration")
+    summary = summarise_distribution(shots)
+    aliases = [shot for shot in shots if shot.alias_family_id is not None]
+
+    assert len(shots) == 216
+    assert len(aliases) == 180
+    assert len({shot.alias_family_id for shot in aliases}) == 90
+    assert summary["alias_shot_count"] == 180
+    assert summary["alias_family_count"] == 90
+    assert summary["manifest_sha256"] == (
+        "359b093d97d213d52764ad553b9c81478296d8600a9edd7379edc005bcd88c9a"
+    )
+    assert summary["launch_region_counts"] == {
+        "centre": 180,
+        "left": 18,
+        "right": 18,
+    }
+    assert summary["target_region_counts"] == {
+        "goal_centre": 8,
+        "near_post_left": 104,
+        "near_post_right": 104,
+    }
+    assert distribution.expected_shot_count("train") == 900
+    assert distribution.expected_shot_count("validation") == 225
+    assert distribution.expected_shot_count("test") == 225
+
+
+def test_v3_alias_pairs_share_nominal_blackout_position_but_diverge_to_posts() -> None:
+    distribution = load_direct_launch_distribution(V3_CONFIG)
+    aliasing = distribution.observation_aliasing
+    assert aliasing is not None
+    families: dict[str, list[object]] = {}
+    for generated in distribution.generate("calibration"):
+        if generated.alias_family_id is not None:
+            families.setdefault(generated.alias_family_id, []).append(generated)
+
+    for family in families.values():
+        assert len(family) == 2
+        first, second = family
+        assert {first.target_region, second.target_region} == {
+            "near_post_left",
+            "near_post_right",
+        }
+        positions = []
+        for generated in family:
+            initial = np.asarray(generated.shot.position_table_xy)
+            velocity = np.asarray(generated.shot.velocity_table_xy)
+            positions.append(initial + velocity * aliasing.rendezvous_time_seconds)
+        np.testing.assert_allclose(positions[0], positions[1], atol=1e-11)
+        np.testing.assert_allclose(
+            positions[0], first.nominal_blackout_start_table_xy, atol=1e-11
+        )
+        assert abs(first.target_goal_y - second.target_goal_y) >= 0.176
+        assert np.sign(first.shot.velocity_table_xy[1]) != np.sign(
+            second.shot.velocity_table_xy[1]
+        )

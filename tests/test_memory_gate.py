@@ -1,6 +1,9 @@
 import pytest
 
-from airhockey_distill.evaluation import evaluate_memory_gate
+from airhockey_distill.evaluation import (
+    evaluate_causal_memory_ablation,
+    evaluate_memory_gate,
+)
 
 
 def episode(shot: int, blackout: int, saved: bool) -> dict[str, object]:
@@ -59,3 +62,35 @@ def test_memory_gate_rejects_unpaired_results() -> None:
             [episode(1, 0, True)],
             gate_config(),
         )
+
+
+def test_causal_ablation_gate_requires_paired_long_blackout_drop() -> None:
+    recurrent = []
+    reset = []
+    for shot in range(100):
+        recurrent.extend(
+            [
+                {**episode(shot, 0, shot < 85), "steps": 20, "score": 1.0},
+                {**episode(shot, 20, shot < 80), "steps": 20, "score": 1.0},
+            ]
+        )
+        reset.extend(
+            [
+                {**episode(shot, 0, shot < 85), "steps": 20, "score": 1.0},
+                {**episode(shot, 20, shot < 55), "steps": 20, "score": 1.0},
+            ]
+        )
+    config = {
+        "long_blackout_steps": 20,
+        "minimum_long_blackout_save_rate_drop": 0.10,
+        "require_positive_long_drop_ci_lower": True,
+        "require_identical_no_blackout_outcomes": True,
+        "bootstrap_samples": 1000,
+        "bootstrap_seed": 11303,
+    }
+
+    report = evaluate_causal_memory_ablation(recurrent, reset, config)
+
+    assert report["decision"] == "GO"
+    assert report["identical_no_blackout_control"] is True
+    assert report["by_blackout_steps"]["20"]["paired_save_rate_drop"] == 0.25

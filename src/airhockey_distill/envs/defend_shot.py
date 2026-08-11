@@ -11,7 +11,11 @@ import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
 from .outcomes import ContactAwareOutcomeTracker
-from .policy_interface import PlanarActionAdapter, PublicObservationAdapter
+from .policy_interface import (
+    END_EFFECTOR_XY_SLICE,
+    PlanarActionAdapter,
+    PublicObservationAdapter,
+)
 from .reward import DefenceRewardTracker
 from .shot import DEFAULT_DIRECT_LAUNCH_SHOT, ShotSpec
 from .tracking_loss import BlackoutSchedule
@@ -211,9 +215,12 @@ class DefendShotTrackingLoss(gym.Env[NDArray[np.float32], NDArray[np.float32]]):
         action_adapter: PlanarActionAdapter | None = None,
         outcome_tracker: ContactAwareOutcomeTracker | None = None,
         reward_tracker: DefenceRewardTracker | None = None,
+        action_lock_steps: int = 0,
     ) -> None:
         if timeout_steps <= 0:
             raise ValueError("timeout_steps must be positive")
+        if action_lock_steps < 0:
+            raise ValueError("action_lock_steps must be non-negative")
         self.backend = backend if backend is not None else MujocoDirectLaunchBackend()
         self.blackout = blackout if blackout is not None else BlackoutSchedule()
         self.timeout_steps = timeout_steps
@@ -221,6 +228,7 @@ class DefendShotTrackingLoss(gym.Env[NDArray[np.float32], NDArray[np.float32]]):
         self.action_adapter = action_adapter or PlanarActionAdapter()
         self.outcome_tracker = outcome_tracker or ContactAwareOutcomeTracker()
         self.reward_tracker = reward_tracker or DefenceRewardTracker()
+        self.action_lock_steps = action_lock_steps
         self.observation_space = gym.spaces.Box(
             low=-1.0,
             high=1.0,
@@ -273,7 +281,10 @@ class DefendShotTrackingLoss(gym.Env[NDArray[np.float32], NDArray[np.float32]]):
         if self._episode_done:
             raise RuntimeError("reset must be called after an episode ends")
 
-        upstream_action = self.action_adapter.adapt(planar_action)
+        action = planar_action
+        if self._observation_step < self.action_lock_steps:
+            action = self._public_observation()[END_EFFECTOR_XY_SLICE]
+        upstream_action = self.action_adapter.adapt(action)
         self._snapshot = self.backend.step(upstream_action)
         self._observation_step += 1
         self._outcome = self.outcome_tracker.observe(
@@ -330,6 +341,7 @@ class DefendShotTrackingLoss(gym.Env[NDArray[np.float32], NDArray[np.float32]]):
             "shot_id": self._shot.shot_id,
             "observation_step": self._observation_step,
             "puck_visible": self.blackout.is_visible(self._observation_step),
+            "action_locked": self._observation_step < self.action_lock_steps,
         }
 
 

@@ -49,6 +49,12 @@ workflow.
 - `run_stage_b_memory_gate.py` pairs outcomes by shot and blackout, bootstraps
   the teacher advantage and applies the predeclared memory criteria in
   `configs/student/feed_forward_stage_b.yaml`.
+- `audit_observation_aliasing.py` measures realised paired puck positions,
+  hidden public observations and divergent privileged actions for v3.
+- `run_teacher_readiness_gate.py` applies the frozen v3 no-blackout, overall
+  and long-blackout teacher thresholds before new demonstration collection.
+- `run_causal_memory_ablation_gate.py` measures the paired effect of erasing
+  Dreamer state exactly when blackout begins.
 
 The build and rendering scripts are intended to run on Marvin. They fail on a
 missing prerequisite and the video script refuses to overwrite its primary

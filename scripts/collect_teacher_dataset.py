@@ -70,6 +70,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             ),
             minimum_blackout_steps=int(dataset["minimum_blackout_steps"]),
             maximum_blackout_steps=int(dataset["maximum_blackout_steps"]),
+            action_lock_steps=int(dataset.get("action_lock_steps", 0)),
             **kwargs,
         )
 

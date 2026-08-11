@@ -1,0 +1,88 @@
+schema_version: 1
+status: stage_b_v2_predeclared
+
+policy:
+  type: feed_forward
+  observation_dimension: 19
+  encoder_hidden_widths: [64, 32]
+  encoder_activation: silu
+  action_head_hidden_width: 64
+  action_dimension: 2
+  action_output: tanh
+  previous_action: false
+  recurrent_state: false
+
+task:
+  distribution_config: configs/env/direct_launch_v3.yaml
+  distribution_split: validation
+  blackout_start_observation_step: 5
+  action_lock_steps: 5
+
+alias_gate:
+  minimum_alias_families: 90
+  maximum_last_visible_separation_metres: 0.01
+  maximum_hidden_public_difference: 0.000001
+  minimum_privileged_action_distance: 0.25
+
+teacher_readiness:
+  minimum_no_blackout_save_rate: 0.85
+  minimum_overall_save_rate: 0.80
+  minimum_long_blackout_save_rate: 0.70
+  maximum_simulator_faults: 0
+
+dataset:
+  id: teacher_v3_stage_b_v2
+  distribution_config: configs/env/direct_launch_v3.yaml
+  distribution_split: train
+  reward_config: configs/reward/defend_shot_v1.yaml
+  sampling_seed: 8303
+  blackout_start_observation_step: 5
+  minimum_blackout_steps: 0
+  maximum_blackout_steps: 20
+  action_lock_steps: 5
+  episodes: 20000
+  episodes_per_shard: 500
+  episode_split_modulus: 10
+  train_residues: [0, 1, 2, 3, 4, 5, 6, 7]
+  validation_residues: [8]
+  test_residues: [9]
+
+training:
+  seed: 9303
+  batch_size: 4096
+  maximum_epochs: 100
+  patience_epochs: 10
+  learning_rate: 0.0003
+  weight_decay: 0.00001
+  gradient_clip_global_norm: 1.0
+  selection_metric: validation_action_mse
+
+evaluation:
+  distribution_config: configs/env/direct_launch_v3.yaml
+  distribution_split: validation
+  shot_count: 225
+  blackout_steps: [0, 5, 10, 15, 20]
+
+memory_gate:
+  long_blackout_steps: 20
+  minimum_feed_forward_no_blackout_save_rate: 0.75
+  maximum_no_blackout_teacher_advantage: 0.10
+  minimum_long_blackout_teacher_advantage: 0.15
+  minimum_advantage_growth: 0.10
+  require_positive_long_advantage_ci_lower: true
+  bootstrap_samples: 10000
+  bootstrap_seed: 10303
+
+causal_ablation_gate:
+  long_blackout_steps: 20
+  minimum_long_blackout_save_rate_drop: 0.10
+  require_positive_long_drop_ci_lower: true
+  require_identical_no_blackout_outcomes: true
+  bootstrap_samples: 10000
+  bootstrap_seed: 11303
+
+provenance:
+  candidate_teacher_training_run: teacher-full-v1-2026-08-12-v2
+  candidate_teacher_checkpoint_step: 720000
+  stage_b_v1_result: results/stage_b_memory_validation_v1.json
+  container_digest: sha256:de846e25961d2408db73a6b5cfe2afc7ecf0e14e0e8ac837f97212a180e51d5f

@@ -45,13 +45,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--code-commit", required=True)
     parser.add_argument("--profile", default="diagnostic")
+    parser.add_argument("--reset-carry-at-blackout-start", action="store_true")
     return parser.parse_args()
 
 
 def run(args: argparse.Namespace) -> dict[str, Any]:
     config = _load_config(args.config)
     if not isinstance(config.get(args.profile), dict):
-        raise ValueError(f"unknown teacher profile {args.profile!r}")
+        raise TypeError(f"unknown teacher profile {args.profile!r}")
     profile = config[args.profile]
     evaluation_name = str(profile.get("evaluation", "evaluation"))
     evaluation = config[evaluation_name]
@@ -73,6 +74,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             sampling_seed=int(training["sampling_seed"]),
             minimum_blackout_steps=0,
             maximum_blackout_steps=0,
+            action_lock_steps=int(training.get("action_lock_steps", 0)),
             **kwargs,
         )
 
@@ -89,9 +91,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         (Path(dreamer_agent.__file__).parent / "configs.yaml").read_text()
     )
     dreamer_config = elements.Config(upstream["defaults"])
-    dreamer_config = dreamer_config.update(
-        upstream[str(profile["model_preset"])]
-    )
+    dreamer_config = dreamer_config.update(upstream[str(profile["model_preset"])])
     dreamer_config = dreamer_config.update(
         {
             "task": f"gymnasium_{ENVIRONMENT_ID}",
@@ -119,15 +119,14 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         loader.agent = agent
         loader.load(checkpoint, keys=["agent"])
 
-    distribution = load_direct_launch_distribution(
-        evaluation["distribution_config"]
-    )
+    distribution = load_direct_launch_distribution(evaluation["distribution_config"])
     generated = distribution.generate(evaluation["distribution_split"])
     selected = _select_evenly(generated, int(evaluation["shot_count"]))
     blackouts = tuple(int(value) for value in evaluation["blackout_steps"])
     reward_specification = load_defence_reward(training["reward_config"])
     environment = DefendShotTrackingLoss(
-        reward_tracker=DefenceRewardTracker(reward_specification)
+        reward_tracker=DefenceRewardTracker(reward_specification),
+        action_lock_steps=int(training.get("action_lock_steps", 0)),
     )
 
     episodes: list[dict[str, Any]] = []
@@ -149,6 +148,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 outcome = "rollout_limit"
                 is_first = True
                 while steps < environment.timeout_steps:
+                    if (
+                        args.reset_carry_at_blackout_start
+                        and blackout_steps > 0
+                        and steps == int(training["blackout_start_observation_step"])
+                    ):
+                        carry = agent.init_policy(1)
                     policy_observation = {
                         "image": np.asarray([observation], dtype=np.float32),
                         "reward": np.asarray([reward], dtype=np.float32),
@@ -164,8 +169,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                     )
                     inference_seconds.append(perf_counter() - before)
                     action = np.asarray(actions["action"])[0]
-                    observation, reward, terminated, truncated, info = (
-                        environment.step(action)
+                    observation, reward, terminated, truncated, info = environment.step(
+                        action
                     )
                     score += float(reward)
                     steps += 1
@@ -190,7 +195,14 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     result = {
         "status": "completed",
         "created_at": datetime.now(UTC).isoformat(),
-        "policy": "checkpoint" if checkpoint is not None else "untrained",
+        "policy": (
+            "checkpoint_reset_at_blackout"
+            if checkpoint is not None and args.reset_carry_at_blackout_start
+            else "checkpoint"
+            if checkpoint is not None
+            else "untrained"
+        ),
+        "reset_carry_at_blackout_start": args.reset_carry_at_blackout_start,
         "profile": args.profile,
         "checkpoint": str(checkpoint) if checkpoint is not None else None,
         "checkpoint_step": (
@@ -216,7 +228,7 @@ def _select_evenly(values: tuple[Any, ...], count: int) -> tuple[Any, ...]:
     if count <= 0 or count > len(values):
         raise ValueError("evaluation shot count must lie inside the split size")
     indices = np.linspace(0, len(values) - 1, num=count, dtype=int)
-    if len(set(int(index) for index in indices)) != count:
+    if len({int(index) for index in indices}) != count:
         raise ValueError("evaluation shot selection produced duplicate indices")
     return tuple(values[int(index)] for index in indices)
 

@@ -42,6 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--minimum-distinct-shots", type=int, default=200)
     parser.add_argument("--minimum-rate", type=float, default=0.8)
     parser.add_argument("--reliability-episodes", type=int, default=20)
+    parser.add_argument("--action-lock-steps", type=int, default=0)
     return parser.parse_args()
 
 
@@ -55,7 +56,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         minimum_privileged_save_rate=args.minimum_rate,
         minimum_reliability_episodes=args.reliability_episodes,
     )
-    environment = DefendShotTrackingLoss()
+    environment = DefendShotTrackingLoss(action_lock_steps=args.action_lock_steps)
     try:
         inactive = InactiveController()
         fixed = FixedCentreController(environment.ee_workspace_xy)

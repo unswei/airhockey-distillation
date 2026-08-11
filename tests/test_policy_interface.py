@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+from airhockey_distill.envs import DefendShotTrackingLoss
 from airhockey_distill.envs.policy_interface import (
     END_EFFECTOR_XY_SLICE,
     PUCK_POSITION_XY_SLICE,
@@ -10,6 +11,8 @@ from airhockey_distill.envs.policy_interface import (
     denormalise_planar_position,
     normalise_planar_position,
 )
+
+from .fakes import FakeDirectLaunchBackend
 
 
 def upstream_observation() -> np.ndarray:
@@ -90,3 +93,26 @@ def test_adapters_reject_wrong_shapes() -> None:
 
 def test_end_effector_slice_is_separate_from_puck_position() -> None:
     assert END_EFFECTOR_XY_SLICE.stop == PUCK_POSITION_XY_SLICE.start
+
+
+def test_locked_prefix_ignores_policy_actions_then_releases_control() -> None:
+    backend = FakeDirectLaunchBackend()
+    environment = DefendShotTrackingLoss(backend, action_lock_steps=2)
+    try:
+        _, reset_info = environment.reset()
+        _, _, _, _, first_info = environment.step((1.0, 1.0))
+        environment.step((1.0, 1.0))
+        environment.step((1.0, 1.0))
+
+        assert reset_info["action_locked"] is True
+        assert first_info["action_locked"] is True
+        np.testing.assert_allclose(backend.actions[0][:2], (-0.85, 0.0))
+        np.testing.assert_allclose(backend.actions[1][:2], (-0.85, 0.0))
+        np.testing.assert_array_equal(backend.actions[2][:2], (1.0, 1.0))
+    finally:
+        environment.close()
+
+
+def test_negative_action_lock_is_rejected() -> None:
+    with pytest.raises(ValueError, match="action_lock_steps"):
+        DefendShotTrackingLoss(FakeDirectLaunchBackend(), action_lock_steps=-1)

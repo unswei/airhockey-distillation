@@ -1,0 +1,84 @@
+schema_version: 1
+status: stage_b_v2_predeclared
+
+teacher:
+  type: dreamerv3
+  deterministic_evaluation: true
+  observation_stack: false
+  privileged_state: false
+  puck_velocity: false
+  selection_metric: validation_save_rate_across_blackouts
+  upstream_config: defaults plus size1m
+
+training:
+  distribution_config: configs/env/direct_launch_v3.yaml
+  distribution_split: train
+  reward_config: configs/reward/defend_shot_v1.yaml
+  sampling_seed: 5303
+  blackout_start_observation_step: 5
+  minimum_blackout_steps: 0
+  maximum_blackout_steps: 20
+  action_lock_steps: 5
+  reward: defend_shot_v1
+
+smoke:
+  seed: 6303
+  model_preset: size1m
+  steps: 1000
+  batch_size: 4
+  batch_length: 16
+  report_length: 8
+  replay_size: 10000
+  train_ratio: 8.0
+  log_every: 1
+  report_every: 3600
+  save_every: 900
+  checkpoint_every_steps: 500
+  checkpoint_keep: 4
+
+probe:
+  seed: 7201
+  model_preset: size1m
+  batch_size: 16
+  batch_length: 64
+  report_length: 32
+  evaluation: evaluation
+  purpose: evaluate the frozen v2 teacher before deciding on v3 retraining
+
+full:
+  seed: 7303
+  model_preset: size1m
+  steps: 1000000
+  batch_size: 16
+  batch_length: 64
+  report_length: 32
+  replay_size: 2000000
+  replay_fractions:
+    uniform: 0.2
+    priority: 0.6
+    recency: 0.2
+  train_ratio: 80.0
+  envs: 1
+  log_every: 120
+  report_every: 600
+  save_every: 1800
+  checkpoint_every_steps: 20000
+  checkpoint_keep: 64
+  debug: true
+  evaluation: evaluation
+  purpose: retrain only if the frozen teacher fails v3 readiness
+
+evaluation:
+  distribution_config: configs/env/direct_launch_v3.yaml
+  distribution_split: validation
+  shot_count: 225
+  blackout_steps: [0, 5, 10, 15, 20]
+
+provenance:
+  parent_teacher_run: teacher-full-v1-2026-08-12-v2
+  parent_teacher_checkpoint_step: 720000
+  drl_air_hockey_commit: a41081c4c3860877d7553c7eb9e84c1b7f5f7da0
+  air_hockey_challenge_commit: 34729081d4327141dcf560c0fb8274cd4882e82c
+  dreamerv3_repository: https://github.com/AndrejOrsula/dreamerv3
+  dreamerv3_commit: 4049794d4135e41c691f18da38a9af7541b01553
+  container_digest: sha256:de846e25961d2408db73a6b5cfe2afc7ecf0e14e0e8ac837f97212a180e51d5f

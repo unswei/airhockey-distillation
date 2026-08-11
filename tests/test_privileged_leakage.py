@@ -20,7 +20,12 @@ def test_public_reset_and_step_do_not_expose_privileged_state() -> None:
 
     observation, info = environment.reset(shot=DEFAULT_DIRECT_LAUNCH_SHOT)
     assert not public_info_has_privileged_state(info)
-    assert set(info) == {"shot_id", "observation_step", "puck_visible"}
+    assert set(info) == {
+        "shot_id",
+        "observation_step",
+        "puck_visible",
+        "action_locked",
+    }
     np.testing.assert_array_equal(observation[PUCK_POSITION_XY_SLICE], (0.0, 0.0))
 
     next_observation, _, _, _, next_info = environment.step((0.0, 0.0))

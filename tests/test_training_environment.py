@@ -21,7 +21,12 @@ def test_training_reset_samples_only_train_shots_and_configured_blackouts() -> N
         for _ in range(30):
             _, info = environment.reset()
             sampled.append((info["shot_id"], environment.blackout.length_steps))
-            assert set(info) == {"shot_id", "observation_step", "puck_visible"}
+            assert set(info) == {
+                "shot_id",
+                "observation_step",
+                "puck_visible",
+                "action_locked",
+            }
 
         assert all(shot_id.startswith("direct_launch_v2:train:") for shot_id, _ in sampled)
         assert all(0 <= length <= 20 for _, length in sampled)
