@@ -24,9 +24,10 @@ hashes and retrieval instructions here.
 ## Execution environment
 
 Development files may be edited locally, but code and experiments are run on
-the `marvin` Linux box. Marvin's exact checkout path, accelerator details,
-container digest and package versions will be recorded during the upstream
-audit; see [`docs/marvin.md`](docs/marvin.md).
+the `marvin` Linux box. Marvin's checkout and artefact paths, accelerator
+details, container digest and upstream reproduction are recorded in
+[`docs/marvin.md`](docs/marvin.md) and
+[`docs/upstream_audit.md`](docs/upstream_audit.md).
 
 No GitHub remote or deployment path is configured yet.
 
@@ -44,8 +45,10 @@ STATUS.md                 Commands, results, decisions and blockers
 UPSTREAM.md               Dependency commits and licence obligations
 ```
 
-The first implementation milestone is a minimal vertical slice: one shot, one
-blackout, teacher inference, one `k = 2` student and one evaluation episode.
+The upstream audit is complete. The next implementation milestone is the
+set-piece environment and its controls, followed by a minimal vertical slice:
+one shot, one blackout, teacher inference, one `k = 2` student and one
+evaluation episode.
 
 ## Scientific guardrails
 

@@ -1,0 +1,31 @@
+# syntax=docker/dockerfile:1
+ARG PARENT_IMAGE=marvin/air-hockey-challenge:2025-34729081d432-rebuilt
+FROM ${PARENT_IMAGE}
+
+SHELL ["/bin/bash", "-c"]
+
+ARG SOURCE_COMMIT
+ARG DREAMER_REMOTE=https://github.com/AndrejOrsula/dreamerv3.git
+ARG DREAMER_COMMIT=4049794d4135e41c691f18da38a9af7541b01553
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT}" \
+      org.opencontainers.image.source="https://github.com/AndrejOrsula/drl_air_hockey" \
+      au.edu.unsw.airhockey.dreamerv3.revision="${DREAMER_COMMIT}"
+
+RUN git clone "${DREAMER_REMOTE}" /src/dreamerv3 && \
+    git -C /src/dreamerv3 reset --hard "${DREAMER_COMMIT}" && \
+    python3 -m pip install --no-input --no-cache-dir --editable /src/dreamerv3
+
+COPY . /src/drl_air_hockey
+RUN python3 -m pip install \
+        --no-input \
+        --no-cache-dir \
+        --editable /src/drl_air_hockey && \
+    python3 -m pip install \
+        --no-input \
+        --no-cache-dir \
+        "jax[cuda12]==0.5.3" \
+        "nlopt==2.7.1" \
+        "opencv-python==4.11.0.86"
+
+WORKDIR /src
+CMD ["python3", "-O", "/src/2025-challenge/run.py"]

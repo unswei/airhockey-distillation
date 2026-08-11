@@ -1,0 +1,30 @@
+diff --git a/drl_air_hockey/dreamer/__main__.py b/drl_air_hockey/dreamer/__main__.py
+index 8139fce..8c4299a 100755
+--- a/drl_air_hockey/dreamer/__main__.py
++++ b/drl_air_hockey/dreamer/__main__.py
+@@ -110 +110,4 @@ def run_agent_with_env(
+-    env.close()
++    # Training consumes the environment factory and closes its own instances;
++    # the other agent workflows receive an instantiated environment.
++    if hasattr(env, "close"):
++        env.close()
+@@ -363 +366,12 @@ def _make_env(
+-            _original_step = AirHockeyChallengeWrapper.step
++            # Training constructs more than one environment in the same process.
++            # Keep the unwrapped methods so repeated construction does not split
++            # and process observations multiple times.
++            if not hasattr(AirHockeyChallengeWrapper, "_drl_original_step"):
++                AirHockeyChallengeWrapper._drl_original_step = (  # type: ignore[attr-defined]
++                    AirHockeyChallengeWrapper.step
++                )
++                AirHockeyChallengeWrapper._drl_original_reset = (  # type: ignore[attr-defined]
++                    AirHockeyChallengeWrapper.reset
++                )
++
++            _original_step = AirHockeyChallengeWrapper._drl_original_step  # type: ignore[attr-defined]
+@@ -382 +396 @@ def _make_env(
+-            _original_reset = AirHockeyChallengeWrapper.reset
++            _original_reset = AirHockeyChallengeWrapper._drl_original_reset  # type: ignore[attr-defined]
+@@ -566 +580 @@ def parse_cli_args() -> argparse.Namespace:
+-            choices=("spacer"),
++            choices=("spacer",),

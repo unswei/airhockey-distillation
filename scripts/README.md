@@ -1,7 +1,24 @@
 # Scripts
 
-This directory will contain small, non-interactive entry points for the Marvin
-workflow:
+This directory contains small, non-interactive entry points for the Marvin
+workflow.
+
+## Upstream audit
+
+- `build_upstream_images.sh` verifies the pinned upstream clones, applies the
+  recorded compatibility patch and builds the 2025 Blackwell image.
+- `audit_upstream_interface.py` prints the current challenge and DRL policy
+  interfaces as JSON and performs a one-step MuJoCo smoke test.
+- `reproduce_upstream_demo.sh [output_dir]` renders the supplied 2023
+  self-play checkpoint through Xvfb and records an H.264 video. Set the rollout
+  length with `STEPS`; the default is 500.
+
+The build and rendering scripts are intended to run on Marvin. They fail on a
+missing prerequisite and the video script refuses to overwrite its primary
+artefacts. Exact commands and audited outputs are in
+[`docs/upstream_audit.md`](../docs/upstream_audit.md).
+
+## Planned experiment entry points
 
 - `smoke_test.sh`
 - `train_teacher.sh`
@@ -12,4 +29,5 @@ workflow:
 - `render_demo.sh`
 - `reproduce_core.sh`
 
-Scripts will be added only as their underlying commands become reproducible.
+These scripts will be added only as their underlying commands become
+reproducible.

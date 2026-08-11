@@ -1,0 +1,62 @@
+# syntax=docker/dockerfile:1
+ARG BASE_IMAGE=nvidia/cuda:12.9.1-base-ubuntu24.04@sha256:29e5e3425e2e0f5a4e97c9fb4695ba4887cd78210a43cf94c3bcafc6ab01c5e6
+
+FROM ${BASE_IMAGE} AS base
+
+SHELL ["/bin/bash", "-c"]
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV PIP_BREAK_SYSTEM_PACKAGES=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        python3.12-full \
+        python3-pip \
+        python3-six \
+        python-is-python3 && \
+    rm -rf /var/cache/apt/* /var/lib/apt/lists/*
+
+FROM base AS wheel_builder
+
+WORKDIR /wheels
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git && \
+    rm -rf /var/cache/apt/* /var/lib/apt/lists/*
+COPY requirements.txt /wheels/requirements.txt
+RUN python3 -m pip wheel --wheel-dir /wheels -r /wheels/requirements.txt
+
+FROM base AS runtime
+
+ARG SOURCE_COMMIT
+LABEL org.opencontainers.image.revision="${SOURCE_COMMIT}" \
+      org.opencontainers.image.source="https://github.com/AirHockeyChallenge/air_hockey_challenge"
+
+WORKDIR /src
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics \
+    NVIDIA_VISIBLE_DEVICES=all \
+    PYTHONPATH=/src/2025-challenge \
+    TZ=Australia/Sydney
+
+COPY --from=wheel_builder /wheels /wheels
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ffmpeg \
+        git \
+        libgl1 \
+        libgl1-mesa-dri \
+        libsm6 \
+        libxext6 \
+        tzdata \
+        xauth && \
+    python3 -m pip install \
+        --no-cache-dir \
+        --no-index \
+        --find-links /wheels \
+        --requirement /wheels/requirements.txt && \
+    rm -rf /wheels /var/cache/apt/* /var/lib/apt/lists/*
+
+COPY . /src/2025-challenge/
+
+CMD ["python3", "/src/2025-challenge/run.py", "-e", "tournament"]
