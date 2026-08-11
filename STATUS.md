@@ -7,8 +7,11 @@ Last updated: 2026-08-11
 Phase 0 — source audit and reproduction complete. Phase 1 — minimal
 direct-launch set-piece slice complete. Phase 2 — teacher integration started.
 The v2 task gate is `GO`, and the bounded DreamerV3 CUDA smoke test passes.
-The first 20,000-step learning diagnostic did not improve held-out save rate,
-so the main teacher run is not yet authorised.
+The first 20,000-step learning diagnostic did not improve held-out save rate.
+The corrected upstream-like replay and optimisation procedure does improve
+held-out concession rate and return at the same budget. Full teacher training
+is scheduled on Marvin with exact periodic checkpoints and validation
+selection.
 
 ## Completed
 
@@ -74,11 +77,22 @@ so the main teacher run is not yet authorised.
   policy.
 - Measured no held-out policy improvement: save rate changed from 24/90
   untrained to 20/90 trained, while mean return changed from -0.329 to -0.362.
+- Identified that the diagnostic's replay ratio of 8 produced only about 610
+  optimiser updates and ended before Dreamer's 1,000-update warm-up, compared
+  with replay ratios 80--128 in the pinned air-hockey procedures.
+- Restored replay ratio 80 and the upstream 0.2 uniform, 0.6 prioritised, 0.2
+  recency mixture; separated environment and logging configuration; added
+  exact-state resume, exact step checkpoints and validation selection.
+- Repeated the 20,000-step check. Concessions fell from 58/90 untrained to
+  50/90 trained, save rate rose from 28.9% to 33.3%, and mean return improved
+  from -0.282 to -0.131 on paired validation cases.
+- Verified exact retained checkpoints at steps 0, 500 and 1,000 in a passing
+  reward-bearing smoke run.
 
 ## Next actions
 
-- Run a three-seed, at-most-100,000-step medium pilot with retained
-  checkpoints and seed-matched validation every 20,000 steps.
+- Monitor `teacher-full-v1-2026-08-12`; after its automatic validation pass,
+  apply the teacher-readiness criteria before beginning student work.
 - Add a scripted physical strike while retaining direct launch as a regression
   mode.
 - Select a backed-up artefact destination before large checkpoints or datasets.
@@ -110,14 +124,17 @@ so the main teacher run is not yet authorised.
 | 2026-08-11 | Ran the 1,000-step DreamerV3 smoke test on Marvin | `PASS`; JAX 0.5.3 used `cuda:0`, 108 optimiser updates completed, all metrics were finite, and a step-1,000 checkpoint was written |
 | 2026-08-11 | Ran the reward-bearing DreamerV3 smoke test | `PASS`; 21/21 logged episode returns were non-zero (-1.0 to +1.2), 108 optimiser updates completed, and all metrics were finite |
 | 2026-08-11 | Ran the short reward-bearing learning diagnostic | `HOLD`; training completed 19,992 logged steps with finite metrics, but held-out save rate changed from 26.7% untrained to 22.2% trained across 90 paired cases |
+| 2026-08-12 | Ran the corrected 20,000-step learning check | `PASS`; replay ratio reached 81.2, an exact final checkpoint was written, concessions changed from 58/90 untrained to 50/90 trained, and mean return improved from -0.282 to -0.131 |
+| 2026-08-12 | Ran the exact-step checkpoint smoke | `PASS`; checkpoints at steps 0, 500 and 1,000 were retained and the explicit final checkpoint matched the requested step |
+| 2026-08-12 | Scheduled `teacher-full-v1-2026-08-12` on Marvin | Full profile: 1,000,000 steps, checkpoints every 20,000 steps, then 500 validation episodes per retained checkpoint |
 
 ## Blockers
 
 - Marvin's experiment directory is not yet backed up to a durable artefact
   store.
-- The 20,000-step diagnostic showed no held-out policy improvement; a
-  checkpointed multi-seed medium pilot is required before the main teacher
-  budget is justified.
+- The full run is not itself evidence of teacher readiness. Its selected
+  checkpoint must pass the no-blackout, blackout, reset, latency and 500-
+  episode stability criteria before distillation begins.
 - The Blackwell image deliberately overrides Dreamer's declared JAX 0.4.33 and
   CUDA NVCC 12.2 bounds with JAX 0.5.3 and CUDA NVCC 12.9.86. Device discovery
   and a 108-update training smoke test pass; `pip check` records the two

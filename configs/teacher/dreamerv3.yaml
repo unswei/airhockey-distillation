@@ -1,5 +1,5 @@
 schema_version: 1
-status: corrected_procedure_ready_for_learning_check
+status: corrected_procedure_validated_full_ready
 
 teacher:
   type: dreamerv3

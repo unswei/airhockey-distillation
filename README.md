@@ -66,8 +66,11 @@ including CUDA compilation and 108 optimiser updates. The versioned
 save returns in the same training path. The first
 [`short learning diagnostic`](docs/teacher_learning_diagnostic.md) completed
 20,000 requested steps but did not improve held-out save rate. The main
-teacher run remains on hold while a checkpointed, multi-seed medium pilot is
-prepared.
+fault was an optimisation budget that ended before Dreamer's optimiser
+completed warm-up. The
+[`corrected training procedure`](docs/teacher_training_procedure.md) improves
+held-out return and concession rate in a matched 20,000-step check, preserves
+exact step checkpoints, and schedules the full teacher run on Marvin.
 
 ## Scientific guardrails
 
