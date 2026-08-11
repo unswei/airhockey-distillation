@@ -27,7 +27,8 @@ Development files may be edited locally, but code and experiments are run on
 the `marvin` Linux box. Marvin's checkout and artefact paths, accelerator
 details, container digest and upstream reproduction are recorded in
 [`docs/marvin.md`](docs/marvin.md) and
-[`docs/upstream_audit.md`](docs/upstream_audit.md).
+[`docs/upstream_audit.md`](docs/upstream_audit.md). A shorter operational guide
+is in [`docs/air_hockey_marvin.md`](docs/air_hockey_marvin.md).
 
 No GitHub remote or deployment path is configured yet.
 
