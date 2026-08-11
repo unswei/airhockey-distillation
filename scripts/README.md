@@ -23,8 +23,8 @@ workflow.
   `--simulate`.
 - `smoke_test_teacher.py --output PATH --code-commit SHA` runs the bounded
   DreamerV3 compatibility test using v2 train shots and uniformly sampled
-  0--20-step blackouts. It fails unless Dreamer writes training metrics. It is
-  not a policy-quality experiment.
+  0--20-step blackouts. It fails unless Dreamer writes training metrics and a
+  non-zero episode return. It is not a policy-quality experiment.
 
 The build and rendering scripts are intended to run on Marvin. They fail on a
 missing prerequisite and the video script refuses to overwrite its primary

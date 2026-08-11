@@ -63,11 +63,13 @@ The v2 task gate is `GO`, and the bounded DreamerV3 CUDA smoke test passes.
   added pinned-MuJoCo space-contract coverage.
 - Completed a 1,000-step CUDA smoke run with 108 optimiser updates, finite
   metrics and a step-1,000 checkpoint.
+- Added the versioned `defend_shot_v1` reward: -1 for concession, +1 for a
+  conclusive contact-aware save and +0.2 once for first valid contact.
+- Completed a reward-bearing Dreamer smoke run with 21/21 non-zero episode
+  returns spanning -1.0 to +1.2, 108 optimiser updates and finite metrics.
 
 ## Next actions
 
-- Implement and test the versioned teacher reward; the current upstream reward
-  is identically zero.
 - Run a short reward-bearing learning diagnostic before choosing the main
   teacher budget and model size.
 - Add a scripted physical strike while retaining direct launch as a regression
@@ -99,13 +101,12 @@ The v2 task gate is `GO`, and the bounded DreamerV3 CUDA smoke test passes.
 | 2026-08-11 | Generated and simulated `direct_launch_v2` | 216 distinct shots; all reached the approach plane in 0.42--0.94 s; manifest SHA-256 `6e2b61f71135c23c2c1d459c8d90c65e8a153cc645986103d95c67b2e0c2733c` |
 | 2026-08-11 | Ran the paired gate on all 216 v2 shots | `GO`; inactive and fixed centre each conceded 92.6%, privileged saved 100%, and all technical checks passed |
 | 2026-08-11 | Ran the 1,000-step DreamerV3 smoke test on Marvin | `PASS`; JAX 0.5.3 used `cuda:0`, 108 optimiser updates completed, all metrics were finite, and a step-1,000 checkpoint was written |
+| 2026-08-11 | Ran the reward-bearing DreamerV3 smoke test | `PASS`; 21/21 logged episode returns were non-zero (-1.0 to +1.2), 108 optimiser updates completed, and all metrics were finite |
 
 ## Blockers
 
 - Marvin's experiment directory is not yet backed up to a durable artefact
   store.
-- Teacher policy training is blocked on a task reward; the upstream defence
-  environment returns zero at every step.
 - The Blackwell image deliberately overrides Dreamer's declared JAX 0.4.33 and
   CUDA NVCC 12.2 bounds with JAX 0.5.3 and CUDA NVCC 12.9.86. Device discovery
   and a 108-update training smoke test pass; `pip check` records the two

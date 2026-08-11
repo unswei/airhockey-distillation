@@ -61,8 +61,10 @@ corrected 216-shot
 default. Inactive and fixed-centre each concede 92.6% of v2, and the privileged
 controller saves 100%. The bounded
 [`DreamerV3 smoke test`](docs/teacher_smoke_test.md) also passes on Marvin,
-including CUDA compilation and 108 optimiser updates. The next step is to add
-and validate the teacher reward before any longer training run.
+including CUDA compilation and 108 optimiser updates. The versioned
+[`teacher reward`](docs/teacher_reward.md) produces concession, contact and
+save returns in the same training path. The next step is a short
+reward-bearing learning diagnostic before choosing the main teacher budget.
 
 ## Scientific guardrails
 

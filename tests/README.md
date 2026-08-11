@@ -11,7 +11,9 @@ action expansion, deterministic replay and fail-closed teacher-gate semantics.
 The direct-launch distribution tests freeze its count, stratification,
 coverage, timing construction and deterministic split generation. The
 contact-aware outcome tests cover concession precedence, return, arrest, safe
-deflection, non-contact exits and both timeout categories. The `integration`
-tests additionally require the pinned upstream MuJoCo environment and run in
-the audited Marvin container. Later phases must add the remaining recurrent,
-checkpoint, aggregation and multi-episode tests listed above.
+deflection, non-contact exits and both timeout categories. Reward tests cover
+every terminal mapping, first-contact-once semantics and episode reset. The
+`integration` tests additionally require the pinned upstream MuJoCo environment
+and run in the audited Marvin container, including the real-contact +1.2
+return. Later phases must add the remaining recurrent, checkpoint, aggregation
+and multi-episode tests listed above.

@@ -57,4 +57,4 @@ shot_distribution:
 
 reward:
   config: ../reward/defend_shot_v1.yaml
-  status: marvin_validation_pending
+  status: validated_on_marvin

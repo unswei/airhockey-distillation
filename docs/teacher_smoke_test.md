@@ -2,7 +2,7 @@
 
 Validated: 2026-08-11
 
-Decision: **PASS for runtime compatibility**
+Decision: **PASS for runtime and reward compatibility**
 
 This smoke test connects the project task to the pinned DreamerV3 fork. It is
 deliberately too short, and uses a zero reward, so it is not evidence of policy
@@ -89,3 +89,12 @@ The passing artefact is outside Git at:
 
 The passing directory occupies 8.7 MB. It is reproducible evidence, not a
 teacher checkpoint to retain for evaluation.
+
+## Reward-bearing follow-up
+
+The subsequent v6 run used the versioned
+[`defend_shot_v1`](teacher_reward.md) reward. It again reached 1,000 steps and
+108 optimiser updates, while all 21 logged episode scores were non-zero and
+spanned -1.0 to +1.2. This removes the zero-reward blocker. See
+[`teacher_reward.md`](teacher_reward.md) for the definition and immutable v6
+evidence.

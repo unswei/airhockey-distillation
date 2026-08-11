@@ -75,6 +75,7 @@ def test_contact_aware_privileged_return_terminates_before_timeout() -> None:
         )
 
         assert trace.outcome == "returned"
+        assert np.isclose(trace.total_reward, 1.2)
         assert trace.terminated is True
         assert trace.truncated is False
         assert trace.steps < environment.timeout_steps

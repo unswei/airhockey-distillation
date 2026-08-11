@@ -1,5 +1,5 @@
 schema_version: 1
-status: smoke_validated_on_marvin
+status: reward_smoke_validated_on_marvin
 
 teacher:
   type: dreamerv3

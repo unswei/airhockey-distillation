@@ -1,6 +1,6 @@
 schema_version: 1
 reward_id: defend_shot_v1
-status: marvin_validation_pending
+status: validated_on_marvin
 
 rewards:
   first_contact: 0.2
