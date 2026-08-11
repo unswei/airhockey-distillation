@@ -20,6 +20,7 @@ import yaml
 from airhockey_distill.envs import DirectLaunchTrainingEnv
 from airhockey_distill.teachers import (
     RetainingCheckpointFactory,
+    StepCheckpointClockFactory,
     build_training_arguments,
     list_complete_checkpoints,
 )
@@ -114,17 +115,25 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     before = monotonic()
     try:
         import elements
+        import embodied
         from embodied.envs import from_gymnasium
         from dreamerv3 import main as dreamer_main
 
         # The pinned fork references elements.Space without importing elements.
         from_gymnasium.elements = elements
         original_checkpoint = elements.Checkpoint
+        original_local_clock = embodied.LocalClock
         checkpoint_factory = RetainingCheckpointFactory(
             original_checkpoint,
             keep=int(run_config.get("checkpoint_keep", 1)),
         )
         elements.Checkpoint = checkpoint_factory
+        if "checkpoint_every_steps" in run_config:
+            embodied.LocalClock = StepCheckpointClockFactory(
+                original_local_clock,
+                save_every_seconds=float(run_config["save_every"]),
+                checkpoint_every_steps=int(run_config["checkpoint_every_steps"]),
+            )
         try:
             dreamer_main.main(dreamer_args)
             # The pinned loop otherwise saves only on a wall-clock interval and
@@ -132,6 +141,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             checkpoint_factory.save_final()
         finally:
             elements.Checkpoint = original_checkpoint
+            embodied.LocalClock = original_local_clock
     except BaseException as error:
         metadata["attempts"][-1].update(
             completed_at=datetime.now(UTC).isoformat(),

@@ -98,6 +98,43 @@ class RetainingCheckpointFactory:
         self.training_checkpoint.save()
 
 
+class StepCheckpointClockFactory:
+    """Replace only Dreamer's save clock with an environment-step clock."""
+
+    def __init__(
+        self,
+        constructor: Callable[..., Any],
+        *,
+        save_every_seconds: float,
+        checkpoint_every_steps: int,
+    ):
+        if checkpoint_every_steps < 1:
+            raise ValueError("checkpoint step interval must be positive")
+        self._constructor = constructor
+        self._save_every_seconds = float(save_every_seconds)
+        self._checkpoint_every_steps = checkpoint_every_steps
+
+    def __call__(self, every: float, *args: Any, **kwargs: Any) -> Any:
+        if float(every) == self._save_every_seconds:
+            return _EverySteps(self._checkpoint_every_steps)
+        return self._constructor(every, *args, **kwargs)
+
+
+class _EverySteps:
+    def __init__(self, interval: int):
+        self._interval = interval
+        self._next: int | None = None
+
+    def __call__(self, step: Any) -> bool:
+        current = int(step)
+        if self._next is None:
+            self._next = (current // self._interval + 1) * self._interval
+        if current < self._next:
+            return False
+        self._next = (current // self._interval + 1) * self._interval
+        return True
+
+
 def list_complete_checkpoints(directory: Path) -> tuple[tuple[int, Path], ...]:
     """Return complete checkpoints ordered by their stored environment step."""
 

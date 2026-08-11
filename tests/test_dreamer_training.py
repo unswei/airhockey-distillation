@@ -5,6 +5,7 @@ import pytest
 
 from airhockey_distill.teachers import (
     RetainingCheckpointFactory,
+    StepCheckpointClockFactory,
     build_training_arguments,
     list_complete_checkpoints,
     select_best_validation_result,
@@ -90,6 +91,43 @@ def test_complete_checkpoints_are_ordered_and_duplicate_steps_are_collapsed(tmp_
         (10, tmp_path / "first"),
         (20, tmp_path / "2026B"),
     )
+
+
+def test_step_checkpoint_clock_replaces_only_the_save_clock():
+    wall_clocks = []
+
+    def make_wall_clock(every):
+        wall_clocks.append(every)
+        return f"wall-{every}"
+
+    factory = StepCheckpointClockFactory(
+        make_wall_clock,
+        save_every_seconds=300,
+        checkpoint_every_steps=20_000,
+    )
+
+    assert factory(30) == "wall-30"
+    save_clock = factory(300)
+    assert save_clock(10) is False
+    assert save_clock(19_990) is False
+    assert save_clock(20_000) is True
+    assert save_clock(20_010) is False
+    assert save_clock(40_000) is True
+    assert wall_clocks == [30]
+
+
+def test_step_checkpoint_clock_resumes_at_the_next_boundary():
+    factory = StepCheckpointClockFactory(
+        lambda every: None,
+        save_every_seconds=300,
+        checkpoint_every_steps=20_000,
+    )
+
+    save_clock = factory(300)
+
+    assert save_clock(60_010) is False
+    assert save_clock(79_990) is False
+    assert save_clock(80_000) is True
 
 
 def test_validation_selection_uses_save_rate_then_return_then_earlier_step():

@@ -3,6 +3,7 @@
 
 from airhockey_distill.teachers.dreamer import (
     RetainingCheckpointFactory,
+    StepCheckpointClockFactory,
     build_training_arguments,
     list_complete_checkpoints,
     read_checkpoint_step,
@@ -11,6 +12,7 @@ from airhockey_distill.teachers.dreamer import (
 
 __all__ = [
     "RetainingCheckpointFactory",
+    "StepCheckpointClockFactory",
     "build_training_arguments",
     "list_complete_checkpoints",
     "read_checkpoint_step",

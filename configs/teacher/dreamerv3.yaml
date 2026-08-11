@@ -29,6 +29,9 @@ smoke:
   report_length: 8
   replay_size: 10000
   train_ratio: 8.0
+  save_every: 900
+  checkpoint_every_steps: 500
+  checkpoint_keep: 4
   purpose: collection, replay, CUDA compilation, gradient and checkpoint test
 
 diagnostic:
@@ -62,6 +65,7 @@ learning_check:
   log_every: 30
   report_every: 600
   save_every: 300
+  checkpoint_every_steps: 20000
   checkpoint_keep: 8
   debug: true
   evaluation: evaluation
@@ -84,6 +88,7 @@ full:
   log_every: 120
   report_every: 600
   save_every: 1800
+  checkpoint_every_steps: 20000
   checkpoint_keep: 64
   debug: true
   evaluation: full_evaluation
