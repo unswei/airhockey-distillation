@@ -104,15 +104,15 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "--run.save_every",
         "1",
         "--run.debug",
-        "true",
+        "True",
         "--jax.platform",
         "cuda",
         "--jax.prealloc",
-        "false",
+        "False",
         "--logger.outputs",
         "jsonl",
         "--errfile",
-        "true",
+        "True",
     ]
     metadata["dreamer_arguments"] = dreamer_args
     _write_json(metadata_path, metadata)
