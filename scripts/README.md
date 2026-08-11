@@ -15,6 +15,8 @@ workflow.
 - `run_minimal_task.py [--output PATH]` runs the inactive, fixed-centre and
   privileged controls on the deterministic direct-launch slice and verifies a
   repeated public trajectory.
+- `run_teacher_gate.py [--output PATH]` runs the fail-closed pre-training gate.
+  It exits with status 2 when any criterion fails or lacks enough evidence.
 
 The build and rendering scripts are intended to run on Marvin. They fail on a
 missing prerequisite and the video script refuses to overwrite its primary

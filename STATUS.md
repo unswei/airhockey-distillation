@@ -5,8 +5,8 @@ Last updated: 2026-08-11
 ## Current phase
 
 Phase 0 — source audit and reproduction complete. Phase 1 — minimal
-direct-launch set-piece slice complete; scripted strikes and distribution
-calibration are next.
+direct-launch set-piece slice complete. The teacher-training gate is `NO_GO`
+until baseline rates are established over a calibrated shot distribution.
 
 ## Completed
 
@@ -33,6 +33,12 @@ calibration are next.
 - Added inactive, fixed-centre and explicitly privileged intercept controls.
 - Verified exact replay of the same public trajectory in MuJoCo.
 - Added masking, visibility timing, privileged-state leakage and replay tests.
+- Added a fail-closed teacher-training gate with explicit evidence thresholds.
+- Verified 20 exact, fault-free fixed-shot repetitions in the pinned Marvin
+  simulator.
+- Applied the gate: replay, observation isolation and Marvin reliability pass;
+  the three control-rate checks have insufficient evidence at one distinct
+  shot.
 
 ## Next actions
 
@@ -40,8 +46,9 @@ calibration are next.
   mode.
 - Calibrate and version non-trivial train, validation and test shot ranges.
 - Add contact-aware outcome classification before task-scale evaluation.
-- Run a short Dreamer training smoke test to test the declared JAX/CUDA
-  dependency mismatch before a long teacher run.
+- Evaluate inactive, fixed-centre and privileged controls on the same 200
+  distinct shots and re-run the gate.
+- Run a short Dreamer training smoke test only after the gate returns `GO`.
 - Select a backed-up artefact destination before large checkpoints or datasets.
 
 ## Commands and results
@@ -60,11 +67,16 @@ calibration are next.
 | 2026-08-11 | Ran minimal task contract tests locally | 14 passed; MuJoCo integration skipped outside Marvin |
 | 2026-08-11 | Ran the complete minimal task suite in the audited Marvin image | 15 passed |
 | 2026-08-11 | Ran inactive, fixed-centre and privileged controls on the same direct-launched shot | Inactive and fixed-centre conceded; privileged controller returned the puck; replay matched exactly |
+| 2026-08-11 | Ran the expanded suite in the pinned Marvin image | 19 passed in 1.68 s |
+| 2026-08-11 | Ran `scripts/run_teacher_gate.py` on Marvin | `NO_GO`; 20/20 reliable exact replays and clean observation contract, but only 1/200 required distinct shots for the three rate checks |
 
 ## Blockers
 
 - Marvin's experiment directory is not yet backed up to a durable artefact
   store.
+- Teacher training is blocked by insufficient distribution-level evidence:
+  only one distinct direct-launched shot exists, versus 200 required by the
+  gate.
 - The Blackwell image deliberately overrides Dreamer's declared JAX 0.4.33 and
   CUDA NVCC 12.2 bounds with JAX 0.5.3 and CUDA NVCC 12.9.86. Device discovery
   and interface smoke tests pass; `pip check` records the two conflicts.

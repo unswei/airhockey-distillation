@@ -7,7 +7,8 @@ replay, row-order-invariant aggregation and a clean 20-episode CPU smoke run.
 
 The minimal task slice currently tests masking, visibility timing, removal of
 privileged puck velocity, the public-info boundary, two-to-six dimensional
-action expansion and deterministic replay. The `integration` test additionally
-requires the pinned upstream MuJoCo environment and runs in the audited Marvin
-container. Later phases must add the remaining recurrent, checkpoint,
-aggregation and multi-episode tests listed above.
+action expansion, deterministic replay and fail-closed teacher-gate semantics.
+The `integration` test additionally requires the pinned upstream MuJoCo
+environment and runs in the audited Marvin container. Later phases must add the
+remaining recurrent, checkpoint, aggregation and multi-episode tests listed
+above.

@@ -11,13 +11,29 @@ from .rollout import (
     rollout_privileged_controller,
     rollout_public_controller,
 )
+from .teacher_gate import (
+    GateCheck,
+    GateStatus,
+    TeacherGateEvidence,
+    TeacherGateReport,
+    TeacherGateThresholds,
+    audit_public_observation_contract,
+    evaluate_teacher_training_gate,
+)
 
 __all__ = [
     "EpisodeTrace",
     "FixedCentreController",
+    "GateCheck",
+    "GateStatus",
     "InactiveController",
     "PrivilegedInterceptController",
+    "TeacherGateEvidence",
+    "TeacherGateReport",
+    "TeacherGateThresholds",
     "assert_equivalent_replay",
+    "audit_public_observation_contract",
+    "evaluate_teacher_training_gate",
     "rollout_privileged_controller",
     "rollout_public_controller",
 ]

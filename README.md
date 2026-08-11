@@ -50,9 +50,11 @@ The upstream audit and minimal direct-launch task slice are complete. The
 slice has one deterministic shot and blackout, the 19-dimensional public
 observation, the two-dimensional action adapter, deterministic replay and
 three task-validity controls; see
-[`docs/minimal_task_slice.md`](docs/minimal_task_slice.md). The next
-implementation milestone is a scripted strike and calibrated shot
-distribution, followed by teacher inference and one `k = 2` student.
+[`docs/minimal_task_slice.md`](docs/minimal_task_slice.md). The pre-training
+gate currently returns `NO_GO` because a single shot cannot establish baseline
+rates; see [`docs/teacher_training_gate.md`](docs/teacher_training_gate.md).
+The next implementation milestone is a scripted strike and calibrated shot
+distribution. Teacher work remains blocked until the gate passes.
 
 ## Scientific guardrails
 

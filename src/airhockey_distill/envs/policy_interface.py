@@ -19,6 +19,21 @@ PUCK_POSITION_XY_SLICE = slice(16, 18)
 UPSTREAM_PUCK_VELOCITY_XY_SLICE = slice(18, 20)
 PUCK_VISIBLE_INDEX = 18
 
+UPSTREAM_OBSERVATION_COMPONENTS = (
+    ("defender_joint_position", 7),
+    ("defender_joint_velocity", 7),
+    ("defender_mallet_position", 2),
+    ("puck_position", 2),
+    ("puck_velocity", 2),
+)
+PUBLIC_OBSERVATION_COMPONENTS = (
+    ("defender_joint_position", 7),
+    ("defender_joint_velocity", 7),
+    ("defender_mallet_position", 2),
+    ("puck_position", 2),
+    ("puck_visible", 1),
+)
+
 
 def _vector(value: ArrayLike, size: int, name: str) -> NDArray[np.float32]:
     array = np.asarray(value, dtype=np.float32)
