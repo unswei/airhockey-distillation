@@ -119,8 +119,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
     before = monotonic()
     try:
+        import elements
+        from embodied.envs import from_gymnasium
         from dreamerv3 import main as dreamer_main
 
+        # The pinned fork references elements.Space without importing elements.
+        from_gymnasium.elements = elements
         dreamer_main.main(dreamer_args)
     except BaseException as error:
         metadata.update(
