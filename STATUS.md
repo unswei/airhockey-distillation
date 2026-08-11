@@ -7,6 +7,8 @@ Last updated: 2026-08-11
 Phase 0 — source audit and reproduction complete. Phase 1 — minimal
 direct-launch set-piece slice complete. Phase 2 — teacher integration started.
 The v2 task gate is `GO`, and the bounded DreamerV3 CUDA smoke test passes.
+The first 20,000-step learning diagnostic did not improve held-out save rate,
+so the main teacher run is not yet authorised.
 
 ## Completed
 
@@ -67,11 +69,16 @@ The v2 task gate is `GO`, and the bounded DreamerV3 CUDA smoke test passes.
   conclusive contact-aware save and +0.2 once for first valid contact.
 - Completed a reward-bearing Dreamer smoke run with 21/21 non-zero episode
   returns spanning -1.0 to +1.2, 108 optimiser updates and finite metrics.
+- Completed a 20,000-step `size1m` learning diagnostic with finite metrics,
+  live world-model and reward learning, and 90 paired held-out cases per
+  policy.
+- Measured no held-out policy improvement: save rate changed from 24/90
+  untrained to 20/90 trained, while mean return changed from -0.329 to -0.362.
 
 ## Next actions
 
-- Run a short reward-bearing learning diagnostic before choosing the main
-  teacher budget and model size.
+- Run a three-seed, at-most-100,000-step medium pilot with retained
+  checkpoints and seed-matched validation every 20,000 steps.
 - Add a scripted physical strike while retaining direct launch as a regression
   mode.
 - Select a backed-up artefact destination before large checkpoints or datasets.
@@ -102,11 +109,15 @@ The v2 task gate is `GO`, and the bounded DreamerV3 CUDA smoke test passes.
 | 2026-08-11 | Ran the paired gate on all 216 v2 shots | `GO`; inactive and fixed centre each conceded 92.6%, privileged saved 100%, and all technical checks passed |
 | 2026-08-11 | Ran the 1,000-step DreamerV3 smoke test on Marvin | `PASS`; JAX 0.5.3 used `cuda:0`, 108 optimiser updates completed, all metrics were finite, and a step-1,000 checkpoint was written |
 | 2026-08-11 | Ran the reward-bearing DreamerV3 smoke test | `PASS`; 21/21 logged episode returns were non-zero (-1.0 to +1.2), 108 optimiser updates completed, and all metrics were finite |
+| 2026-08-11 | Ran the short reward-bearing learning diagnostic | `HOLD`; training completed 19,992 logged steps with finite metrics, but held-out save rate changed from 26.7% untrained to 22.2% trained across 90 paired cases |
 
 ## Blockers
 
 - Marvin's experiment directory is not yet backed up to a durable artefact
   store.
+- The 20,000-step diagnostic showed no held-out policy improvement; a
+  checkpointed multi-seed medium pilot is required before the main teacher
+  budget is justified.
 - The Blackwell image deliberately overrides Dreamer's declared JAX 0.4.33 and
   CUDA NVCC 12.2 bounds with JAX 0.5.3 and CUDA NVCC 12.9.86. Device discovery
   and a 108-update training smoke test pass; `pip check` records the two

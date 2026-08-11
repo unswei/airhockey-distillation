@@ -63,8 +63,11 @@ controller saves 100%. The bounded
 [`DreamerV3 smoke test`](docs/teacher_smoke_test.md) also passes on Marvin,
 including CUDA compilation and 108 optimiser updates. The versioned
 [`teacher reward`](docs/teacher_reward.md) produces concession, contact and
-save returns in the same training path. The next step is a short
-reward-bearing learning diagnostic before choosing the main teacher budget.
+save returns in the same training path. The first
+[`short learning diagnostic`](docs/teacher_learning_diagnostic.md) completed
+20,000 requested steps but did not improve held-out save rate. The main
+teacher run remains on hold while a checkpointed, multi-seed medium pilot is
+prepared.
 
 ## Scientific guardrails
 
