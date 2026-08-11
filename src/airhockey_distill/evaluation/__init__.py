@@ -5,6 +5,7 @@ from .baselines import (
     InactiveController,
     PrivilegedInterceptController,
 )
+from .memory_gate import evaluate_memory_gate
 from .rollout import (
     EpisodeTrace,
     assert_equivalent_replay,
@@ -33,6 +34,7 @@ __all__ = [
     "TeacherGateThresholds",
     "assert_equivalent_replay",
     "audit_public_observation_contract",
+    "evaluate_memory_gate",
     "evaluate_teacher_training_gate",
     "rollout_privileged_controller",
     "rollout_public_controller",
