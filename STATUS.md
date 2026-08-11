@@ -1,17 +1,15 @@
 # Project status
 
-Last updated: 2026-08-11
+Last updated: 2026-08-12
 
 ## Current phase
 
 Phase 0 — source audit and reproduction complete. Phase 1 — minimal
-direct-launch set-piece slice complete. Phase 2 — teacher integration started.
-The v2 task gate is `GO`, and the bounded DreamerV3 CUDA smoke test passes.
-The first 20,000-step learning diagnostic did not improve held-out save rate.
-The corrected upstream-like replay and optimisation procedure does improve
-held-out concession rate and return at the same budget. Full teacher training
-is scheduled on Marvin with exact periodic checkpoints and validation
-selection.
+direct-launch set-piece slice complete. Phase 2 — teacher training and
+selection complete. Stage B — first memory validation complete with a
+predeclared `NO_GO`. The selected recurrent teacher outperforms a credible
+feed-forward policy under long blackout, but the advantage is not large enough
+to establish that the current distribution requires memory.
 
 ## Completed
 
@@ -88,11 +86,34 @@ selection.
   from -0.282 to -0.131 on paired validation cases.
 - Verified exact retained checkpoints at steps 0, 500 and 1,000 in a passing
   reward-bearing smoke run.
+- Completed the one-million-step teacher run with 75,977 optimiser updates and
+  no non-finite metrics or restarts.
+- Selected the 720,000-step checkpoint on 500 validation episodes. It saved
+  415/500 overall: 88%, 89%, 82%, 82% and 74% at blackout lengths 0, 5, 10,
+  15 and 20.
+- Froze the selected teacher as a read-only inference bundle. Its `agent.pkl`
+  SHA-256 is `aafa486922860eb6a4a1d046667b0f1422170f4b242fa7eaa5c5cbf93782c94e`.
+- Collected a schema-2 teacher dataset with 20,000 episodes and 870,634
+  transitions. It records the clipped action actually executed and retains the
+  raw Dreamer output only as diagnostic metadata.
+- Trained a 5,602-parameter observation-only feed-forward policy on public
+  observations and executed teacher actions, selecting epoch 99 by validation
+  action MSE.
+- Evaluated teacher and feed-forward policies on 500 exact paired validation
+  cases. Feed-forward save rate fell from 84% at no blackout to 62% at 20
+  steps; teacher save rate fell from 88% to 74%.
+- Applied the predeclared Stage B gate. The 20-step paired teacher advantage
+  was 12 points with bootstrap 95% interval [1, 23], but the required advantage
+  was 15 points. Advantage growth from zero to 20 steps was 8 points rather
+  than the required 10. Decision: `NO_GO` for the memory-required claim.
 
 ## Next actions
 
-- Monitor `teacher-full-v1-2026-08-12-v2`; after its automatic validation
-  pass, apply the teacher-readiness criteria before beginning student work.
+- Design a versioned observation-aliased shot distribution in which matched
+  visible puck positions can have different velocities and required actions.
+- Predeclare a Stage B v2 using all available validation shots, re-establish
+  teacher readiness on the corrected distribution, and add a causal teacher
+  recurrent-state ablation at blackout onset.
 - Add a scripted physical strike while retaining direct launch as a regression
   mode.
 - Select a backed-up artefact destination before large checkpoints or datasets.
@@ -127,14 +148,18 @@ selection.
 | 2026-08-12 | Ran the corrected 20,000-step learning check | `PASS`; replay ratio reached 81.2, an exact final checkpoint was written, concessions changed from 58/90 untrained to 50/90 trained, and mean return improved from -0.282 to -0.131 |
 | 2026-08-12 | Ran the exact-step checkpoint smoke | `PASS`; checkpoints at steps 0, 500 and 1,000 were retained and the explicit final checkpoint matched the requested step |
 | 2026-08-12 | Scheduled `teacher-full-v1-2026-08-12-v2` on Marvin | Active systemd unit pinned to `f1fb960`: 1,000,000 steps, checkpoints every 20,000 steps, then 500 validation episodes per retained checkpoint; v1 failed before Docker because the user service lacked the Docker group |
+| 2026-08-12 | Completed and validation-selected the full teacher run | Selected step 720,000; 83.0% save rate over 500 cases and 74.0% at 20-step blackout |
+| 2026-08-12 | Froze teacher and collected Stage B demonstrations | Read-only teacher hash recorded; 20,000 episodes and 870,634 schema-2 transitions |
+| 2026-08-12 | Trained and evaluated the observation-only feed-forward policy | 5,602 parameters; 84% saves at blackout 0 and 62% at blackout 20 |
+| 2026-08-12 | Applied the paired Stage B memory gate | `NO_GO`; positive 12-point long-blackout advantage, but two predeclared effect-size checks failed |
 
 ## Blockers
 
 - Marvin's experiment directory is not yet backed up to a durable artefact
   store.
-- The full run is not itself evidence of teacher readiness. Its selected
-  checkpoint must pass the no-blackout, blackout, reset, latency and 500-
-  episode stability criteria before distillation begins.
+- The current direct-launch distribution has not yet passed the predeclared
+  memory-required gate. Core recurrent-student comparisons should wait for a
+  corrected, observation-aliased distribution and a fresh confirmatory gate.
 - The Blackwell image deliberately overrides Dreamer's declared JAX 0.4.33 and
   CUDA NVCC 12.2 bounds with JAX 0.5.3 and CUDA NVCC 12.9.86. Device discovery
   and a 108-update training smoke test pass; `pip check` records the two

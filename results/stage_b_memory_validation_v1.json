@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "status": "completed",
+  "decision": "NO_GO",
+  "completed_on": "2026-08-12",
+  "marvin_root": "/home/oliver/experiments/airhockey-memory-distillation",
+  "artefacts": {
+    "frozen_teacher_manifest": {
+      "relative_path": "frozen-teachers/dreamerv3-teacher-v1-step-720000/manifest.json",
+      "sha256": "7d74c398749c2d4cd65dafba8e4250765381489185f9b9008307bc26091de054"
+    },
+    "teacher_agent": {
+      "relative_path": "frozen-teachers/dreamerv3-teacher-v1-step-720000/agent.pkl",
+      "sha256": "aafa486922860eb6a4a1d046667b0f1422170f4b242fa7eaa5c5cbf93782c94e"
+    },
+    "dataset_manifest": {
+      "relative_path": "teacher-datasets/teacher-v1-stage-b-2026-08-12-v1/manifest.json",
+      "sha256": "788ca4939be22c3dd72edb9bb7b6e440921394ecda2f750385325fa166bec5a2"
+    },
+    "feed_forward_checkpoint": {
+      "relative_path": "students/feed-forward-stage-b-2026-08-12-v1/checkpoint.npz",
+      "sha256": "2a473a917c89859f1f442d10b8a87ece98a2214d16d694ee879ef34b7fb9f5a4"
+    },
+    "feed_forward_result": {
+      "relative_path": "stage-b-memory-validation-2026-08-12-v1/feed_forward.json",
+      "sha256": "6ab18b60e2399d71b32f68f8da8c3377612795396032af9172b41cebed33f21e"
+    },
+    "memory_gate": {
+      "relative_path": "stage-b-memory-validation-2026-08-12-v1/memory_gate.json",
+      "sha256": "d180c770dd5776d2d731ed39d1a3b147c56397049708f9684651c1bdb542778e"
+    }
+  },
+  "teacher_save_rates": {
+    "0": 0.88,
+    "5": 0.89,
+    "10": 0.82,
+    "15": 0.82,
+    "20": 0.74
+  },
+  "feed_forward_save_rates": {
+    "0": 0.84,
+    "5": 0.80,
+    "10": 0.75,
+    "15": 0.67,
+    "20": 0.62
+  },
+  "blocking_checks": [
+    "material_long_blackout_advantage",
+    "advantage_grows_with_blackout"
+  ]
+}

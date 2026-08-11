@@ -24,6 +24,7 @@ dist/
 !/artifacts/README.md
 /results/**
 !/results/README.md
+!/results/*.json
 *.ckpt
 *.h5
 *.hdf5

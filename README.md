@@ -70,7 +70,13 @@ fault was an optimisation budget that ended before Dreamer's optimiser
 completed warm-up. The
 [`corrected training procedure`](docs/teacher_training_procedure.md) improves
 held-out return and concession rate in a matched 20,000-step check, preserves
-exact step checkpoints, and schedules the full teacher run on Marvin.
+exact step checkpoints, and produced a validation-selected teacher at step
+720,000. The first
+[`Stage B memory validation`](docs/stage_b_memory_validation.md) compared that
+teacher with a credible observation-only feed-forward policy on 500 paired
+blackout episodes. Memory helped directionally, but the predeclared effect-size
+gate returned `NO_GO`; the current shot distribution has not yet been shown to
+require memory.
 
 ## Scientific guardrails
 
