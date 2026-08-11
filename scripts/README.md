@@ -21,6 +21,9 @@ workflow.
 - `validate_direct_launch_distribution.py` materialises a versioned shot
   manifest and optionally measures all approach times in MuJoCo with
   `--simulate`.
+- `smoke_test_teacher.py --output PATH --code-commit SHA` runs the bounded
+  DreamerV3 compatibility test using v2 train shots and uniformly sampled
+  0--20-step blackouts. It is not a policy-quality experiment.
 
 The build and rendering scripts are intended to run on Marvin. They fail on a
 missing prerequisite and the video script refuses to overwrite its primary
@@ -29,7 +32,6 @@ artefacts. Exact commands and audited outputs are in
 
 ## Planned experiment entry points
 
-- `smoke_test.sh`
 - `train_teacher.sh`
 - `collect_dataset.sh`
 - `train_core_students.sh`

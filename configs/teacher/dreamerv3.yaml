@@ -1,5 +1,5 @@
-schema_version: 0
-status: draft_requires_upstream_audit
+schema_version: 1
+status: smoke_ready
 
 teacher:
   type: dreamerv3
@@ -8,11 +8,31 @@ teacher:
   privileged_state: false
   puck_velocity: false
   selection_metric: validation_save_rate_across_blackouts
-  upstream_config: null
+  upstream_config: defaults plus size1m
+
+training:
+  distribution_config: configs/env/direct_launch_v2.yaml
+  distribution_split: train
+  sampling_seed: 5201
+  blackout_start_observation_step: 5
+  minimum_blackout_steps: 0
+  maximum_blackout_steps: 20
+  reward: upstream_zero_compatibility_only
+
+smoke:
+  seed: 6201
+  model_preset: size1m
+  steps: 160
+  batch_size: 4
+  batch_length: 16
+  report_length: 8
+  replay_size: 10000
+  train_ratio: 4.0
+  purpose: collection, replay, CUDA compilation, gradient and checkpoint test
 
 provenance:
-  drl_air_hockey_commit: null
-  air_hockey_challenge_commit: null
-  dreamerv3_repository: null
-  dreamerv3_commit: null
-  container_digest: null
+  drl_air_hockey_commit: a41081c4c3860877d7553c7eb9e84c1b7f5f7da0
+  air_hockey_challenge_commit: 34729081d4327141dcf560c0fb8274cd4882e82c
+  dreamerv3_repository: https://github.com/AndrejOrsula/dreamerv3
+  dreamerv3_commit: 4049794d4135e41c691f18da38a9af7541b01553
+  container_digest: sha256:de846e25961d2408db73a6b5cfe2afc7ecf0e14e0e8ac837f97212a180e51d5f

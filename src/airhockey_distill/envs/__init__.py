@@ -12,6 +12,7 @@ from .shot_distribution import (
     summarise_distribution,
 )
 from .tracking_loss import BlackoutSchedule
+from .training import DirectLaunchTrainingEnv
 
 __all__ = [
     "DEFAULT_DIRECT_LAUNCH_SHOT",
@@ -19,6 +20,7 @@ __all__ = [
     "ContactAwareOutcomeTracker",
     "DefendShotTrackingLoss",
     "DirectLaunchDistribution",
+    "DirectLaunchTrainingEnv",
     "GeneratedShot",
     "MujocoDirectLaunchBackend",
     "OutcomeThresholds",
