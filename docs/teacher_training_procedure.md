@@ -77,14 +77,19 @@ criteria before student training begins.
 The scheduled Marvin run is:
 
 ```text
-systemd unit: airhockey-teacher-full-v1.service
-run id: teacher-full-v1-2026-08-12
-artefact path: /home/oliver/experiments/airhockey-memory-distillation/teacher-full-v1-2026-08-12
+systemd unit: airhockey-teacher-full-v1-v2.service
+run id: teacher-full-v1-2026-08-12-v2
+code commit: f1fb9606173bc7312ecbb4c1d91d5b996ed05c5e
+artefact path: /home/oliver/experiments/airhockey-memory-distillation/teacher-full-v1-2026-08-12-v2
 ```
 
 The unit uses `scripts/run_full_teacher_on_marvin.sh`, restarts on failure and
 resumes from the latest complete checkpoint. Successful training is followed
-automatically by validation checkpoint selection.
+automatically by validation checkpoint selection. The initial v1 systemd
+launch failed before starting Docker because Marvin's long-lived user service
+manager had not inherited the user's Docker group. Its run directory is
+preserved. The v2 unit enters the `docker` group explicitly and reached the
+Dreamer training loop with no restart.
 
 ## Evidence
 

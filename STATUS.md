@@ -91,8 +91,8 @@ selection.
 
 ## Next actions
 
-- Monitor `teacher-full-v1-2026-08-12`; after its automatic validation pass,
-  apply the teacher-readiness criteria before beginning student work.
+- Monitor `teacher-full-v1-2026-08-12-v2`; after its automatic validation
+  pass, apply the teacher-readiness criteria before beginning student work.
 - Add a scripted physical strike while retaining direct launch as a regression
   mode.
 - Select a backed-up artefact destination before large checkpoints or datasets.
@@ -126,7 +126,7 @@ selection.
 | 2026-08-11 | Ran the short reward-bearing learning diagnostic | `HOLD`; training completed 19,992 logged steps with finite metrics, but held-out save rate changed from 26.7% untrained to 22.2% trained across 90 paired cases |
 | 2026-08-12 | Ran the corrected 20,000-step learning check | `PASS`; replay ratio reached 81.2, an exact final checkpoint was written, concessions changed from 58/90 untrained to 50/90 trained, and mean return improved from -0.282 to -0.131 |
 | 2026-08-12 | Ran the exact-step checkpoint smoke | `PASS`; checkpoints at steps 0, 500 and 1,000 were retained and the explicit final checkpoint matched the requested step |
-| 2026-08-12 | Scheduled `teacher-full-v1-2026-08-12` on Marvin | Full profile: 1,000,000 steps, checkpoints every 20,000 steps, then 500 validation episodes per retained checkpoint |
+| 2026-08-12 | Scheduled `teacher-full-v1-2026-08-12-v2` on Marvin | Active systemd unit pinned to `f1fb960`: 1,000,000 steps, checkpoints every 20,000 steps, then 500 validation episodes per retained checkpoint; v1 failed before Docker because the user service lacked the Docker group |
 
 ## Blockers
 
