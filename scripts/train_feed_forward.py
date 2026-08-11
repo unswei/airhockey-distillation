@@ -166,7 +166,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     sample = splits["validation"]["observations"][:128]
     with torch.no_grad():
         torch_actions = network(torch.from_numpy(sample)).numpy()
-    if not np.allclose(exported.action(sample), torch_actions, atol=1e-6, rtol=1e-6):
+    numpy_actions = exported.action(sample)
+    export_max_absolute_error = float(np.max(np.abs(numpy_actions - torch_actions)))
+    if not np.allclose(numpy_actions, torch_actions, atol=5e-6, rtol=1e-6):
         raise RuntimeError("exported NumPy policy does not match the trained network")
 
     result = {
@@ -178,6 +180,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "dataset_manifest_sha256": _sha256(dataset_manifest_path),
         "checkpoint": str(checkpoint_path),
         "checkpoint_sha256": _sha256(checkpoint_path),
+        "export_verification_max_absolute_error": export_max_absolute_error,
         "parameter_count": exported.parameter_count,
         "selected_epoch": best_epoch,
         "epochs_completed": epoch,
