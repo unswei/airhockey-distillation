@@ -29,6 +29,8 @@ smoke:
   report_length: 8
   replay_size: 10000
   train_ratio: 8.0
+  log_every: 1
+  report_every: 3600
   save_every: 900
   checkpoint_every_steps: 500
   checkpoint_keep: 4
