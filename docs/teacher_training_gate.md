@@ -51,6 +51,11 @@ direct launch. They do not establish that inactive and fixed defenders concede
 often enough across a useful distribution, or that the privileged controller
 saves most shots. Teacher training therefore remains blocked.
 
+`direct_launch_v1` now provides a validated 216-shot calibration manifest for
+the missing paired rate evidence. The table above records the last applied
+gate, before that distribution existed; it is not a result for the new
+manifest. The gate runner now defaults to the 216-shot calibration split.
+
 ## Command and evidence
 
 Run in the audited container on Marvin:
@@ -73,12 +78,7 @@ SHA-256:
 
 ## Work required for GO
 
-1. Implement and version the incoming-shot distribution, initially using
-   direct launch if necessary and retaining the fixed shot as a regression
-   case.
-2. Cover goal-centre and near-post targets, at least three lateral launch
-   regions, several angles and calibrated arrival times.
-3. Add contact-aware terminal outcomes so saves and bare timeouts are separated
+1. Add contact-aware terminal outcomes so saves and bare timeouts are separated
    reliably.
-4. Evaluate all three controls on the same 200 distinct shots.
-5. Re-run this gate. Begin the Dreamer smoke run only if the report says `GO`.
+2. Evaluate all three controls on the same 216 calibration shots.
+3. Re-run this gate. Begin the Dreamer smoke run only if the report says `GO`.

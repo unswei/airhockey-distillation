@@ -30,7 +30,9 @@ details, container digest and upstream reproduction are recorded in
 [`docs/upstream_audit.md`](docs/upstream_audit.md). A shorter operational guide
 is in [`docs/air_hockey_marvin.md`](docs/air_hockey_marvin.md).
 
-No GitHub remote or deployment path is configured yet.
+The code repository is published at
+[`unswei/airhockey-distillation`](https://github.com/unswei/airhockey-distillation).
+No deployment path is configured.
 
 ## Planned layout
 
@@ -51,10 +53,12 @@ slice has one deterministic shot and blackout, the 19-dimensional public
 observation, the two-dimensional action adapter, deterministic replay and
 three task-validity controls; see
 [`docs/minimal_task_slice.md`](docs/minimal_task_slice.md). The pre-training
-gate currently returns `NO_GO` because a single shot cannot establish baseline
-rates; see [`docs/teacher_training_gate.md`](docs/teacher_training_gate.md).
-The next implementation milestone is a scripted strike and calibrated shot
-distribution. Teacher work remains blocked until the gate passes.
+gate currently returns `NO_GO`; see
+[`docs/teacher_training_gate.md`](docs/teacher_training_gate.md). A calibrated,
+versioned 216-shot direct-launch distribution is now available for the paired
+rate evaluation; see
+[`docs/direct_launch_distribution.md`](docs/direct_launch_distribution.md).
+Teacher work remains blocked until the gate passes.
 
 ## Scientific guardrails
 

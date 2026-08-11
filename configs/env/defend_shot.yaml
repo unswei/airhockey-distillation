@@ -42,8 +42,6 @@ tracking_loss:
   trigger_approach_line: null  # Used after scripted strikes are implemented.
 
 shot_distribution:
-  # Physical ranges must be calibrated from env_info before learning starts.
-  lateral_origins: null
-  target_points: null
-  speed_range: null
-  angle_range: null
+  config: direct_launch_v1.yaml
+  calibration_split: calibration
+  status: validated_on_marvin

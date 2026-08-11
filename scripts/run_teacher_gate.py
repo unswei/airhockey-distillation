@@ -5,12 +5,17 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
-from airhockey_distill.envs import DEFAULT_DIRECT_LAUNCH_SHOT, DefendShotTrackingLoss
+from airhockey_distill.envs import (
+    DefendShotTrackingLoss,
+    load_direct_launch_distribution,
+    summarise_distribution,
+)
 from airhockey_distill.evaluation import (
     FixedCentreController,
     InactiveController,
@@ -28,6 +33,12 @@ from airhockey_distill.evaluation.rollout import EpisodeTrace
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path)
+    parser.add_argument(
+        "--distribution-config",
+        type=Path,
+        default=Path("configs/env/direct_launch_v1.yaml"),
+    )
+    parser.add_argument("--distribution-split", default="calibration")
     parser.add_argument("--minimum-distinct-shots", type=int, default=200)
     parser.add_argument("--minimum-rate", type=float, default=0.8)
     parser.add_argument("--reliability-episodes", type=int, default=20)
@@ -35,6 +46,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def run(args: argparse.Namespace) -> dict[str, Any]:
+    distribution = load_direct_launch_distribution(args.distribution_config)
+    generated_shots = distribution.generate(args.distribution_split)
     thresholds = TeacherGateThresholds(
         minimum_distinct_shots=args.minimum_distinct_shots,
         minimum_inactive_concession_rate=args.minimum_rate,
@@ -48,23 +61,26 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         fixed = FixedCentreController(environment.ee_workspace_xy)
         privileged = PrivilegedInterceptController(environment.ee_workspace_xy)
 
-        inactive_trace = rollout_public_controller(
-            environment, inactive, DEFAULT_DIRECT_LAUNCH_SHOT
-        )
-        fixed_trace = rollout_public_controller(
-            environment, fixed, DEFAULT_DIRECT_LAUNCH_SHOT
-        )
-        privileged_trace = rollout_privileged_controller(
-            environment, privileged, DEFAULT_DIRECT_LAUNCH_SHOT
-        )
+        inactive_traces: list[EpisodeTrace] = []
+        fixed_traces: list[EpisodeTrace] = []
+        privileged_traces: list[EpisodeTrace] = []
+        for generated in generated_shots:
+            inactive_traces.append(
+                rollout_public_controller(environment, inactive, generated.shot)
+            )
+            fixed_traces.append(
+                rollout_public_controller(environment, fixed, generated.shot)
+            )
+            privileged_traces.append(
+                rollout_privileged_controller(environment, privileged, generated.shot)
+            )
 
         reliability_traces: list[EpisodeTrace] = []
         faults: list[str] = []
+        reliability_shot = generated_shots[0].shot
         for episode in range(args.reliability_episodes):
             try:
-                trace = rollout_public_controller(
-                    environment, fixed, DEFAULT_DIRECT_LAUNCH_SHOT
-                )
+                trace = rollout_public_controller(environment, fixed, reliability_shot)
                 _require_finite_trace(trace)
                 reliability_traces.append(trace)
             except Exception as error:  # noqa: BLE001 - faults belong in the report
@@ -74,12 +90,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         replay_deterministic = (
             len(reliability_traces) == args.reliability_episodes
             and len(signatures) == 1
-            and fixed_trace.signature() in signatures
+            and fixed_traces[0].signature() in signatures
         )
         evidence = TeacherGateEvidence(
-            inactive_traces=(inactive_trace,),
-            fixed_traces=(fixed_trace,),
-            privileged_traces=(privileged_trace,),
+            inactive_traces=tuple(inactive_traces),
+            fixed_traces=tuple(fixed_traces),
+            privileged_traces=tuple(privileged_traces),
             replay_deterministic=replay_deterministic,
             observation_contract_clean=audit_public_observation_contract(),
             reliability_episodes_attempted=args.reliability_episodes,
@@ -89,14 +105,17 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         report = evaluate_teacher_training_gate(evidence, thresholds).as_dict()
         report["scope"] = {
             "launch_mode": "direct_launch",
-            "available_distinct_shots": 1,
-            "shot": DEFAULT_DIRECT_LAUNCH_SHOT.as_dict(),
+            "distribution_id": distribution.distribution_id,
+            "distribution_split": args.distribution_split,
+            "available_distinct_shots": len(generated_shots),
+            "distribution_summary": summarise_distribution(generated_shots),
+            "reliability_shot_id": reliability_shot.shot_id,
         }
-        report["baseline_observations"] = [
-            inactive_trace.summary(),
-            fixed_trace.summary(),
-            privileged_trace.summary(),
-        ]
+        report["baseline_outcome_counts"] = {
+            "inactive": _outcome_counts(inactive_traces),
+            "fixed_centre": _outcome_counts(fixed_traces),
+            "privileged_intercept": _outcome_counts(privileged_traces),
+        }
         return report
     finally:
         environment.close()
@@ -110,6 +129,10 @@ def _require_finite_trace(trace: EpisodeTrace) -> None:
         )
     if not np.isfinite(trace.total_reward):
         raise FloatingPointError("trajectory contains a non-finite reward")
+
+
+def _outcome_counts(traces: list[EpisodeTrace]) -> dict[str, int]:
+    return dict(sorted(Counter(trace.outcome for trace in traces).items()))
 
 
 def main() -> None:

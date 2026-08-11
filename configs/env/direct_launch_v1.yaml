@@ -1,0 +1,43 @@
+schema_version: 1
+distribution_id: direct_launch_v1
+launch_mode: direct_launch
+status: validated_on_marvin
+
+geometry:
+  table_length: 1.948
+  table_width: 1.038
+  goal_width: 0.25
+  defending_goal_plane_x: -0.974
+  defender_approach_plane_x: -0.65
+
+sampling:
+  launch_x: [0.45, 0.65]
+  # Calibrated so MuJoCo friction produces the realised target below.
+  ballistic_approach_time_seconds: [0.36, 0.75]
+  realised_approach_time_target_seconds: [0.4, 1.0]
+  lateral_launch_regions:
+    left: [-0.36, -0.16]
+    centre: [-0.10, 0.10]
+    right: [0.16, 0.36]
+  goal_target_regions:
+    near_post_left: [-0.11, -0.08]
+    goal_centre: [-0.025, 0.025]
+    near_post_right: [0.08, 0.11]
+
+splits:
+  calibration:
+    seed: 1101
+    shots_per_region_pair: 24
+    purpose: task tuning and pre-training gate
+  train:
+    seed: 2101
+    shots_per_region_pair: 100
+    purpose: teacher training
+  validation:
+    seed: 3101
+    shots_per_region_pair: 25
+    purpose: model selection
+  test:
+    seed: 4101
+    shots_per_region_pair: 25
+    purpose: final evaluation only
