@@ -12,6 +12,9 @@ workflow.
 - `reproduce_upstream_demo.sh [output_dir]` renders the supplied 2023
   self-play checkpoint through Xvfb and records an H.264 video. Set the rollout
   length with `STEPS`; the default is 500.
+- `run_minimal_task.py [--output PATH]` runs the inactive, fixed-centre and
+  privileged controls on the deterministic direct-launch slice and verifies a
+  repeated public trajectory.
 
 The build and rendering scripts are intended to run on Marvin. They fail on a
 missing prerequisite and the video script refuses to overwrite its primary

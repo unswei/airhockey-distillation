@@ -4,8 +4,9 @@ Last updated: 2026-08-11
 
 ## Current phase
 
-Phase 0 — source audit and reproduction complete. Phase 1 — set-piece
-environment is next.
+Phase 0 — source audit and reproduction complete. Phase 1 — minimal
+direct-launch set-piece slice complete; scripted strikes and distribution
+calibration are next.
 
 ## Completed
 
@@ -25,12 +26,20 @@ environment is next.
   H.264 video from its immutable container image.
 - Confirmed that the historical 40-observation checkpoint is not a valid
   teacher for the proposed 19-observation task.
+- Implemented one deterministic direct-launched shot in the pinned single
+  defender environment.
+- Implemented the 19-dimensional public observation, deterministic blackout
+  and two-dimensional action adapter with fixed mid-range impedance.
+- Added inactive, fixed-centre and explicitly privileged intercept controls.
+- Verified exact replay of the same public trajectory in MuJoCo.
+- Added masking, visibility timing, privileged-state leakage and replay tests.
 
 ## Next actions
 
-- Implement the deterministic shot generator and short set-piece wrapper.
-- Add the 19-dimensional public observation and two-dimensional action adapter.
-- Add inactive, fixed-centre and privileged intercept controls before training.
+- Add a scripted physical strike while retaining direct launch as a regression
+  mode.
+- Calibrate and version non-trivial train, validation and test shot ranges.
+- Add contact-aware outcome classification before task-scale evaluation.
 - Run a short Dreamer training smoke test to test the declared JAX/CUDA
   dependency mismatch before a long teacher run.
 - Select a backed-up artefact destination before large checkpoints or datasets.
@@ -48,6 +57,9 @@ environment is next.
 | 2026-08-11 | Ran the interface probe on the rebuilt image | 20 policy observations, 6 policy actions, 50 Hz; identical to the pre-existing image report |
 | 2026-08-11 | Ran JAX GPU discovery in the rebuilt image | JAX 0.5.3 found one RTX 5090 CUDA device |
 | 2026-08-11 | Rendered 300 upstream self-play steps with `scripts/reproduce_upstream_demo.sh` | 13.07 s, 1920x1080 H.264 video; SHA-256 `815c8c65e4ce9274e46cdbabdf224d71b4a99ce83e2d68c1309eaf4a63c3acab` |
+| 2026-08-11 | Ran minimal task contract tests locally | 14 passed; MuJoCo integration skipped outside Marvin |
+| 2026-08-11 | Ran the complete minimal task suite in the audited Marvin image | 15 passed |
+| 2026-08-11 | Ran inactive, fixed-centre and privileged controls on the same direct-launched shot | Inactive and fixed-centre conceded; privileged controller returned the puck; replay matched exactly |
 
 ## Blockers
 

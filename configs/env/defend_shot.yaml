@@ -1,11 +1,18 @@
-schema_version: 0
-status: draft_requires_upstream_audit
+schema_version: 1
+status: minimal_direct_launch
 
 task:
   id: DefendShotTrackingLoss
   control_frequency_hz: 50
   timeout_seconds: 2.5
-  launch_mode: scripted_strike
+  launch_mode: direct_launch
+
+direct_launch:
+  shot_id: near_post_right_v1
+  position_table_xy: [0.55, 0.11]
+  velocity_table_xy: [-1.6, 0.0]
+  yaw_position: 0.0
+  yaw_velocity: 0.0
 
 observation:
   expected_dimension: 19
@@ -14,17 +21,25 @@ observation:
   include_puck_velocity: false
   include_observation_stack: false
   include_opponent_mallet: false
-  measurement_noise_std: null  # Set after the upstream audit.
+  measurement_noise_std: 0.0
+
+action:
+  dimension: 2
+  fixed_stiffness_xy: [13.5, 13.5]
+  fixed_damping_xy: [0.25, 0.25]
 
 tracking_loss:
   episodes_have_single_contiguous_blackout: true
   minimum_visible_post_strike_steps: 5
+  minimal_slice:
+    start_observation_step: 5
+    length_steps: 10
   training_blackout_steps:
     minimum: 0
     maximum: 20
     sampling: uniform
   evaluation_blackout_steps: [0, 5, 10, 15, 20, 25]
-  trigger_approach_line: null  # Set from audited table coordinates.
+  trigger_approach_line: null  # Used after scripted strikes are implemented.
 
 shot_distribution:
   # Physical ranges must be calibrated from env_info before learning starts.

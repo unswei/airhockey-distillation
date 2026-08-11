@@ -46,10 +46,13 @@ STATUS.md                 Commands, results, decisions and blockers
 UPSTREAM.md               Dependency commits and licence obligations
 ```
 
-The upstream audit is complete. The next implementation milestone is the
-set-piece environment and its controls, followed by a minimal vertical slice:
-one shot, one blackout, teacher inference, one `k = 2` student and one
-evaluation episode.
+The upstream audit and minimal direct-launch task slice are complete. The
+slice has one deterministic shot and blackout, the 19-dimensional public
+observation, the two-dimensional action adapter, deterministic replay and
+three task-validity controls; see
+[`docs/minimal_task_slice.md`](docs/minimal_task_slice.md). The next
+implementation milestone is a scripted strike and calibrated shot
+distribution, followed by teacher inference and one `k = 2` student.
 
 ## Scientific guardrails
 

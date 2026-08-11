@@ -8,7 +8,13 @@ version = "0.1.0"
 description = "Structured recurrent policy distillation for robot air hockey under tracking loss"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+  "gymnasium>=1.0,<2",
+  "numpy>=1.26,<2",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -16,3 +22,6 @@ where = ["src"]
 [tool.pytest.ini_options]
 addopts = "-ra"
 testpaths = ["tests"]
+markers = [
+  "integration: requires the pinned upstream MuJoCo stack",
+]
