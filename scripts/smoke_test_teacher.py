@@ -31,12 +31,13 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--code-commit", required=True)
+    parser.add_argument("--profile", choices=("smoke", "diagnostic"), default="smoke")
     return parser.parse_args()
 
 
 def run(args: argparse.Namespace) -> dict[str, Any]:
     config = _load_config(args.config)
-    smoke = config["smoke"]
+    run_config = config[args.profile]
     training = config["training"]
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
@@ -46,6 +47,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "status": "running",
         "started_at": started_at.isoformat(),
         "code_commit": args.code_commit,
+        "profile": args.profile,
         "config": config,
         "runtime": {
             "hostname": platform.node(),
@@ -55,7 +57,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "mujoco": mujoco.__version__,
         },
     }
-    metadata_path = output / "smoke_result.json"
+    metadata_path = output / f"{args.profile}_result.json"
     _write_json(metadata_path, metadata)
 
     def make_environment(**kwargs: Any) -> DirectLaunchTrainingEnv:
@@ -77,33 +79,33 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     dreamer_logdir = output / "dreamer"
     dreamer_args = [
         "--configs",
-        str(smoke["model_preset"]),
+        str(run_config["model_preset"]),
         "--task",
         f"gymnasium_{ENVIRONMENT_ID}",
         "--logdir",
         str(dreamer_logdir),
         "--seed",
-        str(smoke["seed"]),
+        str(run_config["seed"]),
         "--batch_size",
-        str(smoke["batch_size"]),
+        str(run_config["batch_size"]),
         "--batch_length",
-        str(smoke["batch_length"]),
+        str(run_config["batch_length"]),
         "--report_length",
-        str(smoke["report_length"]),
+        str(run_config["report_length"]),
         "--replay.size",
-        str(smoke["replay_size"]),
+        str(run_config["replay_size"]),
         "--run.steps",
-        str(smoke["steps"]),
+        str(run_config["steps"]),
         "--run.train_ratio",
-        str(smoke["train_ratio"]),
+        str(run_config["train_ratio"]),
         "--run.envs",
-        "1",
+        str(run_config.get("log_every", 1)),
         "--run.log_every",
         "1",
         "--run.report_every",
-        "3600",
+        str(run_config.get("report_every", 3600)),
         "--run.save_every",
-        "1",
+        str(run_config.get("save_every", 1)),
         "--run.debug",
         "True",
         "--jax.platform",
@@ -175,22 +177,22 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         metadata.update(
             status="failed",
             error={
-                "type": "SmokeCriterionError",
+                "type": "TrainingCriterionError",
                 "message": "no train/* metrics were written",
             },
         )
         _write_json(metadata_path, metadata)
-        raise RuntimeError("Dreamer smoke run wrote no train/* metrics")
+        raise RuntimeError("Dreamer run wrote no train/* metrics")
     if not nonzero_episode_scores:
         metadata.update(
             status="failed",
             error={
-                "type": "SmokeCriterionError",
+                "type": "TrainingCriterionError",
                 "message": "no non-zero episode score was written",
             },
         )
         _write_json(metadata_path, metadata)
-        raise RuntimeError("Dreamer smoke run wrote no non-zero episode score")
+        raise RuntimeError("Dreamer run wrote no non-zero episode score")
 
     metadata["status"] = "completed"
     _write_json(metadata_path, metadata)
@@ -201,7 +203,7 @@ def _load_config(path: Path) -> dict[str, Any]:
     raw = yaml.safe_load(path.read_text())
     if not isinstance(raw, dict):
         raise TypeError("teacher config must be a mapping")
-    for key in ("teacher", "training", "smoke", "provenance"):
+    for key in ("teacher", "training", "smoke", "diagnostic", "evaluation", "provenance"):
         if not isinstance(raw.get(key), dict):
             raise TypeError(f"teacher config section {key!r} must be a mapping")
     return raw

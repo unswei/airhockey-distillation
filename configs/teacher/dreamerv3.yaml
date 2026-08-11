@@ -31,6 +31,26 @@ smoke:
   train_ratio: 8.0
   purpose: collection, replay, CUDA compilation, gradient and checkpoint test
 
+diagnostic:
+  seed: 6202
+  model_preset: size1m
+  steps: 20000
+  batch_size: 8
+  batch_length: 32
+  report_length: 16
+  replay_size: 100000
+  train_ratio: 8.0
+  log_every: 1
+  report_every: 3600
+  save_every: 10
+  purpose: short reward-bearing learning and held-out evaluation diagnostic
+
+evaluation:
+  distribution_config: configs/env/direct_launch_v2.yaml
+  distribution_split: validation
+  shot_count: 30
+  blackout_steps: [0, 10, 20]
+
 provenance:
   drl_air_hockey_commit: a41081c4c3860877d7553c7eb9e84c1b7f5f7da0
   air_hockey_challenge_commit: 34729081d4327141dcf560c0fb8274cd4882e82c
