@@ -35,6 +35,20 @@ workflow.
 - `run_full_teacher_on_marvin.sh RUN_ID CODE_COMMIT` runs or resumes the
   versioned full profile in the audited container, then performs checkpoint
   validation selection. It refuses a dirty or mismatched Marvin checkout.
+- `freeze_teacher_checkpoint.py` copies only the inference checkpoint payload,
+  binds it to the validation selection and teacher configuration, records
+  SHA-256 hashes and makes the frozen directory read-only.
+- `collect_teacher_dataset.py` collects deterministic teacher trajectories into
+  restart-safe 500-episode shards. Public observations and teacher actions are
+  the training interface; previous actions and explicit evaluation-only state
+  are retained for later diagnostics but are not student inputs.
+- `train_feed_forward.py` trains and validation-selects the Stage B
+  observation-only policy, then exports a framework-neutral NumPy checkpoint.
+- `evaluate_feed_forward.py` evaluates that checkpoint on the exact validation
+  shots and blackout lengths used for the selected teacher.
+- `run_stage_b_memory_gate.py` pairs outcomes by shot and blackout, bootstraps
+  the teacher advantage and applies the predeclared memory criteria in
+  `configs/student/feed_forward_stage_b.yaml`.
 
 The build and rendering scripts are intended to run on Marvin. They fail on a
 missing prerequisite and the video script refuses to overwrite its primary
@@ -43,7 +57,6 @@ artefacts. Exact commands and audited outputs are in
 
 ## Planned experiment entry points
 
-- `collect_dataset.sh`
 - `train_core_students.sh`
 - `evaluate_core.sh`
 - `make_figures.sh`

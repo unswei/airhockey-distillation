@@ -228,6 +228,11 @@ def _load_splits(
         if _sha256(shard_path) != shard_entry["sha256"]:
             raise ValueError(f"dataset shard hash mismatch: {shard_path}")
         with np.load(shard_path, allow_pickle=False) as shard:
+            if int(shard["dataset_schema_version"]) != 2:
+                raise ValueError(f"unsupported dataset shard schema: {shard_path}")
+            actions = shard["teacher_actions"]
+            if not np.all(np.isfinite(actions)) or np.any(np.abs(actions) > 1.0):
+                raise ValueError(f"invalid executed teacher actions: {shard_path}")
             offsets = shard["episode_offsets"]
             indices = shard["episode_indices"]
             for local_index, episode_index in enumerate(indices):

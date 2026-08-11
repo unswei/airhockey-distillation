@@ -182,6 +182,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "status": "completed",
         "created_at": datetime.now(UTC).isoformat(),
         "dataset_id": dataset["id"],
+        "dataset_schema_version": 2,
+        "teacher_action_semantics": "executed_after_public_adapter_clip",
         "code_commit": args.code_commit,
         "config_sha256": _sha256(args.config.resolve()),
         "frozen_teacher": {
@@ -219,6 +221,7 @@ def _collect_shard(
 ) -> dict[str, np.ndarray[Any, Any]]:
     observations: list[np.ndarray[Any, Any]] = []
     previous_actions: list[np.ndarray[Any, Any]] = []
+    teacher_raw_actions: list[np.ndarray[Any, Any]] = []
     teacher_actions: list[np.ndarray[Any, Any]] = []
     rewards: list[float] = []
     terminals: list[bool] = []
@@ -248,10 +251,12 @@ def _collect_shard(
                 "is_terminal": np.asarray([False], dtype=bool),
             }
             carry, actions, _ = agent.policy(carry, policy_observation, mode="eval")
-            teacher_action = np.asarray(actions["action"], dtype=np.float32)[0]
+            teacher_raw_action = np.asarray(actions["action"], dtype=np.float32)[0]
+            teacher_action = np.clip(teacher_raw_action, -1.0, 1.0).astype(np.float32)
 
             observations.append(np.asarray(observation, dtype=np.float32))
             previous_actions.append(previous_action)
+            teacher_raw_actions.append(teacher_raw_action)
             teacher_actions.append(teacher_action)
             visible.append(bool(info["puck_visible"]))
             privileged_positions.append(state.puck_position_robot_xy)
@@ -275,8 +280,11 @@ def _collect_shard(
         episode_offsets.append(len(observations))
 
     return {
+        "dataset_schema_version": np.asarray(2, dtype=np.int64),
+        "teacher_action_semantics": np.asarray("executed_after_public_adapter_clip"),
         "observations": np.asarray(observations, dtype=np.float32),
         "previous_actions": np.asarray(previous_actions, dtype=np.float32),
+        "teacher_raw_actions": np.asarray(teacher_raw_actions, dtype=np.float32),
         "teacher_actions": np.asarray(teacher_actions, dtype=np.float32),
         "rewards": np.asarray(rewards, dtype=np.float32),
         "terminals": np.asarray(terminals, dtype=bool),
@@ -297,6 +305,14 @@ def _collect_shard(
 
 def _validate_shard(path: Path, first_episode: int, episode_count: int) -> None:
     with np.load(path, allow_pickle=False) as shard:
+        if int(shard["dataset_schema_version"]) != 2:
+            raise ValueError(f"existing shard has an incompatible schema: {path}")
+        if str(shard["teacher_action_semantics"]) != (
+            "executed_after_public_adapter_clip"
+        ):
+            raise ValueError(
+                f"existing shard has incompatible action semantics: {path}"
+            )
         indices = shard["episode_indices"]
         expected = np.arange(first_episode, first_episode + episode_count)
         if not np.array_equal(indices, expected):
@@ -305,6 +321,9 @@ def _validate_shard(path: Path, first_episode: int, episode_count: int) -> None:
             raise ValueError(f"existing shard has invalid offsets: {path}")
         if int(shard["episode_offsets"][-1]) != shard["observations"].shape[0]:
             raise ValueError(f"existing shard has invalid transition count: {path}")
+        actions = shard["teacher_actions"]
+        if not np.all(np.isfinite(actions)) or np.any(np.abs(actions) > 1.0):
+            raise ValueError(f"existing shard has invalid executed actions: {path}")
 
 
 def _load_mapping(path: Path) -> dict[str, Any]:
