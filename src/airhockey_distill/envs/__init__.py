@@ -1,6 +1,7 @@
 """Tracking-loss air-hockey environments and policy interfaces."""
 
 from .defend_shot import DefendShotTrackingLoss, MujocoDirectLaunchBackend
+from .outcomes import ContactAwareOutcomeTracker, OutcomeThresholds
 from .policy_interface import PlanarActionAdapter, PublicObservationAdapter
 from .shot import DEFAULT_DIRECT_LAUNCH_SHOT, ShotSpec
 from .shot_distribution import (
@@ -15,10 +16,12 @@ from .tracking_loss import BlackoutSchedule
 __all__ = [
     "DEFAULT_DIRECT_LAUNCH_SHOT",
     "BlackoutSchedule",
+    "ContactAwareOutcomeTracker",
     "DefendShotTrackingLoss",
     "DirectLaunchDistribution",
     "GeneratedShot",
     "MujocoDirectLaunchBackend",
+    "OutcomeThresholds",
     "PlanarActionAdapter",
     "PublicObservationAdapter",
     "ShotSpec",

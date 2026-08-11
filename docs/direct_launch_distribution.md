@@ -81,8 +81,10 @@ python3 scripts/validate_direct_launch_distribution.py \
 ## Limits
 
 This validates deterministic coverage, geometry, timing and simulator
-stability. It does not yet show that the distribution has the desired control
-difficulty. The next gate run must measure concession rates for inactive and
-fixed-centre defenders and save rate for the privileged controller on these
-same 216 shots. Direct launch also remains a development mode; physical
-realism must be checked again when scripted strikes are introduced.
+stability. The subsequent contact-aware gate showed that the privileged
+controller saves 100% of v1, but inactive and fixed-centre concession rates are
+only 41.7% and 40.3%. The balanced target mixture therefore sends too many
+shots through the neutral mallet. Preserve v1 as evidence; a versioned v2
+should reduce centre-target weight and move near-post ranges outward while
+retaining all required regions. Direct launch also remains a development mode;
+physical realism must be checked again when scripted strikes are introduced.

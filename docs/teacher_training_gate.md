@@ -18,7 +18,7 @@ as follows:
 | Paired coverage | Every controller is evaluated on the same non-empty set of distinct shot IDs |
 | Inactive defender | Concession rate at least 0.80 over at least 200 distinct shots |
 | Fixed-centre defender | Concession rate at least 0.80 over at least 200 distinct shots |
-| Privileged controller | Explicit clear, arrest or return on at least 0.80 of at least 200 distinct shots |
+| Privileged controller | Explicit arrest, return or safe deflection on at least 0.80 of at least 200 distinct shots |
 | Replay | Repetitions produce the exact same public trajectory hash |
 | Observation | No puck velocity or opponent feature; blackout masking remains exact |
 | Marvin reliability | At least 20 completed smoke episodes and zero simulator faults |
@@ -34,27 +34,24 @@ The isolation check concerns puck velocity and opponent information.
 
 | Check | Observation | Status |
 | --- | --- | --- |
-| Paired coverage | All three controls used `near_post_right_v1` | `PASS` |
-| Inactive concession | 1/1 | `INSUFFICIENT_EVIDENCE` |
-| Fixed-centre concession | 1/1 | `INSUFFICIENT_EVIDENCE` |
-| Privileged save | 1/1, classified as returned | `INSUFFICIENT_EVIDENCE` |
+| Paired coverage | All controls used the same 216 `direct_launch_v1` shots | `PASS` |
+| Inactive concession | 90/216, 41.7% | `FAIL` |
+| Fixed-centre concession | 87/216, 40.3% | `FAIL` |
+| Privileged save | 216/216, 100% | `PASS` |
 | Exact replay | All 20 stability trajectories matched | `PASS` |
 | Public observation isolation | Puck velocity invariant; no opponent component | `PASS` |
 | Marvin simulator reliability | 20/20 episodes, zero faults | `PASS` |
 
-The full test suite also passed in the pinned Marvin image: 19 tests in 1.68
-seconds. The headless run emits a GLFW warning because `DISPLAY` is unset; no
+The full contact-aware test suite also passed in the pinned Marvin image: 32
+tests. The headless run emits a GLFW warning because `DISPLAY` is unset; no
 rendering is requested and this did not affect the simulation.
 
-The current point estimates look favourable, but they describe one fixed
-direct launch. They do not establish that inactive and fixed defenders concede
-often enough across a useful distribution, or that the privileged controller
-saves most shots. Teacher training therefore remains blocked.
-
-`direct_launch_v1` now provides a validated 216-shot calibration manifest for
-the missing paired rate evidence. The table above records the last applied
-gate, before that distribution existed; it is not a result for the new
-manifest. The gate runner now defaults to the 216-shot calibration split.
+The privileged controller produced 205 returns and 11 arrests, with no
+timeouts or concessions. It already exceeds the required save rate. The
+remaining failure is task difficulty: inactive and fixed-centre mallets return
+many trajectories because v1 weights goal-centre and near-post targets
+equally. Do not weaken the gate; preserve v1 and recalibrate a versioned v2
+distribution away from the neutral mallet while retaining centre coverage.
 
 ## Command and evidence
 
@@ -70,15 +67,15 @@ insufficient. The final report for this gate application is stored outside Git
 at:
 
 ```text
-/home/oliver/experiments/airhockey-memory-distillation/teacher-gate-2026-08-11-v2/teacher_gate.json
+/home/oliver/experiments/airhockey-memory-distillation/teacher-gate-2026-08-11-v3/teacher_gate.json
 ```
 
 SHA-256:
-`2c50a70f83e4dcfb9ad797a4f93dd776561cc62ea6e0bbd6794facedf8a0bd31`.
+`a56f3499cee1ffa484fe985e55e6c55737b596b1f1bc7c1ea49437d67af5b5ab`.
 
 ## Work required for GO
 
-1. Add contact-aware terminal outcomes so saves and bare timeouts are separated
-   reliably.
-2. Evaluate all three controls on the same 216 calibration shots.
-3. Re-run this gate. Begin the Dreamer smoke run only if the report says `GO`.
+1. Create `direct_launch_v2` with fewer centre-target shots and outward-shifted
+   near-post ranges, without modifying the preserved v1 manifest.
+2. Re-run all controls on the paired v2 calibration manifest.
+3. Begin the Dreamer smoke run only if the report says `GO`.

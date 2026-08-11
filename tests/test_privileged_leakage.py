@@ -39,4 +39,4 @@ def test_public_rollout_never_requests_explicit_privileged_state() -> None:
     )
 
     assert trace.steps == 3
-    assert trace.outcome == "upstream_terminal"
+    assert trace.outcome == "upstream_terminal_without_contact"

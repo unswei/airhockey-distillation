@@ -9,7 +9,9 @@ from airhockey_distill.envs import (
 )
 from airhockey_distill.evaluation import (
     FixedCentreController,
+    PrivilegedInterceptController,
     assert_equivalent_replay,
+    rollout_privileged_controller,
     rollout_public_controller,
 )
 
@@ -51,5 +53,26 @@ def test_direct_launch_replays_in_pinned_mujoco_environment() -> None:
         assert first.visibility[5:8] == (False, False, False)
         assert first.steps == 20
         assert first.truncated is True
+    finally:
+        environment.close()
+
+
+@pytest.mark.integration
+def test_contact_aware_privileged_return_terminates_before_timeout() -> None:
+    pytest.importorskip("air_hockey_challenge")
+    environment = DefendShotTrackingLoss(MujocoDirectLaunchBackend())
+    try:
+        controller = PrivilegedInterceptController(environment.ee_workspace_xy)
+
+        trace = rollout_privileged_controller(
+            environment,
+            controller,
+            DEFAULT_DIRECT_LAUNCH_SHOT,
+        )
+
+        assert trace.outcome == "returned"
+        assert trace.terminated is True
+        assert trace.truncated is False
+        assert trace.steps < environment.timeout_steps
     finally:
         environment.close()

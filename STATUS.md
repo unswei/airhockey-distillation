@@ -6,7 +6,7 @@ Last updated: 2026-08-11
 
 Phase 0 — source audit and reproduction complete. Phase 1 — minimal
 direct-launch set-piece slice complete. The teacher-training gate is `NO_GO`
-until baseline rates are established over the new calibrated shot distribution.
+because `direct_launch_v1` is too easy for inactive and fixed-centre defenders.
 
 ## Completed
 
@@ -44,14 +44,18 @@ until baseline rates are established over the new calibrated shot distribution.
 - Validated all 216 calibration shots on Marvin: balanced centre/near-post
   coverage, three lateral launch regions, 0.40--0.94 s realised approach
   times, and zero simulator faults.
+- Added contact-aware concession, return, arrest, safe-deflection and timeout
+  outcomes using MuJoCo collision events at every simulation substep.
+- Evaluated all controls on the paired 216-shot v1 manifest. The privileged
+  controller saved 216/216 shots; no controller calibration was required.
 
 ## Next actions
 
 - Add a scripted physical strike while retaining direct launch as a regression
   mode.
-- Add contact-aware outcome classification before task-scale evaluation.
-- Evaluate inactive, fixed-centre and privileged controls on the same 216
-  calibration shots and re-run the gate.
+- Preserve v1 and create `direct_launch_v2` with less goal-centre weight and
+  outward-shifted near-post targets so neutral defenders concede often enough.
+- Re-run the paired gate on v2.
 - Run a short Dreamer training smoke test only after the gate returns `GO`.
 - Select a backed-up artefact destination before large checkpoints or datasets.
 
@@ -75,13 +79,15 @@ until baseline rates are established over the new calibrated shot distribution.
 | 2026-08-11 | Ran `scripts/run_teacher_gate.py` on Marvin | `NO_GO`; 20/20 reliable exact replays and clean observation contract, but only 1/200 required distinct shots for the three rate checks |
 | 2026-08-11 | Generated `direct_launch_v1` calibration manifest | 216 distinct shots; 24 per launch/target pairing; manifest SHA-256 `82986091f72a3e51cde803ed73527e060bb0d0a89fda6d08e82eb810abf8724e` |
 | 2026-08-11 | Simulated all calibration shots in the pinned Marvin image | 216/216 reached the approach plane in 0.40--0.94 s; zero faults |
+| 2026-08-11 | Ran the contact-aware suite in the pinned Marvin image | 32 passed |
+| 2026-08-11 | Ran the paired gate on all 216 v1 shots | `NO_GO`; inactive conceded 41.7%, fixed centre 40.3%, privileged saved 100%; all technical checks passed |
 
 ## Blockers
 
 - Marvin's experiment directory is not yet backed up to a durable artefact
   store.
-- Teacher training is blocked until the three controls are evaluated on the
-  216-shot calibration manifest and every gate criterion passes.
+- Teacher training is blocked because v1 inactive and fixed-centre concession
+  rates are below 80%; the privileged controller already passes at 100%.
 - The Blackwell image deliberately overrides Dreamer's declared JAX 0.4.33 and
   CUDA NVCC 12.2 bounds with JAX 0.5.3 and CUDA NVCC 12.9.86. Device discovery
   and interface smoke tests pass; `pip check` records the two conflicts.

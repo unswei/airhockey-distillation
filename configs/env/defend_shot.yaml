@@ -28,6 +28,15 @@ action:
   fixed_stiffness_xy: [13.5, 13.5]
   fixed_damping_xy: [0.25, 0.25]
 
+outcomes:
+  contact_source: mujoco_puck_robot_1_ee
+  return_plane_table_x: -0.55
+  minimum_return_velocity_x: 0.15
+  arrest_speed: 0.1
+  arrest_confirmation_steps: 3
+  timeout_without_contact_is_save: false
+  timeout_after_contact_is_save: false
+
 tracking_loss:
   episodes_have_single_contiguous_blackout: true
   minimum_visible_post_strike_steps: 5

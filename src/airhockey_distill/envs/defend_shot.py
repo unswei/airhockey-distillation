@@ -10,6 +10,7 @@ import gymnasium as gym
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
+from .outcomes import ContactAwareOutcomeTracker
 from .policy_interface import PlanarActionAdapter, PublicObservationAdapter
 from .shot import DEFAULT_DIRECT_LAUNCH_SHOT, ShotSpec
 from .tracking_loss import BlackoutSchedule
@@ -20,6 +21,8 @@ class TableGeometry:
     length: float
     width: float
     goal_width: float
+    puck_radius: float = 0.03165
+    mallet_radius: float = 0.04815
 
 
 @dataclass(frozen=True)
@@ -43,6 +46,7 @@ class BackendSnapshot:
     privileged_state: PrivilegedState
     reward: float = 0.0
     terminated: bool = False
+    puck_mallet_contact: bool = False
 
 
 class DirectLaunchBackend(Protocol):
@@ -74,9 +78,11 @@ class MujocoDirectLaunchBackend:
         class DeterministicIiwaPositionDefend(IiwaPositionDefend):
             def __init__(self, direct_shot: ShotSpec, **kwargs: Any) -> None:
                 self.direct_shot = direct_shot
+                self.puck_mallet_contact_this_step = False
                 super().__init__(**kwargs)
 
             def setup(self, observation: NDArray[np.float64]) -> None:
+                self.puck_mallet_contact_this_step = False
                 shot = self.direct_shot
                 self._write_data("puck_x_pos", shot.position_table_xy[0])
                 self._write_data("puck_y_pos", shot.position_table_xy[1])
@@ -85,6 +91,19 @@ class MujocoDirectLaunchBackend:
                 self._write_data("puck_y_vel", shot.velocity_table_xy[1])
                 self._write_data("puck_yaw_vel", shot.yaw_velocity)
                 AirHockeySingle.setup(self, observation)
+
+            def _step_init(
+                self,
+                observation: NDArray[np.float64],
+                action: NDArray[np.float64],
+            ) -> None:
+                self.puck_mallet_contact_this_step = False
+                super()._step_init(observation, action)
+
+            def _simulation_post_step(self) -> None:
+                super()._simulation_post_step()
+                if self._check_collision("puck", "robot_1/ee"):
+                    self.puck_mallet_contact_this_step = True
 
         self._environment = DeterministicIiwaPositionDefend(
             direct_shot=DEFAULT_DIRECT_LAUNCH_SHOT,
@@ -104,6 +123,8 @@ class MujocoDirectLaunchBackend:
             length=float(table["length"]),
             width=float(table["width"]),
             goal_width=float(table["goal_width"]),
+            puck_radius=float(self._environment.env_info["puck"]["radius"]),
+            mallet_radius=float(self._environment.env_info["mallet"]["radius"]),
         )
         self._observation_step = 0
 
@@ -167,6 +188,7 @@ class MujocoDirectLaunchBackend:
             privileged_state=state,
             reward=reward,
             terminated=terminated,
+            puck_mallet_contact=bool(self._environment.puck_mallet_contact_this_step),
         )
 
     def _read_scalar(self, name: str) -> float:
@@ -186,6 +208,7 @@ class DefendShotTrackingLoss(gym.Env[NDArray[np.float32], NDArray[np.float32]]):
         timeout_steps: int = 125,
         observation_adapter: PublicObservationAdapter | None = None,
         action_adapter: PlanarActionAdapter | None = None,
+        outcome_tracker: ContactAwareOutcomeTracker | None = None,
     ) -> None:
         if timeout_steps <= 0:
             raise ValueError("timeout_steps must be positive")
@@ -194,6 +217,7 @@ class DefendShotTrackingLoss(gym.Env[NDArray[np.float32], NDArray[np.float32]]):
         self.timeout_steps = timeout_steps
         self.observation_adapter = observation_adapter or PublicObservationAdapter()
         self.action_adapter = action_adapter or PlanarActionAdapter()
+        self.outcome_tracker = outcome_tracker or ContactAwareOutcomeTracker()
         self.observation_space = gym.spaces.Box(
             low=-1.0,
             high=1.0,
@@ -210,6 +234,7 @@ class DefendShotTrackingLoss(gym.Env[NDArray[np.float32], NDArray[np.float32]]):
         self._shot: ShotSpec | None = None
         self._observation_step = 0
         self._episode_done = False
+        self._outcome: str | None = None
 
     @property
     def ee_workspace_xy(self) -> NDArray[np.float32]:
@@ -231,6 +256,8 @@ class DefendShotTrackingLoss(gym.Env[NDArray[np.float32], NDArray[np.float32]]):
         self._shot = shot
         self._observation_step = 0
         self._episode_done = False
+        self._outcome = None
+        self.outcome_tracker.reset()
         self._snapshot = self.backend.reset(shot)
         return self._public_observation(), self._public_info()
 
@@ -245,13 +272,22 @@ class DefendShotTrackingLoss(gym.Env[NDArray[np.float32], NDArray[np.float32]]):
         upstream_action = self.action_adapter.adapt(planar_action)
         self._snapshot = self.backend.step(upstream_action)
         self._observation_step += 1
-        terminated = self._snapshot.terminated
+        self._outcome = self.outcome_tracker.observe(
+            state=self._snapshot.privileged_state,
+            geometry=self.table_geometry,
+            observation_step=self._observation_step,
+            puck_mallet_contact=self._snapshot.puck_mallet_contact,
+            upstream_terminal=self._snapshot.terminated,
+        )
+        terminated = self._outcome is not None
         truncated = self._observation_step >= self.timeout_steps and not terminated
         self._episode_done = terminated or truncated
 
         info = self._public_info()
-        if self._episode_done:
-            info["outcome"] = self._classify_outcome(truncated=truncated)
+        if truncated:
+            self._outcome = self.outcome_tracker.timeout_outcome()
+        if self._outcome is not None:
+            info["outcome"] = self._outcome
 
         return (
             self._public_observation(),
@@ -287,28 +323,6 @@ class DefendShotTrackingLoss(gym.Env[NDArray[np.float32], NDArray[np.float32]]):
             "observation_step": self._observation_step,
             "puck_visible": self.blackout.is_visible(self._observation_step),
         }
-
-    def _classify_outcome(self, *, truncated: bool) -> str:
-        if self._snapshot is None:
-            raise RuntimeError("environment has not been reset")
-        state = self._snapshot.privileged_state
-        puck_x, puck_y = state.puck_position_table_xy
-        puck_vx, _ = state.puck_velocity_table_xy
-        table = self.table_geometry
-
-        if puck_x < -table.length / 2 and abs(puck_y) <= table.goal_width / 2:
-            return "goal_conceded"
-        if puck_x > 0.0 and puck_vx > 0.0:
-            return "cleared"
-        if state.puck_speed < 0.1:
-            return "arrested"
-        if puck_x > -0.8 and puck_vx > 0.1:
-            return "returned"
-        if truncated:
-            return "timeout"
-        if abs(puck_x) > table.length / 2 or abs(puck_y) > table.width / 2:
-            return "out_of_bounds_non_goal"
-        return "upstream_terminal"
 
 
 def public_info_has_privileged_state(info: Mapping[str, Any]) -> bool:

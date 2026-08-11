@@ -10,6 +10,8 @@ privileged puck velocity, the public-info boundary, two-to-six dimensional
 action expansion, deterministic replay and fail-closed teacher-gate semantics.
 The direct-launch distribution tests freeze its count, stratification,
 coverage, timing construction and deterministic split generation. The
-`integration` test additionally requires the pinned upstream MuJoCo environment
-and runs in the audited Marvin container. Later phases must add the remaining
-recurrent, checkpoint, aggregation and multi-episode tests listed above.
+contact-aware outcome tests cover concession precedence, return, arrest, safe
+deflection, non-contact exits and both timeout categories. The `integration`
+tests additionally require the pinned upstream MuJoCo environment and run in
+the audited Marvin container. Later phases must add the remaining recurrent,
+checkpoint, aggregation and multi-episode tests listed above.

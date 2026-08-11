@@ -58,7 +58,9 @@ gate currently returns `NO_GO`; see
 versioned 216-shot direct-launch distribution is now available for the paired
 rate evaluation; see
 [`docs/direct_launch_distribution.md`](docs/direct_launch_distribution.md).
-Teacher work remains blocked until the gate passes.
+Contact-aware evaluation confirms that the privileged controller saves all
+216 shots, but v1 remains too easy for inactive and fixed-centre defenders.
+Teacher work remains blocked until a recalibrated v2 distribution passes.
 
 ## Scientific guardrails
 

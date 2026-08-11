@@ -20,7 +20,9 @@ from airhockey_distill.envs.policy_interface import (
 )
 from airhockey_distill.evaluation.rollout import EpisodeTrace
 
-PRIVILEGED_SAVE_OUTCOMES = frozenset({"arrested", "cleared", "returned"})
+PRIVILEGED_SAVE_OUTCOMES = frozenset(
+    {"arrested", "cleared", "returned", "safe_deflection"}
+)
 
 
 class GateStatus(StrEnum):
