@@ -13,7 +13,7 @@ from airhockey_distill.envs.policy_interface import (
 
 
 def upstream_observation() -> np.ndarray:
-    return np.arange(20, dtype=np.float32) / 10.0
+    return np.linspace(-0.9, 0.9, 20, dtype=np.float32)
 
 
 def test_visible_observation_keeps_position_and_removes_velocity() -> None:
@@ -50,6 +50,18 @@ def test_public_observation_is_independent_of_privileged_puck_velocity() -> None
         adapter.adapt(first, puck_visible=True),
         adapter.adapt(second, puck_visible=True),
     )
+
+
+def test_public_observation_clips_normalisation_overshoot() -> None:
+    adapter = PublicObservationAdapter()
+    upstream = upstream_observation()
+    upstream[3] = -1.1
+    upstream[10] = 1.2
+
+    public = adapter.adapt(upstream, puck_visible=True)
+
+    assert public[3] == -1.0
+    assert public[10] == 1.0
 
 
 def test_action_adapter_fixes_impedance_at_mid_range() -> None:

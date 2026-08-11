@@ -56,7 +56,7 @@ class PublicObservationAdapter:
             "upstream observation",
         )
         public = np.empty(PUBLIC_OBSERVATION_DIM, dtype=np.float32)
-        public[:18] = upstream[:18]
+        public[:18] = np.clip(upstream[:18], -1.0, 1.0)
         if not puck_visible:
             public[PUCK_POSITION_XY_SLICE] = 0.0
         public[PUCK_VISIBLE_INDEX] = float(puck_visible)

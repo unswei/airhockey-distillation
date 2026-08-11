@@ -50,6 +50,10 @@ def test_direct_launch_replays_in_pinned_mujoco_environment() -> None:
         )
 
         assert_equivalent_replay(first, second)
+        assert all(
+            environment.observation_space.contains(observation)
+            for observation in first.observations
+        )
         assert first.visibility[5:8] == (False, False, False)
         assert first.steps == 20
         assert first.truncated is True
