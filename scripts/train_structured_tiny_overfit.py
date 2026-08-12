@@ -51,7 +51,13 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     manifest_path = dataset_directory / "manifest.json"
     manifest = json.loads(manifest_path.read_text())
     _validate_manifest(manifest, dataset_config)
-    episodes = _load_complete_episodes(dataset_directory, manifest)
+    source_episodes = _load_complete_episodes(dataset_directory, manifest)
+    training_episode_count = int(
+        training.get("training_episode_count", len(source_episodes))
+    )
+    if not 0 < training_episode_count <= len(source_episodes):
+        raise ValueError("training episode count must lie inside the dataset")
+    episodes = source_episodes[:training_episode_count]
     padded = pad_complete_episodes(
         episodes,
         sequence_length=int(training["sequence_length"]),
@@ -170,7 +176,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "dataset_manifest_sha256": _sha256(manifest_path),
         "teacher_action_semantics": manifest["teacher_action_semantics"],
         "student_input_fields": ["observations", "previous_actions"],
-        "episode_count": len(episodes),
+        "source_episode_count": len(source_episodes),
+        "training_episode_count": len(episodes),
         "episode_lengths": [len(episode["observations"]) for episode in episodes],
         "loss_bearing_action_values": int(np.sum(padded["loss_mask"])) * 2,
         "initial_training_action_mse": initial_mse,
@@ -410,7 +417,12 @@ def _validate_config(config: dict[str, Any]) -> None:
     if int(config["policy"]["innovation_rank"]) != 2:
         raise ValueError("tiny overfit requires innovation rank 2")
     training = config["training"]
-    if int(training["batch_size"]) != int(config["dataset"]["episodes"]):
+    training_episode_count = int(
+        training.get("training_episode_count", config["dataset"]["episodes"])
+    )
+    if not 0 < training_episode_count <= int(config["dataset"]["episodes"]):
+        raise ValueError("training episode count must lie inside the dataset")
+    if int(training["batch_size"]) != training_episode_count:
         raise ValueError("tiny overfit uses all complete episodes in one batch")
     if training["target"] != "deterministic_teacher_action_mean":
         raise ValueError("tiny overfit target must be deterministic teacher means")

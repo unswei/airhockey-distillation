@@ -6,6 +6,7 @@ from scripts.collect_teacher_dataset import (
     teacher_action_semantics,
 )
 from scripts.train_structured_tiny_overfit import (
+    _validate_config,
     evaluate_overfit_gate,
     pad_complete_episodes,
 )
@@ -68,6 +69,20 @@ def test_tiny_overfit_gate_requires_every_predeclared_check():
         "numpy_export_agreement",
         "exact_checkpoint_reload",
     ]
+
+
+def test_corrected_tiny_gate_binds_batch_to_selected_episode_count():
+    config = {
+        "policy": {"state_dimension": 64, "innovation_rank": 2},
+        "dataset": {"episodes": 16},
+        "training": {
+            "training_episode_count": 1,
+            "batch_size": 1,
+            "target": "deterministic_teacher_action_mean",
+        },
+    }
+
+    _validate_config(config)
 
 
 def _episode(length: int, value: float):

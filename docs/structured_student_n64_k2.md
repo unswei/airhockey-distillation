@@ -87,3 +87,10 @@ The diagnostic is predeclared in
 128 padded steps, a 16-step burn-in and full-batch AdamW. It passes only if
 training action MSE reaches `1e-4`, loss falls by at least 99%, NumPy export
 error is at most `5e-6`, and checkpoint reload is exact.
+
+That v1 procedure is preserved after returning `NO_GO`: its selected MSE was
+`0.00648` across 16 diverse episodes. A diagnostic on one complete episode
+reached `3.93e-5`, showing that the training path can overfit but that v1 had
+become a capacity test. The versioned v2 correction uses the first complete
+episode, learning rate `1e-3`, at most 3,000 epochs and a `1e-5` cross-runtime
+tolerance. It retains the `1e-4` MSE, 99% reduction and exact-reload checks.
