@@ -155,3 +155,22 @@ and passes after freezing. Other key bindings are:
 Dataset collection used commit
 `ab86873105bd8cf013f7215d21b23175f6aed994`. The corrected v2 training and
 repeat used commit `4afa8e38cea33eb8a9606110724bb491210efbbc`.
+
+## First full-data seed
+
+The first full-data run is predeclared in
+`configs/student/structured_n64_k2_full_seed_14303.yaml`. It collects 20,000
+new deterministic-mean episodes and splits them by episode seed into 16,000
+training, 2,000 validation and 2,000 internal-test episodes. The sampled Stage
+B datasets are incompatible inputs and the trainer rejects them.
+
+Training seed 14303 uses 64-step truncated recurrence, a 16-step burn-in, a
+48-step loss suffix, batches of 128 episodes, AdamW and global gradient
+clipping at 1.0. Episodes longer than 64 steps carry detached recurrent state
+into the next chunk; the state is never reset at a truncation or visibility
+boundary. The selected checkpoint minimises validation action MSE. Internal
+test loss is calculated once after selection and does not influence training.
+
+After checkpoint reload, the vertical slice evaluates all 225 validation shots
+at blackout lengths 0, 5, 10, 15 and 20. This is a development evaluation,
+not use of the final test split and not yet a principal multi-seed result.

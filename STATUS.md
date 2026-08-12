@@ -13,8 +13,9 @@ The causal teacher-state ablation also returned `GO`: erasing state at
 blackout onset causes a 45.8-point drop at 20 steps under deterministic
 inference. Phase 3 — distillation infrastructure — is authorised.
 The first `n=64`, `k=2` structured recurrent student is implemented and its
-corrected tiny-dataset overfit gate returns `GO`. It is ready for one full-data
-training seed; no closed-loop quality claim has yet been made.
+corrected tiny-dataset overfit gate returns `GO`. Its 20,000-episode
+deterministic-mean collection, single-seed training and paired validation run
+are predeclared; no closed-loop quality claim has yet been made.
 
 ## Completed
 
@@ -191,7 +192,12 @@ training seed; no closed-loop quality claim has yet been made.
 - Repeated corrected training from scratch and obtained byte-identical metrics
   and checkpoint hash `ef76db026a4093238d0734bdf44be8b242d998777da7ebe065147e3768e3c0fa`.
   Froze and hashed the dataset, v1, v2, repeat and logs. The full pinned suite
-  passes 93 tests.
+  passes 98 tests after adding the full-data path.
+- Predeclared the first full-data vertical slice at 20,000 newly collected
+  deterministic-mean episodes, split 16,000/2,000/2,000 by episode seed.
+  Added 64-step truncated training with state carry across chunks,
+  validation-loss selection, exact export checks and paired closed-loop
+  validation. Sampled-action manifests are rejected.
 
 ## Next actions
 
@@ -256,6 +262,7 @@ training seed; no closed-loop quality claim has yet been made.
 | 2026-08-12 | Implemented the structured `n=64`, `k=2` student | Matched NumPy/PyTorch runtimes, exact checkpoint replay, rank-2 Jacobian test and 89 passing tests |
 | 2026-08-12 | Ran the original 16-episode structured-student overfit gate | `NO_GO`; 99.28% loss reduction but selected MSE `0.00648` did not reach `1e-4` |
 | 2026-08-12 | Applied and repeated the one-episode overfit correction | `GO`; MSE `7.4562e-5`, exact reload and identical repeated checkpoint hash |
+| 2026-08-12 | Predeclared the first full-data structured-student seed | 20,000 deterministic-mean episodes; 80/10/10 split; seed 14303; 98 passing tests |
 
 ## Blockers
 

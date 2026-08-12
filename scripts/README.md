@@ -51,6 +51,16 @@ workflow.
 - `train_structured_tiny_overfit.py` trains the fixed `n=64`, `k=2` student on
   a tiny complete-episode dataset and applies the predeclared loss, export and
   checkpoint-reload gate before full-data training is allowed.
+- `train_structured_student.py` trains the first full-data `n=64`, `k=2` seed
+  with episode-level 80/10/10 splits, 64-step truncated recurrence, 16-step
+  boundary burn-in and validation-loss checkpoint selection. It rejects
+  sampled-action datasets.
+- `evaluate_structured_student.py` reloads the exported structured checkpoint
+  and evaluates paired validation shots at the five core blackout lengths,
+  resetting recurrent state only at episode boundaries.
+- `run_structured_full_seed_on_marvin.sh RUN_ID CODE_COMMIT` collects the
+  20,000-episode deterministic-mean dataset, trains seed 14303 and runs paired
+  closed-loop validation from one clean, exact Marvin commit.
 - `train_feed_forward.py` trains and validation-selects the Stage B
   observation-only policy, then exports a framework-neutral NumPy checkpoint.
 - `evaluate_feed_forward.py` evaluates that checkpoint on the exact validation
