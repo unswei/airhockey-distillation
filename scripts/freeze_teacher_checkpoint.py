@@ -22,6 +22,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--code-commit", required=True)
+    parser.add_argument("--teacher-id", required=True)
     return parser.parse_args()
 
 
@@ -48,7 +49,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     manifest = {
         "schema_version": 1,
         "status": "frozen",
-        "teacher_id": "dreamerv3_teacher_v1",
+        "teacher_id": args.teacher_id,
         "frozen_at": datetime.now(UTC).isoformat(),
         "freezing_code_commit": args.code_commit,
         "training_code_commit": selection["code_commit"],

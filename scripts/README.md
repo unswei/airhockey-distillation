@@ -38,8 +38,8 @@ workflow.
 - `run_full_teacher_v3_on_marvin.sh RUN_ID CODE_COMMIT` performs the same
   resumable train-then-select sequence for the locked-prefix v3 task.
 - `freeze_teacher_checkpoint.py` copies only the inference checkpoint payload,
-  binds it to the validation selection and teacher configuration, records
-  SHA-256 hashes and makes the frozen directory read-only.
+  binds it to the validation selection, teacher identity and configuration,
+  records SHA-256 hashes and makes the frozen directory read-only.
 - `collect_teacher_dataset.py` collects deterministic teacher trajectories into
   restart-safe 500-episode shards. Public observations and teacher actions are
   the training interface; previous actions and explicit evaluation-only state

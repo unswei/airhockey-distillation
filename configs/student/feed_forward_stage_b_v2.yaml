@@ -82,7 +82,10 @@ causal_ablation_gate:
   bootstrap_seed: 11303
 
 provenance:
-  candidate_teacher_training_run: teacher-full-v1-2026-08-12-v2
-  candidate_teacher_checkpoint_step: 720000
+  teacher_training_profile: full
+  teacher_training_run: teacher-full-v3-2026-08-12-v1
+  teacher_training_code_commit: 66fbc4c6985a10de362e3e9fd36e192b225e3b6c
+  teacher_selection_step: 700000
+  teacher_selection_report_sha256: 9a5bdda07bf50adf8e33ec6198c678753a7119d8295aef4aa636103913543662
   stage_b_v1_result: results/stage_b_memory_validation_v1.json
   container_digest: sha256:de846e25961d2408db73a6b5cfe2afc7ecf0e14e0e8ac837f97212a180e51d5f
