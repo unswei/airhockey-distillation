@@ -4,6 +4,20 @@ This repository contains the software and experiment definitions for
 **Distilling Recurrent World-Model Policies for Robot Air Hockey under
 Tracking Loss**.
 
+<p align="center">
+  <a href="docs/assets/upstream-self-play-2023.mp4">
+    <img
+      src="docs/assets/upstream-self-play-2023-poster.jpg"
+      alt="Two KUKA iiwa robots playing simulated air hockey"
+      width="900"
+    >
+  </a>
+</p>
+
+<p align="center">
+  <sub>Reproduced upstream 2023 DreamerV3 self-play demo on Marvin. Click the image to play the 13-second video.</sub>
+</p>
+
 The project studies whether a DreamerV3 defence policy can be distilled into
 a compact recurrent policy whose memory has diagonal linear dynamics and only
 `k = 0, 1, 2, or 4` nonlinear innovation channels. The core task is a
@@ -17,9 +31,10 @@ separate Git repository. The parent project directory is only an unversioned
 umbrella containing links to the two repositories and the private project
 brief.
 
-Large datasets, checkpoints, raw run directories and videos must not be added
-to Git. Store them in an appropriate artefact location and version their
-hashes and retrieval instructions here.
+Large datasets, checkpoints and raw run directories must not be added to Git.
+Store them in an appropriate artefact location and version their hashes and
+retrieval instructions here. Small curated GitHub media may live under
+`docs/assets/`; its source and hashes are recorded there.
 
 ## Execution environment
 
