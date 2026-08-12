@@ -45,6 +45,6 @@ overfit_gate:
 provenance:
   teacher_config: configs/teacher/dreamerv3_v3.yaml
   teacher_checkpoint: frozen-teachers/dreamerv3-teacher-v3-step-700000
-  teacher_checkpoint_step: 700000
+  teacher_selection_step: 700000
   teacher_actor_sha256: 6a672d5b6d7c2b9ca2335f1a85b69280ca7db58deb5e2f56d2ba033ebf636254
   container_digest: sha256:de846e25961d2408db73a6b5cfe2afc7ecf0e14e0e8ac837f97212a180e51d5f
