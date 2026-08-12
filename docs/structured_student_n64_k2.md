@@ -1,6 +1,6 @@
 # Structured recurrent student: n=64, k=2
 
-Status: **implemented and tested; not yet trained**.
+Status: **implemented; tiny-overfit gate passed; not full-data trained**.
 
 This is the first Phase 3 vertical-slice student. It implements the principal
 structured recurrence from the project brief with a 64-dimensional memory and
@@ -73,14 +73,13 @@ The focused tests cover:
 - PyTorch and NumPy runtime agreement;
 - finite, non-zero gradients through the recurrent core and action head.
 
-The full pinned Marvin container suite passes 89 tests. This does not establish
-student quality. The next gate is to overfit a tiny set of complete teacher
-episodes using the configured 64-step sequences, 16-step burn-in and 48-step
-loss suffix. The existing Stage B v2 dataset stores executed sampled teacher
-actions, not deterministic teacher means. The overfit diagnostic therefore
-needs a small newly collected deterministic-mean target set; the old target
-semantics must not be relabelled. Only after that passes should the full
-dataset be collected or trained.
+The full pinned Marvin container suite passes 93 tests. This does not establish
+student quality. The tiny-overfit gate used newly collected deterministic-mean
+targets with 128 padded steps and a 16-step burn-in. The existing Stage B v2
+dataset stores executed sampled teacher actions, not deterministic teacher
+means, and was neither reused nor relabelled. With this gate passed, the next
+step is to collect the full deterministic-mean dataset and train one full-data
+seed.
 
 The diagnostic is predeclared in
 `configs/student/structured_n64_k2_tiny_overfit.yaml`: 16 complete episodes,
@@ -94,3 +93,65 @@ reached `3.93e-5`, showing that the training path can overfit but that v1 had
 become a capacity test. The versioned v2 correction uses the first complete
 episode, learning rate `1e-3`, at most 3,000 epochs and a `1e-5` cross-runtime
 tolerance. It retains the `1e-4` MSE, 99% reduction and exact-reload checks.
+
+## Tiny deterministic-mean overfit result
+
+The new dataset contains 16 complete deterministic-inference episodes and 541
+transitions. All episode lengths are 31--36 steps and all first previous
+actions are zero. Its manifest records
+`deterministic_actor_mean_after_public_adapter_clip`; the older sampled-action
+dataset remains unchanged.
+
+The original v1 procedure returned `NO_GO` after 2,000 epochs. Across all 16
+episodes, MSE fell from `0.89558` to `0.00648`, a 99.28% reduction. Checkpoint
+reload was exact, but the near-zero loss and cross-runtime tolerance checks
+failed. This result remains in Git and in the frozen raw evidence.
+
+The v2 correction returned `GO` on the first complete 32-step episode:
+
+| Check | Observed | Required |
+| --- | ---: | ---: |
+| Training action MSE | `7.4562e-5` | at most `1e-4` |
+| Fractional loss reduction | 99.988% | at least 99% |
+| NumPy/PyTorch maximum error | `2.2054e-6` | at most `1e-5` |
+| Exact checkpoint reload | true | true |
+
+The selected checkpoint is from epoch 1,550. An independent rerun produced
+byte-identical metrics and the same checkpoint SHA-256:
+`ef76db026a4093238d0734bdf44be8b242d998777da7ebe065147e3768e3c0fa`.
+This passes the training-path gate; it is not a policy-quality result and this
+one-episode checkpoint must not be used as the principal student.
+
+The compact v1 and v2 results are
+`results/structured_n64_k2_tiny_overfit_v1.json` and
+`results/structured_n64_k2_tiny_overfit_v2.json`. Their SHA-256 hashes are
+`b249df1937036c2297e5c76d2ca6b0580f42cd9a149ae17c8cd5972107590f79`
+and
+`0a2f57df3a54d40af6bf024371753646c315c11db4342db84278f25ca691afb5`.
+
+Raw evidence remains outside Git under Marvin's experiment root:
+
+```text
+teacher-datasets/teacher-v3-structured-n64-k2-tiny-deterministic-2026-08-12-v1
+students/structured-n64-k2-tiny-overfit-2026-08-12-v1
+students/structured-n64-k2-tiny-overfit-2026-08-12-v2
+students/structured-n64-k2-tiny-overfit-2026-08-12-v2-repeat
+structured-n64-k2-tiny-overfit-2026-08-12-v1
+```
+
+All five directories are root-owned and read-only. Their combined checksum
+manifest has SHA-256
+`6fa46ffd875b8f2848ae0eb874a261e5f79086a033b4125942dad7d65091e188`
+and passes after freezing. Other key bindings are:
+
+| Artefact | SHA-256 |
+| --- | --- |
+| Deterministic dataset manifest | `a55c31c9581a09dcb36571c89ac448ba9bed14b0aa969fd0826e2a53f99dcd1a` |
+| Deterministic dataset shard | `78b2f46fb13f96c8ef5ff7c8f33e2562b7b40ffde36c5580d42179340688ea27` |
+| v1 failed checkpoint | `29c65ceac47a1168b5520d8f730061f7289e4aa5088d858f4f3d17d80a7d0cae` |
+| v2 and repeated-v2 checkpoint | `ef76db026a4093238d0734bdf44be8b242d998777da7ebe065147e3768e3c0fa` |
+| Frozen teacher actor | `6a672d5b6d7c2b9ca2335f1a85b69280ca7db58deb5e2f56d2ba033ebf636254` |
+
+Dataset collection used commit
+`ab86873105bd8cf013f7215d21b23175f6aed994`. The corrected v2 training and
+repeat used commit `4afa8e38cea33eb8a9606110724bb491210efbbc`.

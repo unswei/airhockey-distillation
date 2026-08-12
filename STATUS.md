@@ -12,8 +12,9 @@ blackout. The task is now demonstrably memory-dependent under the fixed gate.
 The causal teacher-state ablation also returned `GO`: erasing state at
 blackout onset causes a 45.8-point drop at 20 steps under deterministic
 inference. Phase 3 — distillation infrastructure — is authorised.
-The first `n=64`, `k=2` structured recurrent student is implemented and
-tested, but has not yet passed its tiny-dataset overfit gate.
+The first `n=64`, `k=2` structured recurrent student is implemented and its
+corrected tiny-dataset overfit gate returns `GO`. It is ready for one full-data
+training seed; no closed-loop quality claim has yet been made.
 
 ## Completed
 
@@ -179,17 +180,25 @@ tested, but has not yet passed its tiny-dataset overfit gate.
   checkpoint export.
 - Confirmed by automatic differentiation that the state-dependent departure
   from the fixed diagonal recurrent Jacobian has rank at most two. Checkpoint
-  reload exactly reproduces action and state sequences; the full suite passes
-  89 tests in the pinned Marvin container.
+  reload exactly reproduces action and state sequences.
+- Collected 16 new complete episodes containing 541 transitions from
+  deterministic RSSM predictions and actor means. The new manifest labels
+  these targets explicitly; the older sampled-action dataset was not reused.
+- Preserved the original 16-episode overfit `NO_GO`: MSE fell 99.28% but
+  stopped at `0.00648`, showing that the gate had become a capacity test.
+- Applied the versioned one-episode correction. MSE reached `7.4562e-5`,
+  NumPy/PyTorch error was `2.2054e-6`, reload was exact and all checks passed.
+- Repeated corrected training from scratch and obtained byte-identical metrics
+  and checkpoint hash `ef76db026a4093238d0734bdf44be8b242d998777da7ebe065147e3768e3c0fa`.
+  Froze and hashed the dataset, v1, v2, repeat and logs. The full pinned suite
+  passes 93 tests.
 
 ## Next actions
 
-- Overfit the `k=2`, `n=64` student on a tiny set of complete teacher episodes
-  labelled with deterministic teacher means, and verify that loss can be
-  driven near zero without sequence-reset errors. Do not reuse the older
-  sampled-action dataset without explicitly changing the target definition.
-- Train one full-data seed only after the tiny overfit passes, then reload its
-  checkpoint and run one paired closed-loop evaluation.
+- Collect a full-size deterministic-mean teacher dataset for Phase 3. Do not
+  reuse or relabel the older sampled-action Stage B dataset.
+- Train one full-data `k=2`, `n=64` seed, then reload its checkpoint and run
+  one paired closed-loop evaluation.
 - Implement the remaining matched student family only after that vertical
   slice passes.
 - Retain direct launch as the core controlled task; a scripted physical strike
@@ -245,6 +254,8 @@ tested, but has not yet passed its tiny-dataset overfit gate.
 | 2026-08-12 | Applied and froze the deterministic causal state ablation | `GO`; 45.8-point drop at 20 steps, 95% CI [38.7, 52.9], and identical no-blackout records |
 | 2026-08-12 | Backed up the frozen teacher and canonical Stage B evidence | 57 files and 19,245,888 bytes copied to iCloud Drive; source hashes, complete Git bundle and manifest verified |
 | 2026-08-12 | Implemented the structured `n=64`, `k=2` student | Matched NumPy/PyTorch runtimes, exact checkpoint replay, rank-2 Jacobian test and 89 passing tests |
+| 2026-08-12 | Ran the original 16-episode structured-student overfit gate | `NO_GO`; 99.28% loss reduction but selected MSE `0.00648` did not reach `1e-4` |
+| 2026-08-12 | Applied and repeated the one-episode overfit correction | `GO`; MSE `7.4562e-5`, exact reload and identical repeated checkpoint hash |
 
 ## Blockers
 

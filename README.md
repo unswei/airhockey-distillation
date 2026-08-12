@@ -124,8 +124,10 @@ Phase 3 now has its first implemented policy: the
 Its diagonal 64-value memory receives a rank-2 nonlinear innovation and the
 previous executed action. Matched NumPy and PyTorch implementations provide
 deterministic evaluation, sequence training and exact checkpoint reload. The
-architecture is tested but remains untrained; a tiny-dataset overfit is its
-next gate.
+architecture now passes its tiny-dataset overfit gate: a newly collected
+deterministic-mean episode is fit to `7.46e-5` action MSE, and an independent
+repeat produces the same checkpoint hash. This establishes the training and
+export path, not full-data or closed-loop student quality.
 
 ## Scientific guardrails
 

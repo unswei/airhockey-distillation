@@ -1,0 +1,67 @@
+{
+  "blocking_checks": [],
+  "checkpoint": "/experiments/students/structured-n64-k2-tiny-overfit-2026-08-12-v2/checkpoint.npz",
+  "checkpoint_reload_exact": true,
+  "checkpoint_sha256": "ef76db026a4093238d0734bdf44be8b242d998777da7ebe065147e3768e3c0fa",
+  "checks": [
+    {
+      "check_id": "near_zero_training_action_mse",
+      "observed": 7.456180173903704e-05,
+      "passed": true,
+      "required": "<= 0.0001"
+    },
+    {
+      "check_id": "material_fractional_loss_reduction",
+      "observed": 0.9998809060892755,
+      "passed": true,
+      "required": ">= 0.99"
+    },
+    {
+      "check_id": "numpy_export_agreement",
+      "observed": 2.205371856689453e-06,
+      "passed": true,
+      "required": "<= 1e-05"
+    },
+    {
+      "check_id": "exact_checkpoint_reload",
+      "observed": true,
+      "passed": true,
+      "required": "true"
+    }
+  ],
+  "code_commit": "4afa8e38cea33eb8a9606110724bb491210efbbc",
+  "config_sha256": "9f2b8e176814d8e4b84886cc44753f468b4dc208ff5c8a28ff05ea4f4b14f62a",
+  "created_at": "2026-08-12T12:53:16.232676+00:00",
+  "dataset": "/experiments/teacher-datasets/teacher-v3-structured-n64-k2-tiny-deterministic-2026-08-12-v1",
+  "dataset_manifest_sha256": "a55c31c9581a09dcb36571c89ac448ba9bed14b0aa969fd0826e2a53f99dcd1a",
+  "decision": "GO",
+  "duration_seconds": 29.645610706997104,
+  "episode_lengths": [
+    32
+  ],
+  "epochs_completed": 1550,
+  "export_maximum_absolute_error": 2.205371856689453e-06,
+  "fractional_loss_reduction": 0.9998809060892755,
+  "initial_training_action_mse": 0.6260756850242615,
+  "loss_bearing_action_values": 32,
+  "parameter_count": 12328,
+  "recurrent_parameter_count": 2630,
+  "runtime": {
+    "device": "cpu",
+    "hostname": "11bced7e38b9",
+    "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+    "torch": "2.7.1+cpu",
+    "torch_threads": 4
+  },
+  "schema_version": 1,
+  "selected_epoch": 1550,
+  "selected_training_action_mse": 7.456180173903704e-05,
+  "source_episode_count": 16,
+  "status": "completed",
+  "student_input_fields": [
+    "observations",
+    "previous_actions"
+  ],
+  "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+  "training_episode_count": 1
+}

@@ -1,0 +1,84 @@
+{
+  "blocking_checks": [
+    "near_zero_training_action_mse",
+    "numpy_export_agreement"
+  ],
+  "checkpoint": "/experiments/students/structured-n64-k2-tiny-overfit-2026-08-12-v1/checkpoint.npz",
+  "checkpoint_reload_exact": true,
+  "checkpoint_sha256": "29c65ceac47a1168b5520d8f730061f7289e4aa5088d858f4f3d17d80a7d0cae",
+  "checks": [
+    {
+      "check_id": "near_zero_training_action_mse",
+      "observed": 0.006480601150542498,
+      "passed": false,
+      "required": "<= 0.0001"
+    },
+    {
+      "check_id": "material_fractional_loss_reduction",
+      "observed": 0.9927637571103586,
+      "passed": true,
+      "required": ">= 0.99"
+    },
+    {
+      "check_id": "numpy_export_agreement",
+      "observed": 5.602836608886719e-06,
+      "passed": false,
+      "required": "<= 5e-06"
+    },
+    {
+      "check_id": "exact_checkpoint_reload",
+      "observed": true,
+      "passed": true,
+      "required": "true"
+    }
+  ],
+  "code_commit": "ab86873105bd8cf013f7215d21b23175f6aed994",
+  "config_sha256": "ed9f9a5bedd629721986d769d8edaec5429c1468b637326d248e9f79bed76b8c",
+  "created_at": "2026-08-12T12:46:59.645624+00:00",
+  "dataset": "/experiments/teacher-datasets/teacher-v3-structured-n64-k2-tiny-deterministic-2026-08-12-v1",
+  "dataset_manifest_sha256": "a55c31c9581a09dcb36571c89ac448ba9bed14b0aa969fd0826e2a53f99dcd1a",
+  "decision": "NO_GO",
+  "duration_seconds": 45.54039624694269,
+  "episode_count": 16,
+  "episode_lengths": [
+    32,
+    35,
+    35,
+    34,
+    36,
+    33,
+    33,
+    36,
+    34,
+    36,
+    33,
+    33,
+    35,
+    32,
+    33,
+    31
+  ],
+  "epochs_completed": 2000,
+  "export_maximum_absolute_error": 5.602836608886719e-06,
+  "fractional_loss_reduction": 0.9927637571103586,
+  "initial_training_action_mse": 0.8955754041671753,
+  "loss_bearing_action_values": 570,
+  "parameter_count": 12328,
+  "recurrent_parameter_count": 2630,
+  "runtime": {
+    "device": "cpu",
+    "hostname": "759e5c85717f",
+    "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+    "torch": "2.7.1+cpu",
+    "torch_threads": 4
+  },
+  "schema_version": 1,
+  "selected_epoch": 1875,
+  "selected_training_action_mse": 0.006480601150542498,
+  "status": "completed",
+  "student_input_fields": [
+    "observations",
+    "previous_actions"
+  ],
+  "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip"
+}
