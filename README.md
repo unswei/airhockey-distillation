@@ -129,7 +129,9 @@ deterministic-mean episode is fit to `7.46e-5` action MSE, and an independent
 repeat produces the same checkpoint hash. This establishes the training and
 export path, not full-data or closed-loop student quality. The first full-data
 seed is predeclared at 20,000 newly collected deterministic-mean episodes with
-an episode-level 80/10/10 split.
+an episode-level 80/10/10 split. That seed has now completed, but its paired
+validation save rate is only 45.3%; it is evidence that the vertical slice
+runs, not evidence of a successful distilled controller.
 
 ## Scientific guardrails
 

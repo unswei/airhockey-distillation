@@ -15,7 +15,8 @@ inference. Phase 3 — distillation infrastructure — is authorised.
 The first `n=64`, `k=2` structured recurrent student is implemented and its
 corrected tiny-dataset overfit gate returns `GO`. Its 20,000-episode
 deterministic-mean collection, single-seed training and paired validation run
-are predeclared; no closed-loop quality claim has yet been made.
+are complete. The vertical slice is technically sound but behaviourally weak:
+the selected student saves only 45.3% of paired validation episodes.
 
 ## Completed
 
@@ -202,11 +203,16 @@ are predeclared; no closed-loop quality claim has yet been made.
   The first 100-epoch training attempt stopped during checkpoint export on a
   metadata-name conflict. Preserved that run and predeclared a v2
   metadata-only code correction with unchanged training settings.
+- Completed corrected seed 14303 at epoch 100 with validation MSE `0.10859`,
+  exact reload and checkpoint hash `8fbe2171fc4d7272dda0cbdd82adbf8c4bac506aaac21aada62fe9e37a99271f`.
+  The paired 1,125-episode validation save rate is only 45.3%, including 46.2%
+  with no blackout and 40.9% at 20 steps. The checkpoint is not promoted.
 
 ## Next actions
 
-- Rerun full-data `k=2`, `n=64` seed 14303 with the versioned metadata fix,
-  then reload its checkpoint and run one paired closed-loop evaluation.
+- Diagnose why deterministic-mean imitation gives poor no-blackout control.
+  Check action-target multimodality, teacher/student previous-action mismatch
+  and rollout covariate shift before choosing the next correction.
 - Implement the remaining matched student family only after that vertical
   slice passes.
 - Retain direct launch as the core controlled task; a scripted physical strike
@@ -265,6 +271,8 @@ are predeclared; no closed-loop quality claim has yet been made.
 | 2026-08-12 | Ran the original 16-episode structured-student overfit gate | `NO_GO`; 99.28% loss reduction but selected MSE `0.00648` did not reach `1e-4` |
 | 2026-08-12 | Applied and repeated the one-episode overfit correction | `GO`; MSE `7.4562e-5`, exact reload and identical repeated checkpoint hash |
 | 2026-08-12 | Predeclared the first full-data structured-student seed | 20,000 deterministic-mean episodes; 80/10/10 split; seed 14303; 98 passing tests |
+| 2026-08-13 | Collected the full deterministic-mean dataset | 20,000 episodes, 713,257 transitions and 40 hashed shards |
+| 2026-08-13 | Ran full-data structured seed 14303 and paired validation | Training/export complete; validation MSE `0.10859`; weak 45.3% closed-loop save rate |
 
 ## Blockers
 

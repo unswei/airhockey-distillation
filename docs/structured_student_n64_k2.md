@@ -183,3 +183,44 @@ log are preserved. The versioned
 `structured_n64_k2_full_seed_14303_v2.yaml` correction changes only that
 metadata binding, reruns the same training procedure and reuses the immutable
 deterministic-mean dataset.
+
+The corrected run completed at epoch 100. Validation action MSE was `0.10859`
+and internal-test action MSE was `0.10912`. NumPy/PyTorch maximum error was
+`3.8743e-6`, checkpoint reload was exact, and the checkpoint SHA-256 is
+`8fbe2171fc4d7272dda0cbdd82adbf8c4bac506aaac21aada62fe9e37a99271f`.
+The v1 and v2 metrics files are byte-identical, confirming that the correction
+did not change training.
+
+The paired closed-loop validation was weak:
+
+| Blackout steps | Save rate |
+| ---: | ---: |
+| 0 | 46.2% |
+| 5 | 45.8% |
+| 10 | 53.3% |
+| 15 | 40.4% |
+| 20 | 40.9% |
+| Overall | 45.3% |
+
+This completes the requested full-data vertical slice, but it does not qualify
+the student as a credible controller. The no-blackout result is already too
+low, so the next correction should target offline imitation and covariate
+shift before running more architecture seeds. Do not interpret the lower
+hidden-frame MSE as good blackout behaviour: the loss scale differs across
+teacher states and the closed-loop result is the relevant check.
+
+The compact result is
+`results/structured_n64_k2_full_seed_14303_v2.json`. Raw evidence remains on
+Marvin under:
+
+```text
+teacher-datasets/teacher-v3-structured-n64-k2-full-deterministic-2026-08-12-v1
+students/structured-n64-k2-full-seed-14303-2026-08-12-v1
+students/structured-n64-k2-full-seed-14303-2026-08-13-v2
+phase3-structured-n64-k2-full-seed-14303-2026-08-12-v1
+phase3-structured-n64-k2-full-seed-14303-2026-08-13-v2
+```
+
+The corrected run manifest binds and verifies 50 files totalling 57,828,335
+bytes; its SHA-256 is
+`5dbbaba2536f5b7307b9103b6bcadf1d4c71badb2fd225447fab0ab0ff92f7a9`.

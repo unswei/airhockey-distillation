@@ -19,6 +19,11 @@ summaries without the dataset or checkpoint. Their frozen raw paths and hashes
 are documented in
 [`docs/structured_student_n64_k2.md`](../docs/structured_student_n64_k2.md).
 
+The first [`full-data seed`](structured_n64_k2_full_seed_14303_v2.json)
+records its deterministic-mean dataset binding, offline losses and compact
+closed-loop summary. The run completed technically, but its 45.3% validation
+save rate is weak and the checkpoint is not promoted as a successful policy.
+
 Canonical episode rows will include:
 
 ```text

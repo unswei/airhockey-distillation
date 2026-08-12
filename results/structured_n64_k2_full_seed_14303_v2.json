@@ -1,0 +1,39 @@
+{
+  "checkpoint_reload_exact": true,
+  "checkpoint_sha256": "8fbe2171fc4d7272dda0cbdd82adbf8c4bac506aaac21aada62fe9e37a99271f",
+  "closed_loop_validation": {
+    "blackout_0_save_rate": 0.4622222222222222,
+    "blackout_5_save_rate": 0.4577777777777778,
+    "blackout_10_save_rate": 0.5333333333333333,
+    "blackout_15_save_rate": 0.40444444444444444,
+    "blackout_20_save_rate": 0.4088888888888889,
+    "episodes": 1125,
+    "overall_save_rate": 0.4533333333333333,
+    "status": "completed"
+  },
+  "code_commit": "4e6a44fc9410af37df9768da64b7d45b590a4cad",
+  "dataset": {
+    "episode_count": 20000,
+    "manifest_sha256": "923497e3622209c7060196ff8322f4d333626138048ad94577034c67f01c60cf",
+    "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+    "transition_count": 713257
+  },
+  "epochs_completed": 100,
+  "export_maximum_absolute_error": 3.874301910400391e-06,
+  "interpretation": "training_and_export_completed_but_closed_loop_policy_is_weak",
+  "run_manifest_sha256": "5dbbaba2536f5b7307b9103b6bcadf1d4c71badb2fd225447fab0ab0ff92f7a9",
+  "schema_version": 1,
+  "selected_epoch": 100,
+  "selected_metrics": {
+    "internal_test_action_mse": 0.10912377911991246,
+    "train_action_mse": 0.10553370664072957,
+    "validation_action_mse": 0.10858537852458526
+  },
+  "split_episode_counts": {
+    "internal_test": 2000,
+    "train": 16000,
+    "validation": 2000
+  },
+  "status": "completed",
+  "training_seed": 14303
+}
