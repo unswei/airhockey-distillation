@@ -78,8 +78,11 @@ blackout episodes. Memory helped directionally, but the predeclared effect-size
 gate returned `NO_GO`; the current shot distribution has not yet been shown to
 require memory. The next
 [`observation-aliased v3 task`](docs/direct_launch_distribution_v3.md) now
-passes its physical, aliasing and control gates. The previous teacher is not
-ready for the corrected distribution, and a fresh v3 teacher run is active.
+passes its physical, aliasing and control gates. A fresh v3 teacher passed its
+readiness gate with a 98.9% save rate, but the
+[`Stage B v2 comparison`](docs/stage_b_memory_validation_v2.md) remains
+inconclusive about memory: its feed-forward policy was too weak even without
+blackout for the teacher gap to isolate a memory effect.
 
 ## Scientific guardrails
 

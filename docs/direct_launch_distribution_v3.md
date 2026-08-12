@@ -1,6 +1,8 @@
 # Observation-aliased direct-launch distribution v3
 
-Status: task and alias gates validated on Marvin; fresh teacher training active.
+Status: task, alias and teacher-readiness gates passed on Marvin; Stage B v2
+returned `NO_GO` because the feed-forward baseline was not credible without
+blackout.
 
 `direct_launch_v3` corrects the ambiguity weakness found by the first Stage B
 experiment. The v2 feed-forward policy saved 84% without blackout and 62% at a
@@ -101,4 +103,13 @@ and `ac7f88149da445da8e647fd48d0ca09187aaa5b6c07ca41cba7bc9a9b4f0b346`.
 
 A fresh 1,000-step v3 training smoke passed with exact checkpoints at 0, 500
 and 1,000 and non-zero returns spanning -1.0--1.2. Full run
-`teacher-full-v3-2026-08-12-v1` is active on Marvin from commit `66fbc4c`.
+`teacher-full-v3-2026-08-12-v1` completed from commit `66fbc4c`. Validation
+selected step 700,000, which saved 98.9% over 1,125 cases and 98.2% at the
+20-step blackout.
+
+The paired Stage B v2 comparison did not yet establish that blackout memory
+causes the teacher advantage. The feed-forward baseline saved 60.4% at 20
+steps, compared with 98.2% for the teacher, but it saved only 56.0% without
+blackout. The baseline therefore failed the predeclared visible-performance
+and comparability checks. Full results are in
+`docs/stage_b_memory_validation_v2.md`.

@@ -5,10 +5,10 @@ Last updated: 2026-08-12
 ## Current phase
 
 Phase 0 — source audit and reproduction complete. Phase 1 — minimal
-direct-launch set-piece slice complete. Phase 2 — first teacher complete.
-Stage B v1 returned a predeclared `NO_GO`. The observation-aliased v3 correction
-now passes physical, aliasing and task-validity gates. The old teacher fails v3
-readiness, so fresh v3 teacher training is active on Marvin.
+direct-launch set-piece slice complete. Phase 2 — v3 teacher complete and
+frozen. Stage B v2 returned a predeclared `NO_GO`: the teacher is strong, but
+the feed-forward baseline is not credible without blackout, so the measured
+gap does not isolate memory.
 
 ## Completed
 
@@ -123,14 +123,27 @@ readiness, so fresh v3 teacher training is active on Marvin.
 - Completed a fresh v3 Dreamer smoke run with non-zero rewards and exact
   checkpoints at 0, 500 and 1,000. Scheduled the full v3 teacher run from
   commit `66fbc4c`.
+- Completed the one-million-step v3 teacher run and evaluated all 51 retained
+  checkpoints over 1,125 validation cases each.
+- Selected and froze the 700,000-step checkpoint. It saved 98.9% overall and
+  98.2% at 20-step blackout; its read-only `agent.pkl` SHA-256 is
+  `6a672d5b6d7c2b9ca2335f1a85b69280ca7db58deb5e2f56d2ba033ebf636254`.
+- Collected 20,000 v3 teacher episodes containing 732,168 transitions and
+  trained the predeclared 5,602-parameter feed-forward baseline.
+- Compared the teacher and feed-forward policy over 1,125 paired cases. The
+  teacher led by 37.8 points at 20-step blackout with bootstrap 95% interval
+  [31.6, 44.4], but the feed-forward policy saved only 56.0% without blackout.
+- Applied the Stage B v2 gate: `NO_GO`. The weak no-blackout baseline and
+  shrinking advantage with blackout prevent attributing the gap to memory.
 
 ## Next actions
 
-- Monitor and validation-select `teacher-full-v3-2026-08-12-v1`.
-- Apply the frozen v3 readiness thresholds to the selected teacher. Only then
-  collect a new teacher dataset and train the Stage B v2 feed-forward policy.
-- Run the predeclared feed-forward and causal recurrent-state-ablation gates on
-  all 225 validation shots per blackout length.
+- Diagnose and predeclare a stronger visible-observation baseline procedure
+  without changing the completed Stage B v2 result.
+- Require the replacement feed-forward baseline to pass the no-blackout
+  credibility and comparability checks before interpreting blackout gaps.
+- Run the causal recurrent-state-ablation gate only after the feed-forward
+  baseline makes the ordinary Stage B comparison interpretable.
 - Add a scripted physical strike while retaining direct launch as a regression
   mode.
 - Select a backed-up artefact destination before large checkpoints or datasets.
@@ -173,14 +186,19 @@ readiness, so fresh v3 teacher training is active on Marvin.
 | 2026-08-12 | Applied the v3 task-validity gate | `GO`; inactive/fixed concede above 96%, privileged saves 99.1% |
 | 2026-08-12 | Probed frozen 720k teacher on v3 | `NO_GO`; fails no-blackout, overall and long-blackout readiness thresholds |
 | 2026-08-12 | Ran fresh v3 training smoke and scheduled full run | Smoke passed; `teacher-full-v3-2026-08-12-v1` active from `66fbc4c` |
+| 2026-08-12 | Completed and validation-selected the full v3 teacher run | Selected step 700,000; 98.9% save rate over 1,125 cases and 98.2% at 20-step blackout |
+| 2026-08-12 | Froze the v3 teacher and collected new demonstrations | Read-only agent hash recorded; 20,000 episodes and 732,168 transitions |
+| 2026-08-12 | Trained and evaluated the Stage B v2 feed-forward policy | 5,602 parameters; 56.0% saves at blackout 0 and 60.4% at blackout 20 |
+| 2026-08-12 | Applied the paired Stage B v2 memory gate | `NO_GO`; teacher gap is large, but the feed-forward policy fails the no-blackout credibility and comparability checks |
 
 ## Blockers
 
 - Marvin's experiment directory is not yet backed up to a durable artefact
   store.
-- The current direct-launch distribution has not yet passed the predeclared
-  memory-required gate. Core recurrent-student comparisons should wait for a
-  corrected, observation-aliased distribution and a fresh confirmatory gate.
+- Stage B v2 has not passed the predeclared memory-required gate. The teacher
+  is ready, but the feed-forward policy is too weak without blackout to isolate
+  a memory effect. Core recurrent-student comparisons should wait for a
+  separately predeclared baseline correction and confirmatory run.
 - The Blackwell image deliberately overrides Dreamer's declared JAX 0.4.33 and
   CUDA NVCC 12.2 bounds with JAX 0.5.3 and CUDA NVCC 12.9.86. Device discovery
   and a 108-update training smoke test pass; `pip check` records the two

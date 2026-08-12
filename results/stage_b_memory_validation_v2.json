@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "status": "completed",
+  "decision": "NO_GO",
+  "completed_on": "2026-08-12",
+  "marvin_root": "/home/oliver/experiments/airhockey-memory-distillation",
+  "artefacts": {
+    "frozen_teacher_manifest": {
+      "relative_path": "frozen-teachers/dreamerv3-teacher-v3-step-700000/manifest.json",
+      "sha256": "b269950b0f10b32c7b411ece890b349d5c1280cc95f6d4864818db4c3ac72c15"
+    },
+    "teacher_agent": {
+      "relative_path": "frozen-teachers/dreamerv3-teacher-v3-step-700000/agent.pkl",
+      "sha256": "6a672d5b6d7c2b9ca2335f1a85b69280ca7db58deb5e2f56d2ba033ebf636254"
+    },
+    "teacher_selection": {
+      "relative_path": "teacher-full-v3-2026-08-12-v1/validation/selection.json",
+      "sha256": "9a5bdda07bf50adf8e33ec6198c678753a7119d8295aef4aa636103913543662"
+    },
+    "teacher_readiness": {
+      "relative_path": "stage-b-memory-validation-v2-2026-08-12-v1/teacher_readiness.json",
+      "sha256": "29613d78142050a5a0cf81e49e37595e4098cbcb43ef35a83ea522d662817eb9"
+    },
+    "dataset_manifest": {
+      "relative_path": "teacher-datasets/teacher-v3-stage-b-v2-2026-08-12-v1/manifest.json",
+      "sha256": "b83f3f7a1285e5758e0ca35572f96f918b9331578fb3fb96e92a0e121dc432e1"
+    },
+    "feed_forward_checkpoint": {
+      "relative_path": "students/feed-forward-stage-b-v2-2026-08-12-v1/checkpoint.npz",
+      "sha256": "46a090633fc52cf4bae0880a17e3b45b02d21f12c2a4a178606e717548ec72a0"
+    },
+    "feed_forward_result": {
+      "relative_path": "stage-b-memory-validation-v2-2026-08-12-v1/feed_forward.json",
+      "sha256": "3512cc91d6011d8ee8365a5567f33aa9e615c525f7f11aee986bfe96d8a514c8"
+    },
+    "memory_gate": {
+      "relative_path": "stage-b-memory-validation-v2-2026-08-12-v1/memory_gate.json",
+      "sha256": "d1a6048e3c64f9bc222cb7b9b28281b867ecbaf3d886bed8060849893a63cca0"
+    }
+  },
+  "dataset": {
+    "episodes": 20000,
+    "transitions": 732168,
+    "outcome_counts": {
+      "arrested": 79,
+      "goal_conceded": 56,
+      "returned": 19533,
+      "timeout_after_contact": 332
+    }
+  },
+  "feed_forward_training": {
+    "parameter_count": 5602,
+    "selected_epoch": 99,
+    "validation_action_mse": 0.3682568073272705,
+    "validation_visible_action_mse": 0.3596109449863434,
+    "validation_hidden_action_mse": 0.3909285366535187
+  },
+  "teacher_save_rates": {
+    "0": 0.9911111111111112,
+    "5": 0.9955555555555555,
+    "10": 0.9866666666666667,
+    "15": 0.9911111111111112,
+    "20": 0.9822222222222222
+  },
+  "feed_forward_save_rates": {
+    "0": 0.56,
+    "5": 0.5422222222222223,
+    "10": 0.5866666666666667,
+    "15": 0.6355555555555555,
+    "20": 0.6044444444444445
+  },
+  "twenty_step_paired_teacher_advantage": 0.37777777777777777,
+  "twenty_step_paired_teacher_advantage_ci95": [
+    0.31555555555555553,
+    0.4444444444444444
+  ],
+  "advantage_growth_0_to_20_steps": -0.053333333333333344,
+  "blocking_checks": [
+    "credible_visible_feed_forward_baseline",
+    "comparable_no_blackout_performance",
+    "advantage_grows_with_blackout"
+  ]
+}
