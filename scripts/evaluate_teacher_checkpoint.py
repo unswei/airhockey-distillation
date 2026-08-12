@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import platform
 import sys
@@ -45,6 +46,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--code-commit", required=True)
     parser.add_argument("--profile", default="diagnostic")
+    parser.add_argument("--evaluation-config", type=Path)
+    parser.add_argument("--evaluation-section")
     parser.add_argument("--reset-carry-at-blackout-start", action="store_true")
     return parser.parse_args()
 
@@ -56,6 +59,28 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     profile = config[args.profile]
     evaluation_name = str(profile.get("evaluation", "evaluation"))
     evaluation = config[evaluation_name]
+    evaluation_source = {
+        "config": str(args.config.resolve()),
+        "config_sha256": _sha256(args.config.resolve()),
+        "section": evaluation_name,
+    }
+    if args.evaluation_config is not None:
+        if not args.evaluation_section:
+            raise ValueError("external evaluation config requires a section")
+        external_path = args.evaluation_config.resolve()
+        external = _load_mapping(external_path)
+        if not isinstance(external.get(args.evaluation_section), dict):
+            raise TypeError(
+                f"unknown external evaluation section {args.evaluation_section!r}"
+            )
+        evaluation = external[args.evaluation_section]
+        evaluation_source = {
+            "config": str(external_path),
+            "config_sha256": _sha256(external_path),
+            "section": args.evaluation_section,
+        }
+    elif args.evaluation_section:
+        raise ValueError("evaluation section requires an external config")
     training = config["training"]
     output = args.output.resolve()
     if output.exists():
@@ -210,6 +235,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ),
         "code_commit": args.code_commit,
         "config": config,
+        "evaluation_source": evaluation_source,
         "runtime": {
             "hostname": platform.node(),
             "python": sys.version,
@@ -279,6 +305,21 @@ def _load_config(path: Path) -> dict[str, Any]:
         if not isinstance(raw.get(key), dict):
             raise TypeError(f"teacher config section {key!r} must be a mapping")
     return raw
+
+
+def _load_mapping(path: Path) -> dict[str, Any]:
+    raw = yaml.safe_load(path.read_text())
+    if not isinstance(raw, dict):
+        raise TypeError(f"config must be a mapping: {path}")
+    return raw
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def main() -> None:

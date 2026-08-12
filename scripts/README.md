@@ -57,6 +57,16 @@ workflow.
   and long-blackout teacher thresholds before new demonstration collection.
 - `run_causal_memory_ablation_gate.py` measures the paired effect of erasing
   Dreamer state exactly when blackout begins.
+- `train_feed_forward_ppo.py` trains the predeclared strong memoryless
+  baseline directly on task reward, with restart checkpoints and immutable run
+  bindings.
+- `evaluate_feed_forward_ppo.py` evaluates that deterministic policy without
+  recurrent state on fixed qualification or confirmation episodes.
+- `qualify_feed_forward_baseline.py` selects among the three fixed PPO seeds
+  using no-blackout validation shots and keeps the test split closed unless
+  visible performance is credible and teacher-comparable.
+- `run_stage_b_v3_baseline_on_marvin.sh RUN_ID CODE_COMMIT` trains, qualifies
+  and, only after qualification passes, runs the held-out paired memory gate.
 
 The build and rendering scripts are intended to run on Marvin. They fail on a
 missing prerequisite and the video script refuses to overwrite its primary

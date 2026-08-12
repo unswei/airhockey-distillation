@@ -1,0 +1,113 @@
+schema_version: 1
+status: stage_b_v3_baseline_repair_predeclared
+
+purpose: >-
+  Train a strong memoryless control baseline directly on task reward. The
+  completed Stage B v2 imitation result remains unchanged and is not reused as
+  confirmatory evidence.
+
+policy:
+  type: feed_forward_ppo
+  observation_dimension: 19
+  policy_hidden_widths: [256, 256]
+  value_hidden_widths: [256, 256]
+  activation: tanh
+  action_dimension: 2
+  deterministic_evaluation: true
+  observation_stack: false
+  previous_action: false
+  recurrent_state: false
+  puck_velocity: false
+  privileged_state: false
+
+task:
+  distribution_config: configs/env/direct_launch_v3.yaml
+  training_split: train
+  reward_config: configs/reward/defend_shot_v1.yaml
+  blackout_start_observation_step: 5
+  action_lock_steps: 5
+
+training_distribution:
+  # The no-blackout condition is deliberately oversampled to make this a
+  # conservative test against the memory claim. The policy is still exposed
+  # to every core blackout length.
+  blackout_steps: [0, 5, 10, 15, 20]
+  blackout_probabilities: [0.50, 0.125, 0.125, 0.125, 0.125]
+  sampling_seed: 12303
+
+smoke:
+  seeds: [13303]
+  total_timesteps: 8192
+  parallel_envs: 2
+  rollout_steps_per_env: 128
+  batch_size: 256
+  epochs_per_update: 2
+  learning_rate: 0.0003
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  entropy_coefficient: 0.01
+  value_coefficient: 0.5
+  maximum_gradient_norm: 0.5
+  checkpoint_every_steps: 4096
+
+full:
+  algorithm: ppo
+  seeds: [14303, 14304, 14305]
+  total_timesteps: 1000000
+  parallel_envs: 8
+  rollout_steps_per_env: 256
+  batch_size: 1024
+  epochs_per_update: 10
+  learning_rate: 0.0003
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  entropy_coefficient: 0.01
+  value_coefficient: 0.5
+  maximum_gradient_norm: 0.5
+  checkpoint_every_steps: 100000
+
+qualification_evaluation:
+  distribution_config: configs/env/direct_launch_v3.yaml
+  distribution_split: validation
+  shot_count: 225
+  blackout_steps: [0]
+
+baseline_qualification:
+  selection_metric: no_blackout_save_rate
+  tie_breaks: [mean_score, lower_training_seed]
+  minimum_feed_forward_no_blackout_save_rate: 0.75
+  maximum_no_blackout_teacher_advantage: 0.10
+  maximum_simulator_faults: 0
+
+confirmation_evaluation:
+  # The test split remains closed unless qualification returns GO. Candidate
+  # selection may not use these episodes.
+  distribution_config: configs/env/direct_launch_v3.yaml
+  distribution_split: test
+  shot_count: 225
+  blackout_steps: [0, 5, 10, 15, 20]
+
+memory_gate:
+  long_blackout_steps: 20
+  minimum_feed_forward_no_blackout_save_rate: 0.75
+  maximum_no_blackout_teacher_advantage: 0.10
+  minimum_long_blackout_teacher_advantage: 0.15
+  minimum_advantage_growth: 0.10
+  require_positive_long_advantage_ci_lower: true
+  bootstrap_samples: 10000
+  bootstrap_seed: 15303
+
+provenance:
+  correction_parent: results/stage_b_memory_validation_v2.json
+  correction_reason: >-
+    Offline action regression produced a weak no-blackout controller and could
+    not resolve recurrent-teacher action conflicts at aliased observations.
+  teacher_training_run: teacher-full-v3-2026-08-12-v1
+  teacher_training_code_commit: 66fbc4c6985a10de362e3e9fd36e192b225e3b6c
+  teacher_selection_step: 700000
+  teacher_agent_sha256: 6a672d5b6d7c2b9ca2335f1a85b69280ca7db58deb5e2f56d2ba033ebf636254
+  teacher_selection_report_sha256: 9a5bdda07bf50adf8e33ec6198c678753a7119d8295aef4aa636103913543662
+  stable_baselines3_version: 2.9.0a2
+  container_digest: sha256:de846e25961d2408db73a6b5cfe2afc7ecf0e14e0e8ac837f97212a180e51d5f

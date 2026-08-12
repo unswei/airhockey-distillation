@@ -8,7 +8,8 @@ Phase 0 — source audit and reproduction complete. Phase 1 — minimal
 direct-launch set-piece slice complete. Phase 2 — v3 teacher complete and
 frozen. Stage B v2 returned a predeclared `NO_GO`: the teacher is strong, but
 the feed-forward baseline is not credible without blackout, so the measured
-gap does not isolate memory.
+gap does not isolate memory. A direct-reward PPO baseline correction is now
+predeclared; its held-out confirmation remains unopened.
 
 ## Completed
 
@@ -135,13 +136,18 @@ gap does not isolate memory.
   [31.6, 44.4], but the feed-forward policy saved only 56.0% without blackout.
 - Applied the Stage B v2 gate: `NO_GO`. The weak no-blackout baseline and
   shrinking advantage with blackout prevent attributing the gap to memory.
+- Predeclared a stronger Stage B v3 baseline: a strictly feed-forward PPO
+  policy trained directly on task reward for three fixed seeds, with 50%
+  no-blackout sampling and no change to the public policy interface.
+- Added a validation-only qualification gate. A baseline must be credible and
+  within 10 points of the teacher without blackout before the untouched test
+  split and confirmatory memory gate can run.
 
 ## Next actions
 
-- Diagnose and predeclare a stronger visible-observation baseline procedure
-  without changing the completed Stage B v2 result.
-- Require the replacement feed-forward baseline to pass the no-blackout
-  credibility and comparability checks before interpreting blackout gaps.
+- Smoke-test and train the three predeclared Stage B v3 PPO seeds on Marvin.
+- Open the held-out confirmation split only if the replacement feed-forward
+  baseline passes the no-blackout credibility and comparability checks.
 - Run the causal recurrent-state-ablation gate only after the feed-forward
   baseline makes the ordinary Stage B comparison interpretable.
 - Add a scripted physical strike while retaining direct launch as a regression
@@ -190,6 +196,7 @@ gap does not isolate memory.
 | 2026-08-12 | Froze the v3 teacher and collected new demonstrations | Read-only agent hash recorded; 20,000 episodes and 732,168 transitions |
 | 2026-08-12 | Trained and evaluated the Stage B v2 feed-forward policy | 5,602 parameters; 56.0% saves at blackout 0 and 60.4% at blackout 20 |
 | 2026-08-12 | Applied the paired Stage B v2 memory gate | `NO_GO`; teacher gap is large, but the feed-forward policy fails the no-blackout credibility and comparability checks |
+| 2026-08-12 | Predeclared the Stage B v3 visible-baseline correction | Direct-reward memoryless PPO; three fixed seeds; validation qualification before test confirmation |
 
 ## Blockers
 

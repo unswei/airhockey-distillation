@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from airhockey_distill.envs import DirectLaunchTrainingEnv
 
 from .fakes import FakeDirectLaunchBackend
@@ -56,3 +58,44 @@ def test_training_sampling_replays_from_the_same_reset_seed() -> None:
     finally:
         first.close()
         second.close()
+
+
+def test_training_can_sample_a_predeclared_weighted_blackout_set() -> None:
+    environment = DirectLaunchTrainingEnv(
+        backend=FakeDirectLaunchBackend(),
+        distribution_config=CONFIG,
+        sampling_seed=23,
+        blackout_lengths=(0, 5, 20),
+        blackout_probabilities=(0.8, 0.1, 0.1),
+    )
+    try:
+        lengths = []
+        for _ in range(200):
+            environment.reset()
+            lengths.append(environment.blackout.length_steps)
+
+        assert set(lengths) == {0, 5, 20}
+        assert lengths.count(0) > 120
+    finally:
+        environment.close()
+
+
+@pytest.mark.parametrize(
+    ("lengths", "probabilities", "message"),
+    [
+        ((0, 0), None, "unique"),
+        ((0, 5), (1.0,), "match"),
+        ((0, 5), (0.7, 0.2), "sum"),
+        ((0, 5), (1.1, -0.1), "positive"),
+    ],
+)
+def test_training_rejects_invalid_weighted_blackout_sets(
+    lengths, probabilities, message
+) -> None:
+    with pytest.raises(ValueError, match=message):
+        DirectLaunchTrainingEnv(
+            backend=FakeDirectLaunchBackend(),
+            distribution_config=CONFIG,
+            blackout_lengths=lengths,
+            blackout_probabilities=probabilities,
+        )

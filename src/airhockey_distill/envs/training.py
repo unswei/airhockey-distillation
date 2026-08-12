@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
 from typing import ClassVar
 
@@ -28,6 +29,8 @@ class DirectLaunchTrainingEnv(DefendShotTrackingLoss):
         blackout_start_observation_step: int = 5,
         minimum_blackout_steps: int = 0,
         maximum_blackout_steps: int = 20,
+        blackout_lengths: Sequence[int] | None = None,
+        blackout_probabilities: Sequence[float] | None = None,
         action_lock_steps: int = 0,
         backend: DirectLaunchBackend | None = None,
         render_mode: str | None = None,
@@ -40,6 +43,34 @@ class DirectLaunchTrainingEnv(DefendShotTrackingLoss):
             raise ValueError(
                 "maximum_blackout_steps must be at least minimum_blackout_steps"
             )
+        if blackout_lengths is None and blackout_probabilities is not None:
+            raise ValueError("blackout probabilities require explicit lengths")
+        self.blackout_lengths: tuple[int, ...] | None = None
+        self.blackout_probabilities: tuple[float, ...] | None = None
+        if blackout_lengths is not None:
+            lengths = tuple(int(value) for value in blackout_lengths)
+            if not lengths or any(value < 0 for value in lengths):
+                raise ValueError(
+                    "blackout lengths must be non-empty and non-negative"
+                )
+            if len(set(lengths)) != len(lengths):
+                raise ValueError("blackout lengths must be unique")
+            self.blackout_lengths = lengths
+            if blackout_probabilities is not None:
+                probabilities = np.asarray(blackout_probabilities, dtype=np.float64)
+                if probabilities.shape != (len(lengths),):
+                    raise ValueError("blackout probabilities must match lengths")
+                if not np.all(np.isfinite(probabilities)) or np.any(
+                    probabilities <= 0.0
+                ):
+                    raise ValueError(
+                        "blackout probabilities must be finite and positive"
+                    )
+                if not np.isclose(float(probabilities.sum()), 1.0, atol=1e-9):
+                    raise ValueError("blackout probabilities must sum to one")
+                self.blackout_probabilities = tuple(
+                    float(value) for value in probabilities
+                )
         if render_mode not in (None, "rgb_array"):
             raise ValueError(f"unsupported render mode {render_mode!r}")
 
@@ -75,12 +106,20 @@ class DirectLaunchTrainingEnv(DefendShotTrackingLoss):
             self._sampling_rng = np.random.default_rng(seed)
 
         shot_index = int(self._sampling_rng.integers(len(self.generated_shots)))
-        blackout_length = int(
-            self._sampling_rng.integers(
-                self.minimum_blackout_steps,
-                self.maximum_blackout_steps + 1,
+        if self.blackout_lengths is None:
+            blackout_length = int(
+                self._sampling_rng.integers(
+                    self.minimum_blackout_steps,
+                    self.maximum_blackout_steps + 1,
+                )
             )
-        )
+        else:
+            blackout_length = int(
+                self._sampling_rng.choice(
+                    self.blackout_lengths,
+                    p=self.blackout_probabilities,
+                )
+            )
         self.blackout = BlackoutSchedule(
             start_observation_step=self.blackout_start_observation_step,
             length_steps=blackout_length,

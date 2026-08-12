@@ -82,7 +82,11 @@ passes its physical, aliasing and control gates. A fresh v3 teacher passed its
 readiness gate with a 98.9% save rate, but the
 [`Stage B v2 comparison`](docs/stage_b_memory_validation_v2.md) remains
 inconclusive about memory: its feed-forward policy was too weak even without
-blackout for the teacher gap to isolate a memory effect.
+blackout for the teacher gap to isolate a memory effect. The separately
+predeclared
+[`visible-baseline correction`](docs/stage_b_visible_baseline_v3.md) trains a
+strictly memoryless policy directly on task reward and keeps the final test
+split closed until no-blackout validation performance is teacher-comparable.
 
 ## Scientific guardrails
 
