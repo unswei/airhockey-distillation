@@ -29,7 +29,10 @@ from airhockey_distill.envs import (
     load_defence_reward,
     load_direct_launch_distribution,
 )
-from airhockey_distill.teachers import read_checkpoint_step
+from airhockey_distill.teachers import (
+    enable_deterministic_dreamer_inference,
+    read_checkpoint_step,
+)
 
 ENVIRONMENT_ID = "AirHockeyDefendShotEvaluation-v0"
 SAVE_OUTCOMES = frozenset({"returned", "arrested", "safe_deflection"})
@@ -49,6 +52,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--evaluation-config", type=Path)
     parser.add_argument("--evaluation-section")
     parser.add_argument("--reset-carry-at-blackout-start", action="store_true")
+    parser.add_argument("--deterministic-inference", action="store_true")
     return parser.parse_args()
 
 
@@ -110,6 +114,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     from dreamerv3 import agent as dreamer_agent
     from dreamerv3 import main as dreamer_main
     from embodied.envs import from_gymnasium
+    from embodied.jax import outs as embodied_outs
+
+    if args.deterministic_inference:
+        enable_deterministic_dreamer_inference(embodied_outs.Agg)
 
     from_gymnasium.elements = elements
     upstream = ruamel_yaml.YAML(typ="safe").load(
@@ -217,6 +225,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     finally:
         environment.close()
 
+    inference_operation = (
+        "distribution_prediction" if args.deterministic_inference else "sample"
+    )
     result = {
         "status": "completed",
         "created_at": datetime.now(UTC).isoformat(),
@@ -228,6 +239,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             else "untrained"
         ),
         "reset_carry_at_blackout_start": args.reset_carry_at_blackout_start,
+        "deterministic_inference": args.deterministic_inference,
+        "inference_mode": {
+            "actor_action": inference_operation,
+            "rssm_posterior": inference_operation,
+        },
         "profile": args.profile,
         "checkpoint": str(checkpoint) if checkpoint is not None else None,
         "checkpoint_step": (

@@ -1,6 +1,9 @@
 """Teacher adapters, training and trajectory collection."""
 """Teacher training and evaluation helpers."""
 
+from airhockey_distill.teachers.deterministic import (
+    enable_deterministic_dreamer_inference,
+)
 from airhockey_distill.teachers.dreamer import (
     RetainingCheckpointFactory,
     StepCheckpointClockFactory,
@@ -13,6 +16,7 @@ from airhockey_distill.teachers.dreamer import (
 __all__ = [
     "RetainingCheckpointFactory",
     "StepCheckpointClockFactory",
+    "enable_deterministic_dreamer_inference",
     "build_training_arguments",
     "list_complete_checkpoints",
     "read_checkpoint_step",
