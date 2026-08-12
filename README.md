@@ -5,9 +5,9 @@ This repository contains the software and experiment definitions for
 Tracking Loss**.
 
 <p align="center">
-  <a href="docs/assets/upstream-self-play-2023.mp4">
+  <a href="docs/assets/upstream-self-play-2023.mp4?raw=1">
     <img
-      src="docs/assets/upstream-self-play-2023-poster.jpg"
+      src="docs/assets/upstream-self-play-2023-preview.gif"
       alt="Two KUKA iiwa robots playing simulated air hockey"
       width="900"
     >
@@ -15,7 +15,7 @@ Tracking Loss**.
 </p>
 
 <p align="center">
-  <sub>Reproduced upstream 2023 DreamerV3 self-play demo on Marvin. Click the image to play the 13-second video.</sub>
+  <sub>Reproduced upstream 2023 DreamerV3 self-play demo on Marvin. The inline preview loops; open it for the full-quality 13-second MP4.</sub>
 </p>
 
 The project studies whether a DreamerV3 defence policy can be distilled into
