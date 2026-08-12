@@ -388,8 +388,10 @@ def closed_loop_diagnostic(
 
 
 def _replace_teacher_previous_action(carry: Any, action: np.ndarray[Any, Any]) -> Any:
+    import jax
+
     previous = dict(carry[3])
-    previous["action"] = np.asarray([action], dtype=np.float32)
+    previous["action"] = jax.device_put(np.asarray([action], dtype=np.float32))
     return (*carry[:3], previous)
 
 

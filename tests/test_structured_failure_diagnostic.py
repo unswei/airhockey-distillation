@@ -1,6 +1,7 @@
 import numpy as np
 
 from scripts.diagnose_structured_student import (
+    _replace_teacher_previous_action,
     history_examples,
     phase_for_step,
 )
@@ -41,3 +42,15 @@ def test_history_examples_left_pad_without_future_leakage():
     np.testing.assert_array_equal(features[3, : 3 * 21], combined[1:4].reshape(-1))
     np.testing.assert_array_equal(targets, teacher_actions)
     np.testing.assert_array_equal(steps, np.arange(4))
+
+
+def test_shadow_teacher_previous_action_stays_device_resident():
+    import jax
+
+    carry = (None, None, None, {"action": jax.device_put(np.zeros((1, 2)))})
+    replaced = _replace_teacher_previous_action(
+        carry, np.asarray([0.25, -0.5], dtype=np.float32)
+    )
+
+    assert isinstance(replaced[3]["action"], jax.Array)
+    np.testing.assert_array_equal(replaced[3]["action"], [[0.25, -0.5]])
