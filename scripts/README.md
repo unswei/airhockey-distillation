@@ -35,6 +35,8 @@ workflow.
 - `run_full_teacher_on_marvin.sh RUN_ID CODE_COMMIT` runs or resumes the
   versioned full profile in the audited container, then performs checkpoint
   validation selection. It refuses a dirty or mismatched Marvin checkout.
+- `run_full_teacher_v3_on_marvin.sh RUN_ID CODE_COMMIT` performs the same
+  resumable train-then-select sequence for the locked-prefix v3 task.
 - `freeze_teacher_checkpoint.py` copies only the inference checkpoint payload,
   binds it to the validation selection and teacher configuration, records
   SHA-256 hashes and makes the frozen directory read-only.
