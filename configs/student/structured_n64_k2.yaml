@@ -1,0 +1,45 @@
+schema_version: 1
+status: phase_3_vertical_slice_implemented_untrained
+
+policy:
+  type: structured_recurrent
+  id: structured_n64_k2
+  observation_dimension: 19
+  encoder:
+    hidden_widths: [64, 32]
+    activation: silu
+    output_dimension: 32
+  recurrence:
+    type: diagonal_linear_low_rank_innovation
+    state_dimension: 64
+    innovation_rank: 2
+    activation: tanh
+    stable_diagonal_parameterisation: tanh
+    control_period_ms: 20
+    initial_time_constants_ms: [40, 2000]
+    include_previous_action: true
+    previous_action_dimension: 2
+  action_head:
+    input: [recurrent_state, encoded_observation]
+    hidden_width: 64
+    activation: silu
+    action_dimension: 2
+    output: tanh_mean
+  layer_normalisation: false
+  dropout: false
+
+training:
+  target: deterministic_teacher_action_mean
+  loss: action_mean_squared_error
+  sequence_length: 64
+  burn_in_steps: 16
+  loss_steps: 48
+  batch_size: 128
+  optimiser: adamw
+  gradient_clip_global_norm: 1.0
+  reset_state: episode_boundary_only
+
+provenance:
+  teacher_checkpoint_step: 700000
+  teacher_actor_sha256: 6a672d5b6d7c2b9ca2335f1a85b69280ca7db58deb5e2f56d2ba033ebf636254
+  container_digest: sha256:de846e25961d2408db73a6b5cfe2afc7ecf0e14e0e8ac837f97212a180e51d5f

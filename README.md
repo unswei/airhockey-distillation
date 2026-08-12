@@ -119,6 +119,14 @@ replay reproduces all 1,125 episode records exactly, and the no-blackout arms
 are identical. This directly supports the role of carried recurrent state in
 the teacher's blackout performance.
 
+Phase 3 now has its first implemented policy: the
+[`n=64, k=2 structured recurrent student`](docs/structured_student_n64_k2.md).
+Its diagonal 64-value memory receives a rank-2 nonlinear innovation and the
+previous executed action. Matched NumPy and PyTorch implementations provide
+deterministic evaluation, sequence training and exact checkpoint reload. The
+architecture is tested but remains untrained; a tiny-dataset overfit is its
+next gate.
+
 ## Scientific guardrails
 
 - Every policy receives the same non-privileged public observation.

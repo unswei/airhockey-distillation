@@ -16,6 +16,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
+student = ["torch>=2.7,<3"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

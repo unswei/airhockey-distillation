@@ -12,6 +12,8 @@ blackout. The task is now demonstrably memory-dependent under the fixed gate.
 The causal teacher-state ablation also returned `GO`: erasing state at
 blackout onset causes a 45.8-point drop at 20 steps under deterministic
 inference. Phase 3 — distillation infrastructure — is authorised.
+The first `n=64`, `k=2` structured recurrent student is implemented and
+tested, but has not yet passed its tiny-dataset overfit gate.
 
 ## Completed
 
@@ -169,12 +171,25 @@ inference. Phase 3 — distillation infrastructure — is authorised.
 - Copied the frozen teacher, canonical Stage B runs, teacher selection report,
   three final PPO seeds and a complete Git bundle to iCloud Drive. All 57
   files passed source and whole-backup checks; the provider reported caught up.
+- Implemented the principal `n=64`, `k=2` structured recurrent policy as
+  matched NumPy and PyTorch runtimes. It has 12,328 parameters, including
+  2,630 recurrent-core parameters, and a 256-byte float32 state.
+- Added explicit episode carry, previous-action recurrence, stable diagonal
+  time-constant initialisation, sequence unrolling and framework-neutral NPZ
+  checkpoint export.
+- Confirmed by automatic differentiation that the state-dependent departure
+  from the fixed diagonal recurrent Jacobian has rank at most two. Checkpoint
+  reload exactly reproduces action and state sequences; the full suite passes
+  89 tests in the pinned Marvin container.
 
 ## Next actions
 
-- Build the smallest Phase 3 vertical slice: one `k=2`, `n=64` structured
-  recurrent student, one tiny-dataset overfit check, checkpoint reload and one
-  paired closed-loop evaluation.
+- Overfit the `k=2`, `n=64` student on a tiny set of complete teacher episodes
+  labelled with deterministic teacher means, and verify that loss can be
+  driven near zero without sequence-reset errors. Do not reuse the older
+  sampled-action dataset without explicitly changing the target definition.
+- Train one full-data seed only after the tiny overfit passes, then reload its
+  checkpoint and run one paired closed-loop evaluation.
 - Implement the remaining matched student family only after that vertical
   slice passes.
 - Retain direct launch as the core controlled task; a scripted physical strike
@@ -229,6 +244,7 @@ inference. Phase 3 — distillation infrastructure — is authorised.
 | 2026-08-12 | Committed deterministic Dreamer inference and repeated the full normal evaluation | 1,125/1,125 episode rows reproduce exactly |
 | 2026-08-12 | Applied and froze the deterministic causal state ablation | `GO`; 45.8-point drop at 20 steps, 95% CI [38.7, 52.9], and identical no-blackout records |
 | 2026-08-12 | Backed up the frozen teacher and canonical Stage B evidence | 57 files and 19,245,888 bytes copied to iCloud Drive; source hashes, complete Git bundle and manifest verified |
+| 2026-08-12 | Implemented the structured `n=64`, `k=2` student | Matched NumPy/PyTorch runtimes, exact checkpoint replay, rank-2 Jacobian test and 89 passing tests |
 
 ## Blockers
 
