@@ -1,6 +1,6 @@
 # Structured recurrent student: n=64, k=2
 
-Status: **implemented; tiny-overfit gate passed; not full-data trained**.
+Status: **implemented; full-data seed diagnosed; correction required**.
 
 This is the first Phase 3 vertical-slice student. It implements the principal
 structured recurrence from the project brief with a 64-dimensional memory and
@@ -24,7 +24,7 @@ constants from 40 ms to 2 s at the 20 ms control period.
 
 The action head receives the concatenated 64-value updated state and 32-value
 encoded observation. A 96--64--2 SiLU MLP emits a tanh-bounded deterministic
-action mean. The previous executed two-dimensional action enters both the
+action mean. The previous requested two-dimensional command enters both the
 linear and nonlinear recurrent branches. Memory and previous action are reset
 only by explicitly constructing the initial carry at an episode boundary.
 
@@ -224,3 +224,14 @@ phase3-structured-n64-k2-full-seed-14303-2026-08-13-v2
 The corrected run manifest binds and verifies 50 files totalling 57,828,335
 bytes; its SHA-256 is
 `5dbbaba2536f5b7307b9103b6bcadf1d4c71badb2fd225447fab0ab0ff92f7a9`.
+
+The follow-up
+[`failure diagnostic`](structured_student_failure_diagnostic.md) identifies
+the masked initial 16 steps as the primary failure. The student receives no
+action loss on those steps even though the commands initialise its recurrent
+trajectory and steps 5--15 control the robot. Supplying teacher control only
+through step 15 raises no-blackout saves from 104/225 to 224/225 before
+handing control back to the student. Student rollouts also have a 16.8-fold
+larger 95th-percentile nearest-training-history distance. Exact repeats in the
+deterministic dataset have no conflicting targets, so target multimodality is
+not established as the primary cause.

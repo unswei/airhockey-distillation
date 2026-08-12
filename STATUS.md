@@ -1,6 +1,6 @@
 # Project status
 
-Last updated: 2026-08-12
+Last updated: 2026-08-13
 
 ## Current phase
 
@@ -16,7 +16,9 @@ The first `n=64`, `k=2` structured recurrent student is implemented and its
 corrected tiny-dataset overfit gate returns `GO`. Its 20,000-episode
 deterministic-mean collection, single-seed training and paired validation run
 are complete. The vertical slice is technically sound but behaviourally weak:
-the selected student saves only 45.3% of paired validation episodes.
+the selected student saves only 45.3% of paired validation episodes. The
+follow-up diagnosis finds that the loss-masked 16-step prefix is the primary
+failure and measures large closed-loop history shift after that divergence.
 
 ## Completed
 
@@ -207,12 +209,32 @@ the selected student saves only 45.3% of paired validation episodes.
   exact reload and checkpoint hash `8fbe2171fc4d7272dda0cbdd82adbf8c4bac506aaac21aada62fe9e37a99271f`.
   The paired 1,125-episode validation save rate is only 45.3%, including 46.2%
   with no blackout and 40.9% at 20 steps. The checkpoint is not promoted.
+- Diagnosed the weak no-blackout control on 225 fixed validation shots. The
+  ordinary student saved 104/225; teacher control for only steps 0--15 followed
+  by student control saved 224/225, equal to the frozen teacher. Every episode
+  continued beyond the hand-off.
+- Measured action MSE of `0.966` on locked steps 0--4 and `0.694` on live but
+  loss-masked steps 5--15, compared with `0.103` on the loss-bearing suffix
+  under teacher-forced previous commands.
+- Measured closed-loop covariate shift: the student's 95th-percentile nearest
+  training-history distance is 21.73 versus 1.29 on on-policy validation
+  histories, a 16.8-fold difference.
+- Audited all 20,000 deterministic episodes. All 5,311 repeated shot/blackout
+  groups have byte-identical input and target trajectories, with no conflicting
+  target for an identical full input trajectory. This does not support target
+  multimodality as the primary failure.
+- Found that the recurrent action input is the previous requested command,
+  not the applied hold action during the five locked steps. The locked-command
+  discrepancy has MSE `1.151`; the contract needs explicit terminology.
 
 ## Next actions
 
-- Diagnose why deterministic-mean imitation gives poor no-blackout control.
-  Check action-target multimodality, teacher/student previous-action mismatch
-  and rollout covariate shift before choosing the next correction.
+- Predeclare and train a corrected `n=64`, `k=2` seed with loss on every valid
+  step of the same frozen complete-episode dataset. Apply a no-blackout-only
+  validation gate before running the full blackout comparison.
+- If prefix supervision does not recover credible no-blackout control, collect
+  deterministic shadow-teacher targets on student rollouts to address the
+  measured covariate shift.
 - Implement the remaining matched student family only after that vertical
   slice passes.
 - Retain direct launch as the core controlled task; a scripted physical strike
@@ -273,6 +295,7 @@ the selected student saves only 45.3% of paired validation episodes.
 | 2026-08-12 | Predeclared the first full-data structured-student seed | 20,000 deterministic-mean episodes; 80/10/10 split; seed 14303; 98 passing tests |
 | 2026-08-13 | Collected the full deterministic-mean dataset | 20,000 episodes, 713,257 transitions and 40 hashed shards |
 | 2026-08-13 | Ran full-data structured seed 14303 and paired validation | Training/export complete; validation MSE `0.10859`; weak 45.3% closed-loop save rate |
+| 2026-08-13 | Diagnosed the structured student's no-blackout failure | The unsupervised 16-step prefix is primary; teacher prefix recovers 224/225 saves; large rollout shift measured; exact repeats have no conflicting targets |
 
 ## Blockers
 

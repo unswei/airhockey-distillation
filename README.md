@@ -122,7 +122,7 @@ the teacher's blackout performance.
 Phase 3 now has its first implemented policy: the
 [`n=64, k=2 structured recurrent student`](docs/structured_student_n64_k2.md).
 Its diagonal 64-value memory receives a rank-2 nonlinear innovation and the
-previous executed action. Matched NumPy and PyTorch implementations provide
+previous requested public command. Matched NumPy and PyTorch implementations provide
 deterministic evaluation, sequence training and exact checkpoint reload. The
 architecture now passes its tiny-dataset overfit gate: a newly collected
 deterministic-mean episode is fit to `7.46e-5` action MSE, and an independent
@@ -131,7 +131,13 @@ export path, not full-data or closed-loop student quality. The first full-data
 seed is predeclared at 20,000 newly collected deterministic-mean episodes with
 an episode-level 80/10/10 split. That seed has now completed, but its paired
 validation save rate is only 45.3%; it is evidence that the vertical slice
-runs, not evidence of a successful distilled controller.
+runs, not evidence of a successful distilled controller. A controlled
+[`failure diagnostic`](docs/structured_student_failure_diagnostic.md) now
+locates the main error in the loss-masked initial 16 steps. Teacher control
+over only that prefix recovers 224/225 no-blackout saves after the student
+takes over, while student rollouts move far outside the teacher-data history
+distribution. Exact repeated deterministic trajectories do not have
+conflicting targets.
 
 ## Scientific guardrails
 

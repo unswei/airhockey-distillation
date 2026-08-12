@@ -70,7 +70,7 @@ _CHECKPOINT_ARCHITECTURE = {
 
 @dataclass(frozen=True)
 class StructuredPolicyCarry:
-    """Memory and previous executed action carried between control steps."""
+    """Memory and previous requested command carried between control steps."""
 
     memory: NDArray[np.float32]
     previous_action: NDArray[np.float32]

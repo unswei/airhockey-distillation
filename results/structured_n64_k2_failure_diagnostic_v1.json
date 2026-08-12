@@ -1,0 +1,63 @@
+{
+  "code": {
+    "dataset_audit_commit": "490e27c7c33b95076e6cd06373c7de3bf5ddb32f",
+    "diagnostic_commit": "c5f17a769983b7f8fb4a2d785a86d2eecc95b21a"
+  },
+  "closed_loop_no_blackout": {
+    "episodes_per_variant": 225,
+    "oracle_teacher_previous_action_save_rate": 0.1688888888888889,
+    "standard_student_save_rate": 0.4622222222222222,
+    "teacher_controlled_prefix_16_save_rate": 0.9955555555555555,
+    "teacher_reference_save_rate": 0.9955555555555555
+  },
+  "dataset": {
+    "episode_count": 20000,
+    "manifest_sha256": "923497e3622209c7060196ff8322f4d333626138048ad94577034c67f01c60cf",
+    "repeated_shot_blackout_groups": 5311,
+    "repeated_groups_with_identical_full_inputs": 5311,
+    "repeated_groups_with_identical_targets": 5311,
+    "full_input_trajectories_with_conflicting_targets": 0
+  },
+  "diagnosis": {
+    "primary": "the loss excludes steps 0 through 15 even though their commands initialise the recurrent trajectory and steps 5 through 15 directly control the robot",
+    "secondary": "student-generated previous commands and observations compound the initial recurrent-state error after the loss-bearing suffix begins",
+    "target_multimodality": "not established as a primary failure; local neighbour variance is a short-history ambiguity proxy, while exact repeated full trajectories have deterministic targets",
+    "previous_action_semantics": "the stored value is the previous requested policy command; during the five-step lock it is not the planar hold action applied by the environment"
+  },
+  "neighbourhood_shift": {
+    "history_steps": 5,
+    "on_policy_nearest_distance_mean": 0.2911913040448758,
+    "on_policy_nearest_distance_p95": 1.2928480414434365,
+    "student_nearest_distance_mean": 6.014438325087688,
+    "student_nearest_distance_p95": 21.72563920714994,
+    "student_to_on_policy_p95_ratio": 16.80448011731815
+  },
+  "offline_no_blackout_action_mse": {
+    "recursive_student_previous_actions": {
+      "live_but_loss_masked_steps_5_to_15": 0.6453827398569368,
+      "locked_steps_0_to_4": 0.8867400601673662,
+      "loss_bearing_steps_16_onwards": 0.21927294122423224
+    },
+    "teacher_forced_previous_actions": {
+      "live_but_loss_masked_steps_5_to_15": 0.6935080971181435,
+      "locked_steps_0_to_4": 0.9660095013259502,
+      "loss_bearing_steps_16_onwards": 0.10332368045918613
+    }
+  },
+  "raw_evidence": {
+    "directory": "phase3-structured-n64-k2-failure-diagnostic-2026-08-13-v3",
+    "console_log_sha256": "66479db214ebb60205bfa7b18551dadfe41b55017224b26132aace763b2c64b0",
+    "dataset_audit_sha256": "d577de799cb9738d91c28e840166ca1b6afd70e34fbdafc52f6af5b8377bdacb",
+    "resolved_config_sha256": "a7dd803283dbf969e9c14643113f7a84f9f13f34545acaa6c1a98101fa505933",
+    "result_sha256": "cc812a3544731ccfe5b4e4a025b33a7cb72122192d6418ead9ffb588e2aa3022",
+    "sha256_manifest_sha256": "38b46a796435b0898612851c65abfc42cc4337d738e999abeb7a6b78f27e8995"
+  },
+  "recommended_next_correction": {
+    "first": "train the same n=64, k=2 policy on the same frozen dataset with action loss on every valid step, including the locked and live prefix",
+    "gate": "evaluate the corrected seed on the 225 no-blackout validation shots before opening the blackout comparison",
+    "only_if_needed": "if prefix supervision does not recover credible no-blackout control, collect deterministic shadow-teacher labels on student rollouts to address the measured covariate shift"
+  },
+  "schema_version": 1,
+  "status": "completed",
+  "student_checkpoint_sha256": "8fbe2171fc4d7272dda0cbdd82adbf8c4bac506aaac21aada62fe9e37a99271f"
+}

@@ -23,6 +23,10 @@ The first [`full-data seed`](structured_n64_k2_full_seed_14303_v2.json)
 records its deterministic-mean dataset binding, offline losses and compact
 closed-loop summary. The run completed technically, but its 45.3% validation
 save rate is weak and the checkpoint is not promoted as a successful policy.
+The follow-up
+[`failure diagnostic`](structured_n64_k2_failure_diagnostic_v1.json) records
+the phase errors, controlled-prefix comparison, history-distribution shift and
+dataset action-semantics audit. Its raw episode records remain outside Git.
 
 Canonical episode rows will include:
 
