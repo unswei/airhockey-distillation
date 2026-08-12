@@ -180,7 +180,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     checkpoint_path = output / "checkpoint.npz"
     checkpoint_metadata = {
         "schema_version": 1,
-        "policy": config["policy"]["id"],
+        "student_id": config["policy"]["id"],
         "training_seed": seed,
         "code_commit": args.code_commit,
         "dataset_id": manifest["dataset_id"],

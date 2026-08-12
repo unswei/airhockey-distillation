@@ -158,9 +158,9 @@ repeat used commit `4afa8e38cea33eb8a9606110724bb491210efbbc`.
 
 ## First full-data seed
 
-The first full-data run is predeclared in
-`configs/student/structured_n64_k2_full_seed_14303.yaml`. It collects 20,000
-new deterministic-mean episodes and splits them by episode seed into 16,000
+The first full-data run was predeclared in
+`configs/student/structured_n64_k2_full_seed_14303.yaml`. It collected 20,000
+new deterministic-mean episodes and split them by episode seed into 16,000
 training, 2,000 validation and 2,000 internal-test episodes. The sampled Stage
 B datasets are incompatible inputs and the trainer rejects them.
 
@@ -174,3 +174,12 @@ test loss is calculated once after selection and does not influence training.
 After checkpoint reload, the vertical slice evaluates all 225 validation shots
 at blackout lengths 0, 5, 10, 15 and 20. This is a development evaluation,
 not use of the final test split and not yet a principal multi-seed result.
+
+The 20,000-episode v1 collection completed before the first training attempt.
+That attempt then completed 100 epochs but stopped at export because the
+project policy identifier had been placed in the checkpoint metadata field
+reserved for the runtime architecture identifier. The v1 metrics and failure
+log are preserved. The versioned
+`structured_n64_k2_full_seed_14303_v2.yaml` correction changes only that
+metadata binding, reruns the same training procedure and reuses the immutable
+deterministic-mean dataset.

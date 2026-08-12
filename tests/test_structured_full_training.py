@@ -5,6 +5,11 @@ import numpy as np
 import pytest
 import yaml
 
+from airhockey_distill.students import (
+    StructuredRecurrentPolicy,
+    initialise_structured_parameters,
+    save_structured_checkpoint,
+)
 from scripts.train_structured_student import (
     DETERMINISTIC_ACTION_SEMANTICS,
     chunk_slices,
@@ -154,6 +159,21 @@ def test_training_smoke_carries_across_two_chunks():
     assert np.isfinite(training_mse)
     assert np.isfinite(metrics["action_mse"])
     assert metrics["loss_bearing_action_values"] == 4 * (70 - 16) * 2
+
+
+def test_full_checkpoint_uses_student_id_without_architecture_conflict(tmp_path):
+    path = tmp_path / "student.npz"
+    metadata = {
+        "schema_version": 1,
+        "student_id": "structured_n64_k2",
+        "training_seed": 14303,
+    }
+
+    save_structured_checkpoint(path, initialise_structured_parameters(14303), metadata)
+    restored = StructuredRecurrentPolicy.load(path)
+
+    assert restored.metadata["policy"] == "structured_recurrent_n64_k2"
+    assert restored.metadata["student_id"] == "structured_n64_k2"
 
 
 def _dataset_config():

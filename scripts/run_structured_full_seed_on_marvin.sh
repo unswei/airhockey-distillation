@@ -13,34 +13,19 @@ readonly EXPERIMENT_ROOT="/home/oliver/experiments/airhockey-memory-distillation
 readonly RUN_ROOT="${EXPERIMENT_ROOT}/${RUN_ID}"
 readonly DATASET_RUN="teacher-v3-structured-n64-k2-full-deterministic-2026-08-12-v1"
 readonly DATASET_ROOT="${EXPERIMENT_ROOT}/teacher-datasets/${DATASET_RUN}"
-readonly STUDENT_RUN="structured-n64-k2-full-seed-14303-2026-08-12-v1"
+readonly DATASET_CODE_COMMIT="cdbde7d81aa6f5624cfbdc709ea368515634d39c"
+readonly STUDENT_RUN="structured-n64-k2-full-seed-14303-2026-08-13-v2"
 readonly STUDENT_ROOT="${EXPERIMENT_ROOT}/students/${STUDENT_RUN}"
 readonly IMAGE="marvin/drl-air-hockey:2025-a41081c4c386-blackwell-rebuilt"
-readonly CONFIG="configs/student/structured_n64_k2_full_seed_14303.yaml"
+readonly CONFIG="configs/student/structured_n64_k2_full_seed_14303_v2.yaml"
 
 cd "${CODE_ROOT}"
 test "$(git rev-parse HEAD)" = "${CODE_COMMIT}"
 test -z "$(git status --porcelain)"
 mkdir -p "${RUN_ROOT}"
 
-if [[ ! -f "${DATASET_ROOT}/manifest.json" ]]; then
-  docker run --rm --gpus all --ipc host \
-    --env PYTHONPATH=/work/src:/src/2025-challenge \
-    --env XLA_PYTHON_CLIENT_PREALLOCATE=false \
-    --volume "${CODE_ROOT}:/work:ro" \
-    --volume "${EXPERIMENT_ROOT}:/experiments:rw" \
-    --workdir /work \
-    "marvin/drl-air-hockey:2025-a41081c4c386-blackwell-rebuilt" \
-    python3 scripts/collect_teacher_dataset.py \
-      --config "${CONFIG}" \
-      --teacher-config configs/teacher/dreamerv3_v3.yaml \
-      --checkpoint /experiments/frozen-teachers/dreamerv3-teacher-v3-step-700000 \
-      --output "/experiments/teacher-datasets/${DATASET_RUN}" \
-      --code-commit "${CODE_COMMIT}" \
-      --deterministic-inference \
-    2>&1 | tee -a "${RUN_ROOT}/collection.log"
-else
-  python3 - "${DATASET_ROOT}/manifest.json" "${CODE_COMMIT}" <<'PY'
+test -f "${DATASET_ROOT}/manifest.json"
+python3 - "${DATASET_ROOT}/manifest.json" "${DATASET_CODE_COMMIT}" <<'PY'
 import json
 import pathlib
 import sys
@@ -57,7 +42,8 @@ assert manifest["teacher_action_semantics"] == (
 assert manifest["deterministic_inference"] is True
 assert manifest["episode_count"] == 20000
 PY
-fi
+printf 'reused frozen dataset %s collected at commit %s\n' \
+  "${DATASET_RUN}" "${DATASET_CODE_COMMIT}" > "${RUN_ROOT}/dataset_binding.log"
 
 if [[ ! -f "${STUDENT_ROOT}/result.json" ]]; then
   docker run --rm --ipc host \
@@ -121,7 +107,7 @@ paths = [
     student_root / "checkpoint.npz",
     student_root / "result.json",
     student_root / "closed_loop_validation.json",
-    run_root / "collection.log",
+    run_root / "dataset_binding.log",
     run_root / "training.log",
     run_root / "evaluation.log",
 ]

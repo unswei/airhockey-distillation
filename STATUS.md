@@ -192,19 +192,21 @@ are predeclared; no closed-loop quality claim has yet been made.
 - Repeated corrected training from scratch and obtained byte-identical metrics
   and checkpoint hash `ef76db026a4093238d0734bdf44be8b242d998777da7ebe065147e3768e3c0fa`.
   Froze and hashed the dataset, v1, v2, repeat and logs. The full pinned suite
-  passes 98 tests after adding the full-data path.
+  passes 99 tests after adding the corrected full-data path.
 - Predeclared the first full-data vertical slice at 20,000 newly collected
   deterministic-mean episodes, split 16,000/2,000/2,000 by episode seed.
   Added 64-step truncated training with state carry across chunks,
   validation-loss selection, exact export checks and paired closed-loop
   validation. Sampled-action manifests are rejected.
+- Collected all 20,000 episodes and 713,257 deterministic-mean transitions.
+  The first 100-epoch training attempt stopped during checkpoint export on a
+  metadata-name conflict. Preserved that run and predeclared a v2
+  metadata-only code correction with unchanged training settings.
 
 ## Next actions
 
-- Collect a full-size deterministic-mean teacher dataset for Phase 3. Do not
-  reuse or relabel the older sampled-action Stage B dataset.
-- Train one full-data `k=2`, `n=64` seed, then reload its checkpoint and run
-  one paired closed-loop evaluation.
+- Rerun full-data `k=2`, `n=64` seed 14303 with the versioned metadata fix,
+  then reload its checkpoint and run one paired closed-loop evaluation.
 - Implement the remaining matched student family only after that vertical
   slice passes.
 - Retain direct launch as the core controlled task; a scripted physical strike
