@@ -2,6 +2,7 @@ import numpy as np
 
 from scripts.diagnose_structured_student import (
     _replace_teacher_previous_action,
+    _safe_ratio,
     history_examples,
     phase_for_step,
 )
@@ -54,3 +55,9 @@ def test_shadow_teacher_previous_action_stays_device_resident():
 
     assert isinstance(replaced[3]["action"], jax.Array)
     np.testing.assert_array_equal(replaced[3]["action"], [[0.25, -0.5]])
+
+
+def test_exact_on_policy_overlap_does_not_create_infinite_ratio():
+    assert _safe_ratio(0.0, 0.0) is None
+    assert _safe_ratio(2.0, 0.0) is None
+    assert _safe_ratio(2.0, 0.5) == 4.0

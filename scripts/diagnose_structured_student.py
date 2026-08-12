@@ -451,8 +451,10 @@ def neighbourhood_diagnostic(
         "on_policy_validation": validation,
         "student_closed_loop": rollout,
         "student_to_on_policy_distance_ratio": {
-            key: rollout["nearest_standardised_distance"][key]
-            / validation["nearest_standardised_distance"][key]
+            key: _safe_ratio(
+                rollout["nearest_standardised_distance"][key],
+                validation["nearest_standardised_distance"][key],
+            )
             for key in ("median", "p95")
         },
     }
@@ -700,10 +702,17 @@ def _add_squared_error(
 
 def _quantiles(values: np.ndarray[Any, Any]) -> dict[str, float]:
     return {
+        "mean": float(np.mean(values)),
         "median": float(np.quantile(values, 0.5)),
         "p95": float(np.quantile(values, 0.95)),
         "maximum": float(np.max(values)),
     }
+
+
+def _safe_ratio(numerator: float, denominator: float) -> float | None:
+    """Return no ratio when exact on-policy overlap makes it undefined."""
+
+    return numerator / denominator if denominator > 0.0 else None
 
 
 def _load_mapping(path: Path) -> dict[str, Any]:
