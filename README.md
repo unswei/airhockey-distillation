@@ -110,6 +110,15 @@ teacher saved 99.6% and 96.9%. The paired teacher advantage grew from 8.9 to
 requirement in the controlled `direct_launch_v3` task and authorises the
 principal recurrent-student work.
 
+The follow-up
+[`causal recurrent-state ablation`](docs/causal_memory_ablation.md) also
+returns `GO`. Under deterministic inference, resetting the teacher state at
+blackout onset reduces its 20-step save rate from 96.0% to 50.2%, a paired
+45.8-point drop with 95% interval [38.7, 52.9]. An independent normal-state
+replay reproduces all 1,125 episode records exactly, and the no-blackout arms
+are identical. This directly supports the role of carried recurrent state in
+the teacher's blackout performance.
+
 ## Scientific guardrails
 
 - Every policy receives the same non-privileged public observation.

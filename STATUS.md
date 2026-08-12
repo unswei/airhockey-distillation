@@ -9,8 +9,9 @@ direct-launch set-piece slice complete. Phase 2 — v3 teacher complete and
 frozen. Stage B v3 returned a predeclared `GO`: a credible memoryless policy
 is close to the teacher without blackout and falls far behind under a 20-step
 blackout. The task is now demonstrably memory-dependent under the fixed gate.
-Phase 3 — distillation infrastructure — is authorised. The causal
-teacher-state ablation remains the next confirmatory check.
+The causal teacher-state ablation also returned `GO`: erasing state at
+blackout onset causes a 45.8-point drop at 20 steps under deterministic
+inference. Phase 3 — distillation infrastructure — is authorised.
 
 ## Completed
 
@@ -155,11 +156,19 @@ teacher-state ablation remains the next confirmatory check.
   54.7 points of advantage growth.
 - Preserved the raw episode records outside Git and added the byte-identical
   compact gate result plus verified artefact hashes to the repository.
+- Added deterministic Dreamer evaluation using the RSSM categorical mode and
+  actor mean, with sampled inference retained as the default for older runs.
+- Repeated the normal-state teacher evaluation in independent processes. All
+  1,125 episode records matched exactly.
+- Applied the predeclared causal recurrent-state ablation. At 20 blackout
+  steps, resetting state reduced saves from 216/225 to 113/225: a 45.8-point
+  paired drop with bootstrap 95% interval [38.7, 52.9]. All 225 no-blackout
+  episode records were identical and the decision was `GO`.
+- Froze the canonical raw run as root-owned, read-only evidence and recorded
+  its code, configuration, checkpoint, result and checksum-manifest hashes.
 
 ## Next actions
 
-- Run the predeclared causal recurrent-state ablation on the frozen teacher,
-  resetting its carry only at blackout onset on the same paired shots.
 - Build the smallest Phase 3 vertical slice: one `k=2`, `n=64` structured
   recurrent student, one tiny-dataset overfit check, checkpoint reload and one
   paired closed-loop evaluation.
@@ -216,6 +225,8 @@ teacher-state ablation remains the next confirmatory check.
 | 2026-08-12 | Trained and qualified all three Stage B v3 PPO seeds | Seed 14304 selected at 92.0% no-blackout validation saves; qualification `GO` |
 | 2026-08-12 | Applied the held-out Stage B v3 memory gate | `GO`; 8.9-point no-blackout gap, 63.6-point 20-step gap and all five checks pass |
 | 2026-08-12 | Closed and froze Stage B v3 evidence | Compact canonical result in Git; 1,125 episode rows remain under the hashed Marvin run |
+| 2026-08-12 | Committed deterministic Dreamer inference and repeated the full normal evaluation | 1,125/1,125 episode rows reproduce exactly |
+| 2026-08-12 | Applied and froze the deterministic causal state ablation | `GO`; 45.8-point drop at 20 steps, 95% CI [38.7, 52.9], and identical no-blackout records |
 
 ## Blockers
 

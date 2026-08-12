@@ -1,0 +1,87 @@
+{
+  "blocking_checks": [],
+  "by_blackout_steps": {
+    "0": {
+      "episodes": 225,
+      "paired_save_rate_drop": 0.0,
+      "paired_save_rate_drop_ci95": [
+        0.0,
+        0.0
+      ],
+      "recurrent_save_rate": 0.9955555555555555,
+      "reset_at_blackout_save_rate": 0.9955555555555555
+    },
+    "10": {
+      "episodes": 225,
+      "paired_save_rate_drop": 0.4888888888888889,
+      "paired_save_rate_drop_ci95": [
+        0.4177777777777778,
+        0.5555555555555556
+      ],
+      "recurrent_save_rate": 0.9822222222222222,
+      "reset_at_blackout_save_rate": 0.49333333333333335
+    },
+    "15": {
+      "episodes": 225,
+      "paired_save_rate_drop": 0.4711111111111111,
+      "paired_save_rate_drop_ci95": [
+        0.4,
+        0.5422222222222223
+      ],
+      "recurrent_save_rate": 0.9688888888888889,
+      "reset_at_blackout_save_rate": 0.49777777777777776
+    },
+    "20": {
+      "episodes": 225,
+      "paired_save_rate_drop": 0.4577777777777778,
+      "paired_save_rate_drop_ci95": [
+        0.38666666666666666,
+        0.5288888888888889
+      ],
+      "recurrent_save_rate": 0.96,
+      "reset_at_blackout_save_rate": 0.5022222222222222
+    },
+    "5": {
+      "episodes": 225,
+      "paired_save_rate_drop": 0.4177777777777778,
+      "paired_save_rate_drop_ci95": [
+        0.35555555555555557,
+        0.48444444444444446
+      ],
+      "recurrent_save_rate": 1.0,
+      "reset_at_blackout_save_rate": 0.5822222222222222
+    }
+  },
+  "checks": [
+    {
+      "check_id": "material_long_blackout_reset_drop",
+      "observed": 0.4577777777777778,
+      "passed": true,
+      "required": ">= 0.1"
+    },
+    {
+      "check_id": "positive_long_blackout_reset_drop_ci",
+      "observed": 0.38666666666666666,
+      "passed": true,
+      "required": "> 0.0"
+    },
+    {
+      "check_id": "identical_no_blackout_control",
+      "observed": true,
+      "passed": true,
+      "required": "true"
+    }
+  ],
+  "code_commit": "700e8f80bac2debb5cb6a9804d8e7f199f0d5c9d",
+  "created_at": "2026-08-12T11:41:56.844996+00:00",
+  "decision": "GO",
+  "identical_no_blackout_control": true,
+  "inputs": {
+    "config_sha256": "f1052a03a164b6a52fcd2be2f6a31e3b46952cb773b40bb40d7a55abc861ea32",
+    "recurrent_result_sha256": "6cc22fb8035402fa0621d115b3bb9aa0b88084befef2b5e981551373124d29f2",
+    "reset_result_sha256": "27017801dd96ef3c8658dec2b2b85aec9b15934b544b14e63c2eb940e2941300"
+  },
+  "interpretation": "causal ablation supports use of recurrent state during blackout",
+  "paired_episode_count": 1125,
+  "schema_version": 1
+}

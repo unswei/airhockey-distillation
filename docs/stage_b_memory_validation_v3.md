@@ -116,5 +116,8 @@ code-repository path.
 | Original run hash manifest | `stage-b-memory-validation-v3-2026-08-12-v1/sha256sums.txt` | `8ccd240f7d1ade529946e366208a9eb4c8c2cd1d341360e391961074f0619eae` |
 
 Training logs are retained with the raw run but are not decision inputs. The
-next confirmatory check is the separately predeclared intervention that resets
-the teacher's recurrent state at blackout onset.
+separately predeclared
+[`causal recurrent-state ablation`](causal_memory_ablation.md) subsequently
+returned `GO`: resetting the teacher state at blackout onset caused a
+45.8-point save-rate drop at 20 steps while leaving all no-blackout episode
+records unchanged.

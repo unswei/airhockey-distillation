@@ -28,7 +28,9 @@ workflow.
   policy-quality experiment.
 - `evaluate_teacher_checkpoint.py` evaluates an untrained or checkpointed
   Dreamer policy on identical held-out validation shots at fixed blackout
-  lengths and records contact-aware outcomes and batch-one latency.
+  lengths and records contact-aware outcomes and batch-one latency. Pass
+  `--deterministic-inference` to use the RSSM mode and actor mean instead of
+  sampling.
 - `evaluate_teacher_checkpoints.py` evaluates every retained checkpoint and
   selects by validation save rate averaged across the configured blackout
   durations. Mean return and then earlier step are deterministic tie-breaks.
