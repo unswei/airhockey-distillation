@@ -23,9 +23,10 @@ explicitly labelled otherwise.
 | Pinned upstream clones | `/home/oliver/Code/upstream/airhockey-memory-distillation` |
 | Runs, checkpoints and videos | `/home/oliver/experiments/airhockey-memory-distillation` |
 
-The experiment path is local storage, not a confirmed durable artefact store.
-Choose and test a backup destination before producing large datasets or main
-teacher checkpoints.
+The experiment path is local storage and is not durable by itself. The frozen
+teacher and canonical Stage B evidence now have a verified, iCloud-synchronised
+second copy; see [`stage_b_backup.md`](stage_b_backup.md). New Phase 3 runs
+must be added to a versioned backup rather than relying on this earlier bundle.
 
 ## Current container
 

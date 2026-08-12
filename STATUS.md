@@ -166,6 +166,9 @@ inference. Phase 3 — distillation infrastructure — is authorised.
   episode records were identical and the decision was `GO`.
 - Froze the canonical raw run as root-owned, read-only evidence and recorded
   its code, configuration, checkpoint, result and checksum-manifest hashes.
+- Copied the frozen teacher, canonical Stage B runs, teacher selection report,
+  three final PPO seeds and a complete Git bundle to iCloud Drive. All 57
+  files passed source and whole-backup checks; the provider reported caught up.
 
 ## Next actions
 
@@ -174,8 +177,6 @@ inference. Phase 3 — distillation infrastructure — is authorised.
   paired closed-loop evaluation.
 - Implement the remaining matched student family only after that vertical
   slice passes.
-- Select a backed-up artefact destination before generating more checkpoints
-  or datasets.
 - Retain direct launch as the core controlled task; a scripted physical strike
   remains a later secondary extension.
 
@@ -227,11 +228,10 @@ inference. Phase 3 — distillation infrastructure — is authorised.
 | 2026-08-12 | Closed and froze Stage B v3 evidence | Compact canonical result in Git; 1,125 episode rows remain under the hashed Marvin run |
 | 2026-08-12 | Committed deterministic Dreamer inference and repeated the full normal evaluation | 1,125/1,125 episode rows reproduce exactly |
 | 2026-08-12 | Applied and froze the deterministic causal state ablation | `GO`; 45.8-point drop at 20 steps, 95% CI [38.7, 52.9], and identical no-blackout records |
+| 2026-08-12 | Backed up the frozen teacher and canonical Stage B evidence | 57 files and 19,245,888 bytes copied to iCloud Drive; source hashes, complete Git bundle and manifest verified |
 
 ## Blockers
 
-- Marvin's experiment directory is not yet backed up to a durable artefact
-  store.
 - The Blackwell image deliberately overrides Dreamer's declared JAX 0.4.33 and
   CUDA NVCC 12.2 bounds with JAX 0.5.3 and CUDA NVCC 12.9.86. Device discovery
   and a 108-update training smoke test pass; `pip check` records the two

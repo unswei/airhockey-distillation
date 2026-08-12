@@ -88,6 +88,10 @@ The selected checkpoints and raw JSON evidence are root-owned and non-writable
 by Marvin's normal experiment account. Corrections must create a new run
 rather than alter these files.
 
+The run, frozen teacher, final baseline models and selection report are also
+included in the verified
+[`Stage B canonical evidence backup`](stage_b_backup.md).
+
 ## Verified hashes
 
 Paths below are relative to

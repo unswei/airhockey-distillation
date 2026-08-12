@@ -54,6 +54,9 @@ manifest remain outside Git at:
 The directory and its contents are root-owned and read-only. Corrections must
 create a new run rather than alter this evidence.
 
+This run and the frozen teacher are also included in the verified
+[`Stage B canonical evidence backup`](stage_b_backup.md).
+
 ## Verified hashes
 
 | Artefact | SHA-256 |
