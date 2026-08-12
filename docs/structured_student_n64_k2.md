@@ -81,3 +81,9 @@ actions, not deterministic teacher means. The overfit diagnostic therefore
 needs a small newly collected deterministic-mean target set; the old target
 semantics must not be relabelled. Only after that passes should the full
 dataset be collected or trained.
+
+The diagnostic is predeclared in
+`configs/student/structured_n64_k2_tiny_overfit.yaml`: 16 complete episodes,
+128 padded steps, a 16-step burn-in and full-batch AdamW. It passes only if
+training action MSE reaches `1e-4`, loss falls by at least 99%, NumPy export
+error is at most `5e-6`, and checkpoint reload is exact.

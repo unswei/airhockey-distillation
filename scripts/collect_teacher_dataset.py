@@ -22,8 +22,13 @@ import yaml
 from ruamel import yaml as ruamel_yaml
 
 from airhockey_distill.envs import DirectLaunchTrainingEnv
+from airhockey_distill.teachers import enable_deterministic_dreamer_inference
 
 ENVIRONMENT_ID = "AirHockeyDefendShotDataset-v0"
+SAMPLED_ACTION_SEMANTICS = "executed_after_public_adapter_clip"
+DETERMINISTIC_ACTION_SEMANTICS = (
+    "deterministic_actor_mean_after_public_adapter_clip"
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -33,6 +38,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--code-commit", required=True)
+    parser.add_argument("--deterministic-inference", action="store_true")
     return parser.parse_args()
 
 
@@ -82,6 +88,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     from dreamerv3 import agent as dreamer_agent
     from dreamerv3 import main as dreamer_main
     from embodied.envs import from_gymnasium
+    from embodied.jax import outs as embodied_outs
+
+    if args.deterministic_inference:
+        enable_deterministic_dreamer_inference(embodied_outs.Agg)
 
     from_gymnasium.elements = elements
     upstream = ruamel_yaml.YAML(typ="safe").load(
@@ -121,6 +131,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     if episode_count % episodes_per_shard:
         raise ValueError("episodes must be divisible by episodes_per_shard")
 
+    action_semantics = teacher_action_semantics(args.deterministic_inference)
     environment = make_environment()
     started = perf_counter()
     try:
@@ -128,7 +139,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             shard_index = first_episode // episodes_per_shard
             shard_path = shards_directory / f"shard-{shard_index:04d}.npz"
             if shard_path.exists():
-                _validate_shard(shard_path, first_episode, episodes_per_shard)
+                _validate_shard(
+                    shard_path,
+                    first_episode,
+                    episodes_per_shard,
+                    expected_action_semantics=action_semantics,
+                )
                 continue
             payload = _collect_shard(
                 agent,
@@ -136,6 +152,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 first_episode=first_episode,
                 episode_count=episodes_per_shard,
                 sampling_seed=int(dataset["sampling_seed"]),
+                action_semantics=action_semantics,
             )
             temporary = shard_path.with_suffix(".npz.tmp")
             with temporary.open("wb") as stream:
@@ -184,7 +201,20 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "created_at": datetime.now(UTC).isoformat(),
         "dataset_id": dataset["id"],
         "dataset_schema_version": 2,
-        "teacher_action_semantics": "executed_after_public_adapter_clip",
+        "teacher_action_semantics": action_semantics,
+        "deterministic_inference": args.deterministic_inference,
+        "inference_mode": {
+            "actor_action": (
+                "distribution_prediction"
+                if args.deterministic_inference
+                else "sample"
+            ),
+            "rssm_posterior": (
+                "distribution_prediction"
+                if args.deterministic_inference
+                else "sample"
+            ),
+        },
         "code_commit": args.code_commit,
         "config_sha256": _sha256(args.config.resolve()),
         "frozen_teacher": {
@@ -219,6 +249,7 @@ def _collect_shard(
     first_episode: int,
     episode_count: int,
     sampling_seed: int,
+    action_semantics: str = SAMPLED_ACTION_SEMANTICS,
 ) -> dict[str, np.ndarray[Any, Any]]:
     observations: list[np.ndarray[Any, Any]] = []
     previous_actions: list[np.ndarray[Any, Any]] = []
@@ -282,7 +313,7 @@ def _collect_shard(
 
     return {
         "dataset_schema_version": np.asarray(2, dtype=np.int64),
-        "teacher_action_semantics": np.asarray("executed_after_public_adapter_clip"),
+        "teacher_action_semantics": np.asarray(action_semantics),
         "observations": np.asarray(observations, dtype=np.float32),
         "previous_actions": np.asarray(previous_actions, dtype=np.float32),
         "teacher_raw_actions": np.asarray(teacher_raw_actions, dtype=np.float32),
@@ -304,13 +335,17 @@ def _collect_shard(
     }
 
 
-def _validate_shard(path: Path, first_episode: int, episode_count: int) -> None:
+def _validate_shard(
+    path: Path,
+    first_episode: int,
+    episode_count: int,
+    *,
+    expected_action_semantics: str = SAMPLED_ACTION_SEMANTICS,
+) -> None:
     with np.load(path, allow_pickle=False) as shard:
         if int(shard["dataset_schema_version"]) != 2:
             raise ValueError(f"existing shard has an incompatible schema: {path}")
-        if str(shard["teacher_action_semantics"]) != (
-            "executed_after_public_adapter_clip"
-        ):
+        if str(shard["teacher_action_semantics"]) != expected_action_semantics:
             raise ValueError(
                 f"existing shard has incompatible action semantics: {path}"
             )
@@ -325,6 +360,16 @@ def _validate_shard(path: Path, first_episode: int, episode_count: int) -> None:
         actions = shard["teacher_actions"]
         if not np.all(np.isfinite(actions)) or np.any(np.abs(actions) > 1.0):
             raise ValueError(f"existing shard has invalid executed actions: {path}")
+
+
+def teacher_action_semantics(deterministic_inference: bool) -> str:
+    """Return an explicit target definition; sampled data is never relabelled."""
+
+    return (
+        DETERMINISTIC_ACTION_SEMANTICS
+        if deterministic_inference
+        else SAMPLED_ACTION_SEMANTICS
+    )
 
 
 def _load_mapping(path: Path) -> dict[str, Any]:

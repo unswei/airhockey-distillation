@@ -1,0 +1,50 @@
+schema_version: 1
+status: phase_3_tiny_overfit_predeclared
+
+policy:
+  config: configs/student/structured_n64_k2.yaml
+  id: structured_n64_k2
+  state_dimension: 64
+  innovation_rank: 2
+
+dataset:
+  id: teacher_v3_structured_n64_k2_tiny_deterministic_v1
+  teacher_action_semantics: deterministic_actor_mean_after_public_adapter_clip
+  distribution_config: configs/env/direct_launch_v3.yaml
+  distribution_split: train
+  reward_config: configs/reward/defend_shot_v1.yaml
+  sampling_seed: 12303
+  blackout_start_observation_step: 5
+  minimum_blackout_steps: 0
+  maximum_blackout_steps: 20
+  action_lock_steps: 5
+  episodes: 16
+  episodes_per_shard: 16
+
+training:
+  seed: 13303
+  sequence_length: 128
+  burn_in_steps: 16
+  batch_size: 16
+  optimiser: adamw
+  learning_rate: 0.003
+  weight_decay: 0.0
+  maximum_epochs: 2000
+  log_every_epochs: 25
+  gradient_clip_global_norm: 1.0
+  target: deterministic_teacher_action_mean
+  loss: masked_action_mean_squared_error
+  reset_state: episode_boundary_only
+
+overfit_gate:
+  maximum_training_action_mse: 0.0001
+  minimum_fractional_loss_reduction: 0.99
+  maximum_export_absolute_error: 0.000005
+  require_exact_checkpoint_reload: true
+
+provenance:
+  teacher_config: configs/teacher/dreamerv3_v3.yaml
+  teacher_checkpoint: frozen-teachers/dreamerv3-teacher-v3-step-700000
+  teacher_checkpoint_step: 700000
+  teacher_actor_sha256: 6a672d5b6d7c2b9ca2335f1a85b69280ca7db58deb5e2f56d2ba033ebf636254
+  container_digest: sha256:de846e25961d2408db73a6b5cfe2afc7ecf0e14e0e8ac837f97212a180e51d5f

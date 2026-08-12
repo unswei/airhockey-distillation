@@ -45,7 +45,12 @@ workflow.
 - `collect_teacher_dataset.py` collects deterministic teacher trajectories into
   restart-safe 500-episode shards. Public observations and teacher actions are
   the training interface; previous actions and explicit evaluation-only state
-  are retained for later diagnostics but are not student inputs.
+  are retained for later diagnostics but are not student inputs. Pass
+  `--deterministic-inference` for explicitly labelled actor-mean targets; the
+  default sampled-action semantics remain unchanged for historical runs.
+- `train_structured_tiny_overfit.py` trains the fixed `n=64`, `k=2` student on
+  a tiny complete-episode dataset and applies the predeclared loss, export and
+  checkpoint-reload gate before full-data training is allowed.
 - `train_feed_forward.py` trains and validation-selects the Stage B
   observation-only policy, then exports a framework-neutral NumPy checkpoint.
 - `evaluate_feed_forward.py` evaluates that checkpoint on the exact validation
