@@ -3,6 +3,12 @@
 Git tracks result schemas, manifests, hashes and retrieval instructions here;
 large or generated result files are ignored.
 
+The current compact canonical gate result is
+[`stage_b_memory_validation_v3.json`](stage_b_memory_validation_v3.json).
+It contains gate-level summaries only. The 1,125 paired episode records remain
+outside Git at the hashed Marvin run documented in
+[`docs/stage_b_memory_validation_v3.md`](../docs/stage_b_memory_validation_v3.md).
+
 Canonical episode rows will include:
 
 ```text

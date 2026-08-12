@@ -1,0 +1,112 @@
+{
+  "advantage_growth_0_to_long_blackout": 0.5466666666666666,
+  "blocking_checks": [],
+  "by_blackout_steps": {
+    "0": {
+      "episodes": 225,
+      "feed_forward_only_saves": 0,
+      "feed_forward_save_rate": 0.9066666666666666,
+      "paired_teacher_advantage": 0.08888888888888889,
+      "paired_teacher_advantage_ci95": [
+        0.05333333333333334,
+        0.1288888888888889
+      ],
+      "teacher_only_saves": 20,
+      "teacher_save_rate": 0.9955555555555555
+    },
+    "10": {
+      "episodes": 225,
+      "feed_forward_only_saves": 1,
+      "feed_forward_save_rate": 0.6177777777777778,
+      "paired_teacher_advantage": 0.36444444444444446,
+      "paired_teacher_advantage_ci95": [
+        0.3022222222222222,
+        0.4311111111111111
+      ],
+      "teacher_only_saves": 83,
+      "teacher_save_rate": 0.9822222222222222
+    },
+    "15": {
+      "episodes": 225,
+      "feed_forward_only_saves": 1,
+      "feed_forward_save_rate": 0.17777777777777778,
+      "paired_teacher_advantage": 0.8,
+      "paired_teacher_advantage_ci95": [
+        0.7422222222222222,
+        0.8533333333333334
+      ],
+      "teacher_only_saves": 181,
+      "teacher_save_rate": 0.9777777777777777
+    },
+    "20": {
+      "episodes": 225,
+      "feed_forward_only_saves": 2,
+      "feed_forward_save_rate": 0.3333333333333333,
+      "paired_teacher_advantage": 0.6355555555555555,
+      "paired_teacher_advantage_ci95": [
+        0.5688888888888889,
+        0.7022222222222222
+      ],
+      "teacher_only_saves": 145,
+      "teacher_save_rate": 0.9688888888888889
+    },
+    "5": {
+      "episodes": 225,
+      "feed_forward_only_saves": 0,
+      "feed_forward_save_rate": 0.8044444444444444,
+      "paired_teacher_advantage": 0.18666666666666668,
+      "paired_teacher_advantage_ci95": [
+        0.13777777777777778,
+        0.24
+      ],
+      "teacher_only_saves": 42,
+      "teacher_save_rate": 0.9911111111111112
+    }
+  },
+  "checks": [
+    {
+      "check_id": "credible_visible_feed_forward_baseline",
+      "observed": 0.9066666666666666,
+      "passed": true,
+      "required": ">= 0.75"
+    },
+    {
+      "check_id": "comparable_no_blackout_performance",
+      "observed": 0.08888888888888889,
+      "passed": true,
+      "required": "<= 0.1"
+    },
+    {
+      "check_id": "material_long_blackout_advantage",
+      "observed": 0.6355555555555555,
+      "passed": true,
+      "required": ">= 0.15"
+    },
+    {
+      "check_id": "advantage_grows_with_blackout",
+      "observed": 0.5466666666666666,
+      "passed": true,
+      "required": ">= 0.1"
+    },
+    {
+      "check_id": "positive_long_blackout_advantage_ci",
+      "observed": 0.5688888888888889,
+      "passed": true,
+      "required": "> 0.0"
+    }
+  ],
+  "code_commit": "2f35e92ec0009d97b263cc4e53868fa46b15005c",
+  "created_at": "2026-08-12T09:45:34.192752+00:00",
+  "decision": "GO",
+  "inputs": {
+    "config": "/work/configs/student/feed_forward_stage_b_v3.yaml",
+    "config_sha256": "8cdfaa1ead0d6525fc899de1b5776cdfca0dce94a3bfbdfa731e52779a2ebc38",
+    "feed_forward_result": "/experiments/stage-b-memory-validation-v3-2026-08-12-v1/feed_forward_confirmation.json",
+    "feed_forward_result_sha256": "7ae0ce0e0a27dd5d004be468b06b9777aef3ce4739e44fce5bd4bc2b285852c3",
+    "teacher_result": "/experiments/stage-b-memory-validation-v3-2026-08-12-v1/teacher_confirmation.json",
+    "teacher_result_sha256": "2561cde52150b10f77f09f4afb52cb2ce8ffbd1a70c8211479947931da17bd26"
+  },
+  "interpretation": "paired evidence supports a memory requirement",
+  "paired_episode_count": 1125,
+  "schema_version": 1
+}

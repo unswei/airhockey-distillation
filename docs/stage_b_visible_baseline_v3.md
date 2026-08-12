@@ -1,7 +1,10 @@
 # Stage B v3 visible-observation baseline correction
 
-Status: procedure predeclared; no v3 PPO qualification or test result has been
-read.
+Status: this procedure was predeclared before qualification or test results
+were read. It is now complete; the preserved outcome is documented in
+[`stage_b_memory_validation_v3.md`](stage_b_memory_validation_v3.md).
+
+The protocol below is retained as the preregistered correction.
 
 Stage B v2 did not isolate a memory effect because its feed-forward policy
 saved only 56.0% of no-blackout shots. That policy was trained by regressing

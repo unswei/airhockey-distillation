@@ -6,10 +6,11 @@ Last updated: 2026-08-12
 
 Phase 0 — source audit and reproduction complete. Phase 1 — minimal
 direct-launch set-piece slice complete. Phase 2 — v3 teacher complete and
-frozen. Stage B v2 returned a predeclared `NO_GO`: the teacher is strong, but
-the feed-forward baseline is not credible without blackout, so the measured
-gap does not isolate memory. A direct-reward PPO baseline correction is now
-predeclared; its held-out confirmation remains unopened.
+frozen. Stage B v3 returned a predeclared `GO`: a credible memoryless policy
+is close to the teacher without blackout and falls far behind under a 20-step
+blackout. The task is now demonstrably memory-dependent under the fixed gate.
+Phase 3 — distillation infrastructure — is authorised. The causal
+teacher-state ablation remains the next confirmatory check.
 
 ## Completed
 
@@ -142,17 +143,32 @@ predeclared; its held-out confirmation remains unopened.
 - Added a validation-only qualification gate. A baseline must be credible and
   within 10 points of the teacher without blackout before the untouched test
   split and confirmatory memory gate can run.
+- Trained all three predeclared one-million-step PPO seeds. Validation-only
+  qualification selected seed 14304 at 92.0% no-blackout saves; the teacher
+  advantage was 7.1 points and no simulator fault occurred.
+- Opened the test split only after qualification passed, then evaluated teacher
+  and selected baseline on 1,125 paired cases. At 20 steps, the teacher saved
+  96.9% and the baseline 33.3%; the 63.6-point paired advantage had bootstrap
+  95% interval [56.9, 70.2].
+- Applied the Stage B v3 gate: `GO`. All five checks passed, including
+  90.7% visible baseline performance, an 8.9-point no-blackout gap and
+  54.7 points of advantage growth.
+- Preserved the raw episode records outside Git and added the byte-identical
+  compact gate result plus verified artefact hashes to the repository.
 
 ## Next actions
 
-- Smoke-test and train the three predeclared Stage B v3 PPO seeds on Marvin.
-- Open the held-out confirmation split only if the replacement feed-forward
-  baseline passes the no-blackout credibility and comparability checks.
-- Run the causal recurrent-state-ablation gate only after the feed-forward
-  baseline makes the ordinary Stage B comparison interpretable.
-- Add a scripted physical strike while retaining direct launch as a regression
-  mode.
-- Select a backed-up artefact destination before large checkpoints or datasets.
+- Run the predeclared causal recurrent-state ablation on the frozen teacher,
+  resetting its carry only at blackout onset on the same paired shots.
+- Build the smallest Phase 3 vertical slice: one `k=2`, `n=64` structured
+  recurrent student, one tiny-dataset overfit check, checkpoint reload and one
+  paired closed-loop evaluation.
+- Implement the remaining matched student family only after that vertical
+  slice passes.
+- Select a backed-up artefact destination before generating more checkpoints
+  or datasets.
+- Retain direct launch as the core controlled task; a scripted physical strike
+  remains a later secondary extension.
 
 ## Commands and results
 
@@ -197,15 +213,14 @@ predeclared; its held-out confirmation remains unopened.
 | 2026-08-12 | Trained and evaluated the Stage B v2 feed-forward policy | 5,602 parameters; 56.0% saves at blackout 0 and 60.4% at blackout 20 |
 | 2026-08-12 | Applied the paired Stage B v2 memory gate | `NO_GO`; teacher gap is large, but the feed-forward policy fails the no-blackout credibility and comparability checks |
 | 2026-08-12 | Predeclared the Stage B v3 visible-baseline correction | Direct-reward memoryless PPO; three fixed seeds; validation qualification before test confirmation |
+| 2026-08-12 | Trained and qualified all three Stage B v3 PPO seeds | Seed 14304 selected at 92.0% no-blackout validation saves; qualification `GO` |
+| 2026-08-12 | Applied the held-out Stage B v3 memory gate | `GO`; 8.9-point no-blackout gap, 63.6-point 20-step gap and all five checks pass |
+| 2026-08-12 | Closed and froze Stage B v3 evidence | Compact canonical result in Git; 1,125 episode rows remain under the hashed Marvin run |
 
 ## Blockers
 
 - Marvin's experiment directory is not yet backed up to a durable artefact
   store.
-- Stage B v2 has not passed the predeclared memory-required gate. The teacher
-  is ready, but the feed-forward policy is too weak without blackout to isolate
-  a memory effect. Core recurrent-student comparisons should wait for a
-  separately predeclared baseline correction and confirmatory run.
 - The Blackwell image deliberately overrides Dreamer's declared JAX 0.4.33 and
   CUDA NVCC 12.2 bounds with JAX 0.5.3 and CUDA NVCC 12.9.86. Device discovery
   and a 108-update training smoke test pass; `pip check` records the two

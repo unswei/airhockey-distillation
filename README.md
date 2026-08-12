@@ -87,21 +87,28 @@ completed warm-up. The
 held-out return and concession rate in a matched 20,000-step check, preserves
 exact step checkpoints, and produced a validation-selected teacher at step
 720,000. The first
-[`Stage B memory validation`](docs/stage_b_memory_validation.md) compared that
-teacher with a credible observation-only feed-forward policy on 500 paired
-blackout episodes. Memory helped directionally, but the predeclared effect-size
-gate returned `NO_GO`; the current shot distribution has not yet been shown to
-require memory. The next
-[`observation-aliased v3 task`](docs/direct_launch_distribution_v3.md) now
-passes its physical, aliasing and control gates. A fresh v3 teacher passed its
-readiness gate with a 98.9% save rate, but the
-[`Stage B v2 comparison`](docs/stage_b_memory_validation_v2.md) remains
-inconclusive about memory: its feed-forward policy was too weak even without
-blackout for the teacher gap to isolate a memory effect. The separately
-predeclared
-[`visible-baseline correction`](docs/stage_b_visible_baseline_v3.md) trains a
-strictly memoryless policy directly on task reward and keeps the final test
-split closed until no-blackout validation performance is teacher-comparable.
+[`Stage B memory validation`](docs/stage_b_memory_validation.md) returned
+`NO_GO` on the earlier task because its predeclared effect sizes were too
+small. The
+[`observation-aliased v3 task`](docs/direct_launch_distribution_v3.md) then
+passed its physical, aliasing and control gates, and a fresh v3 teacher saved
+98.9% across its readiness evaluation. The
+[`Stage B v2 comparison`](docs/stage_b_memory_validation_v2.md) remained
+inconclusive because its imitation-trained feed-forward policy was too weak
+without blackout. The separately predeclared
+[`visible-baseline correction`](docs/stage_b_visible_baseline_v3.md) therefore
+trained three strictly memoryless PPO policies directly on task reward and
+selected seed 14304 using only no-blackout validation shots.
+
+The held-out
+[`Stage B v3 comparison`](docs/stage_b_memory_validation_v3.md) is now
+complete and returns `GO`. On the untouched test split, the selected
+feed-forward policy saved 90.7% without blackout and 33.3% at 20 steps; the
+teacher saved 99.6% and 96.9%. The paired teacher advantage grew from 8.9 to
+63.6 percentage points, with a 20-step bootstrap 95% interval of
+[56.9, 70.2]. All five predeclared checks passed. This supports a memory
+requirement in the controlled `direct_launch_v3` task and authorises the
+principal recurrent-student work.
 
 ## Scientific guardrails
 
