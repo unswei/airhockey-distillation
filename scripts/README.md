@@ -61,6 +61,12 @@ workflow.
 - `run_structured_full_seed_on_marvin.sh RUN_ID CODE_COMMIT` collects the
   20,000-episode deterministic-mean dataset, trains seed 14303 and runs paired
   closed-loop validation from one clean, exact Marvin commit.
+- `diagnose_structured_student.py` separates boundary-phase error,
+  previous-action exposure, closed-loop shift and local target ambiguity for a
+  frozen structured student without changing its training procedure.
+- `audit_structured_teacher_dataset.py` checks whether stored previous actions
+  denote requested or applied actions during the initial lock and whether
+  repeated deterministic input trajectories ever have conflicting targets.
 - `train_feed_forward.py` trains and validation-selects the Stage B
   observation-only policy, then exports a framework-neutral NumPy checkpoint.
 - `evaluate_feed_forward.py` evaluates that checkpoint on the exact validation
