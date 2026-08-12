@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "status": "teacher_training_active",
+  "decision": "GO_FOR_FRESH_TEACHER_TRAINING",
+  "completed_on": "2026-08-12",
+  "marvin_root": "/home/oliver/experiments/airhockey-memory-distillation",
+  "task_validation": {
+    "calibration_report_sha256": "ac699b2be829d6de491ccec82b0dfc2b4b08415238c8f12f97c49549b391511e",
+    "alias_audit_sha256": "48fc4ad19b20403996b00959cc7dd39ef97fa237e7176b4bb6c07c2c17cbb468",
+    "teacher_gate_sha256": "34701715810b3b9164f778d98a15f73b7aa64aac38afbc2c5ee73dc987237587",
+    "alias_gate": "GO",
+    "teacher_training_gate": "GO",
+    "simulator_faults": 0
+  },
+  "candidate_teacher": {
+    "run": "teacher-full-v1-2026-08-12-v2",
+    "checkpoint_step": 720000,
+    "probe_sha256": "1ddfa8f84e855e8f28a54b887d922899be6973788a742ae8becee47a53192476",
+    "readiness_gate_sha256": "ac7f88149da445da8e647fd48d0ca09187aaa5b6c07ca41cba7bc9a9b4f0b346",
+    "readiness_decision": "NO_GO",
+    "save_rates": {
+      "no_blackout": 0.7511111111111111,
+      "overall": 0.5795555555555556,
+      "twenty_step_blackout": 0.4533333333333333
+    }
+  },
+  "fresh_teacher": {
+    "smoke_result_sha256": "25216730f172f8ac6a072edd33f1a986f5815c5287a138ee07cec52826bd36f8",
+    "smoke_status": "completed",
+    "full_run": "teacher-full-v3-2026-08-12-v1",
+    "code_commit": "66fbc4c6985a10de362e3e9fd36e192b225e3b6c",
+    "status": "running"
+  }
+}

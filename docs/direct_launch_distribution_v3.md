@@ -1,6 +1,6 @@
 # Observation-aliased direct-launch distribution v3
 
-Status: predeclared, awaiting Marvin validation.
+Status: task and alias gates validated on Marvin; fresh teacher training active.
 
 `direct_launch_v3` corrects the ambiguity weakness found by the first Stage B
 experiment. The v2 feed-forward policy saved 84% without blackout and 62% at a
@@ -68,3 +68,37 @@ must reduce paired save rate by at least 10 points with a positive bootstrap
 Configurations are frozen in `configs/env/direct_launch_v3.yaml`,
 `configs/teacher/dreamerv3_v3.yaml` and
 `configs/student/feed_forward_stage_b_v2.yaml` before Marvin results are read.
+
+## Marvin validation
+
+The pinned container validated all 216 calibration shots:
+
+- 216/216 reached the defender approach plane;
+- realised approach times span 0.40--0.94 seconds;
+- no simulator or non-finite-state fault occurred;
+- calibration report SHA-256 is
+  `ac699b2be829d6de491ccec82b0dfc2b4b08415238c8f12f97c49549b391511e`.
+
+All alias checks passed. The maximum last-visible paired separation is 8.10 mm
+and first-hidden public observations are bit-identical. Actual first-hidden puck
+positions remain within 0.94 mm, while privileged action distance is at least
+0.315. Alias report SHA-256 is
+`48fc4ad19b20403996b00959cc7dd39ef97fa237e7176b4bb6c07c2c17cbb468`.
+
+The ordinary task-validity gate also returned `GO`. Inactive and fixed-centre
+defenders conceded 208/216 and 209/216 shots. The privileged controller saved
+214/216. Replay, observation isolation and 20 fault-free reliability episodes
+passed. Gate report SHA-256 is
+`34701715810b3b9164f778d98a15f73b7aa64aac38afbc2c5ee73dc987237587`.
+
+The frozen v2 teacher did not pass v3 readiness. Its save rates were 75.1%
+without blackout, 58.0% overall and 45.3% at 20 steps, against thresholds of
+85%, 80% and 70%. This is expected distribution shift, so a new v3 teacher is
+being trained rather than weakening the thresholds. The probe and readiness
+reports have SHA-256 hashes
+`1ddfa8f84e855e8f28a54b887d922899be6973788a742ae8becee47a53192476`
+and `ac7f88149da445da8e647fd48d0ca09187aaa5b6c07ca41cba7bc9a9b4f0b346`.
+
+A fresh 1,000-step v3 training smoke passed with exact checkpoints at 0, 500
+and 1,000 and non-zero returns spanning -1.0--1.2. Full run
+`teacher-full-v3-2026-08-12-v1` is active on Marvin from commit `66fbc4c`.

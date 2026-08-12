@@ -5,11 +5,10 @@ Last updated: 2026-08-12
 ## Current phase
 
 Phase 0 — source audit and reproduction complete. Phase 1 — minimal
-direct-launch set-piece slice complete. Phase 2 — teacher training and
-selection complete. Stage B — first memory validation complete with a
-predeclared `NO_GO`. The selected recurrent teacher outperforms a credible
-feed-forward policy under long blackout, but the advantage is not large enough
-to establish that the current distribution requires memory.
+direct-launch set-piece slice complete. Phase 2 — first teacher complete.
+Stage B v1 returned a predeclared `NO_GO`. The observation-aliased v3 correction
+now passes physical, aliasing and task-validity gates. The old teacher fails v3
+readiness, so fresh v3 teacher training is active on Marvin.
 
 ## Completed
 
@@ -106,14 +105,32 @@ to establish that the current distribution requires memory.
   was 12 points with bootstrap 95% interval [1, 23], but the required advantage
   was 15 points. Advantage growth from zero to 20 steps was 8 points rather
   than the required 10. Decision: `NO_GO` for the memory-required claim.
+- Added a locked five-step visible prefix that prevents policy actions from
+  encoding shot identity into robot motion before blackout.
+- Added `direct_launch_v3` with 90 paired alias families in calibration and
+  validation. Paired shots have closely matched last-visible positions but
+  travel to opposite near posts.
+- Validated all 216 v3 calibration shots on Marvin. All reached the approach
+  plane in 0.40--0.94 seconds with zero faults.
+- Passed the alias gate: hidden public observations are bit-identical, maximum
+  last-visible separation is 8.10 mm and minimum privileged-action distance is
+  0.315.
+- Passed the v3 task gate: inactive and fixed-centre defenders conceded 96.3%
+  and 96.8%; the privileged controller saved 99.1%.
+- Rejected reuse of the frozen v2 teacher. On v3 it saved 75.1% without
+  blackout, 58.0% overall and 45.3% at 20 steps, failing all three readiness
+  rate thresholds.
+- Completed a fresh v3 Dreamer smoke run with non-zero rewards and exact
+  checkpoints at 0, 500 and 1,000. Scheduled the full v3 teacher run from
+  commit `66fbc4c`.
 
 ## Next actions
 
-- Design a versioned observation-aliased shot distribution in which matched
-  visible puck positions can have different velocities and required actions.
-- Predeclare a Stage B v2 using all available validation shots, re-establish
-  teacher readiness on the corrected distribution, and add a causal teacher
-  recurrent-state ablation at blackout onset.
+- Monitor and validation-select `teacher-full-v3-2026-08-12-v1`.
+- Apply the frozen v3 readiness thresholds to the selected teacher. Only then
+  collect a new teacher dataset and train the Stage B v2 feed-forward policy.
+- Run the predeclared feed-forward and causal recurrent-state-ablation gates on
+  all 225 validation shots per blackout length.
 - Add a scripted physical strike while retaining direct launch as a regression
   mode.
 - Select a backed-up artefact destination before large checkpoints or datasets.
@@ -152,6 +169,10 @@ to establish that the current distribution requires memory.
 | 2026-08-12 | Froze teacher and collected Stage B demonstrations | Read-only teacher hash recorded; 20,000 episodes and 870,634 schema-2 transitions |
 | 2026-08-12 | Trained and evaluated the observation-only feed-forward policy | 5,602 parameters; 84% saves at blackout 0 and 62% at blackout 20 |
 | 2026-08-12 | Applied the paired Stage B memory gate | `NO_GO`; positive 12-point long-blackout advantage, but two predeclared effect-size checks failed |
+| 2026-08-12 | Validated `direct_launch_v3` physical and alias properties | `GO`; 216/216 arrivals, 90/90 alias families pass, zero faults |
+| 2026-08-12 | Applied the v3 task-validity gate | `GO`; inactive/fixed concede above 96%, privileged saves 99.1% |
+| 2026-08-12 | Probed frozen 720k teacher on v3 | `NO_GO`; fails no-blackout, overall and long-blackout readiness thresholds |
+| 2026-08-12 | Ran fresh v3 training smoke and scheduled full run | Smoke passed; `teacher-full-v3-2026-08-12-v1` active from `66fbc4c` |
 
 ## Blockers
 

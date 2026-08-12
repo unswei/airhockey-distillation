@@ -76,7 +76,10 @@ exact step checkpoints, and produced a validation-selected teacher at step
 teacher with a credible observation-only feed-forward policy on 500 paired
 blackout episodes. Memory helped directionally, but the predeclared effect-size
 gate returned `NO_GO`; the current shot distribution has not yet been shown to
-require memory.
+require memory. The next
+[`observation-aliased v3 task`](docs/direct_launch_distribution_v3.md) now
+passes its physical, aliasing and control gates. The previous teacher is not
+ready for the corrected distribution, and a fresh v3 teacher run is active.
 
 ## Scientific guardrails
 
