@@ -19,14 +19,24 @@ import numpy as np
 import yaml
 
 from airhockey_distill.students import GRURecurrentPolicy, save_gru_checkpoint
-from scripts.train_structured_tiny_overfit import (
-    _load_complete_episodes,
-    _validate_manifest,
-    _write_metric,
-    evaluate_overfit_gate,
-    masked_action_mse,
-    pad_complete_episodes,
-)
+if __package__:
+    from scripts.train_structured_tiny_overfit import (
+        _load_complete_episodes,
+        _validate_manifest,
+        _write_metric,
+        evaluate_overfit_gate,
+        masked_action_mse,
+        pad_complete_episodes,
+    )
+else:
+    from train_structured_tiny_overfit import (
+        _load_complete_episodes,
+        _validate_manifest,
+        _write_metric,
+        evaluate_overfit_gate,
+        masked_action_mse,
+        pad_complete_episodes,
+    )
 
 
 def parse_args() -> argparse.Namespace:
