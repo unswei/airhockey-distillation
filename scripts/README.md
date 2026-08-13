@@ -58,6 +58,11 @@ workflow.
 - `evaluate_structured_student.py` reloads the exported structured checkpoint
   and evaluates paired validation shots at the five core blackout lengths,
   resetting recurrent state only at episode boundaries.
+- `train_gru_tiny_overfit.py` trains the matched GRU-64 on one complete
+  deterministic-mean episode with loss on every valid step, exports its
+  framework-neutral NumPy checkpoint, and gates PyTorch/NumPy parity plus
+  exact reload. `run_gru_tiny_overfit_on_marvin.sh` runs the engineering gate
+  in the pinned Marvin image.
 - `run_structured_full_seed_on_marvin.sh RUN_ID CODE_COMMIT` collects the
   20,000-episode deterministic-mean dataset, trains seed 14303 and runs paired
   closed-loop validation from one clean, exact Marvin commit.
