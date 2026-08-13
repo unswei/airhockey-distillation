@@ -151,9 +151,11 @@ NumPy and PyTorch runtimes. Its standard gate equations match
 does not yet provide a full-data GRU comparison.
 One full-data GRU engineering pilot is also complete on the current frozen
 40,000-episode aggregate. It selected validation action MSE `0.04521` with
-exact reload. Because the aggregate's shadow half was collected under the
-structured `k=2` student, this is not treated as a fair family comparison and
-no behavioural claim is made from it.
+exact reload. Its staged closed-loop evaluation passed the 225-shot visible
+gate at 99.1%, then saved 98.4% across 1,125 paired blackout episodes and
+97.3% at 20 steps. This establishes strong behaviour for the checkpoint.
+Because the aggregate's shadow half was collected under the structured `k=2`
+student, it is not treated as a fair recurrent-family comparison.
 
 ## Scientific guardrails
 

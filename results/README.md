@@ -45,6 +45,11 @@ The subsequent [`full-data GRU pilot`](gru_n64_full_pilot_seed_14303_v1.json)
 records one seed trained on the current 40,000-episode aggregate. It is an
 offline engineering result only because the shadow half of that aggregate was
 collected under the structured `k=2` policy.
+Its staged [`behavioural evaluation`](gru_n64_full_pilot_evaluation_v1.json)
+passes the 225-shot no-blackout gate at 99.1%, then records 98.4% saves across
+1,125 paired blackout episodes. This is closed-loop evidence for the frozen
+checkpoint, but the dataset provenance still prevents a fair recurrent-family
+comparison. The episode rows remain outside Git in the frozen Marvin runs.
 
 Canonical episode rows will include:
 

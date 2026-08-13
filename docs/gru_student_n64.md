@@ -60,10 +60,36 @@ This is an engineering pilot, not a fair GRU-versus-structured comparison.
 Half of the aggregate consists of deterministic labels on trajectories
 controlled by the structured `k=2` policy. The result establishes that the
 GRU full-data path works and gives an offline imitation measurement. It does
-not establish relative closed-loop quality. No behavioural evaluation was
-opened in this training-only run.
+not establish relative quality between recurrent families.
 
 The checkpoint and raw logs are root-owned and read-only on Marvin. Their
 six-file checksum manifest has SHA-256
 `33d9745099c796dbf5c8faf0bbaf9b31c752b81aeea8491f5f3b073f910e8ee8`.
 The compact result is `results/gru_n64_full_pilot_seed_14303_v1.json`.
+
+## Staged behavioural engineering evaluation
+
+The frozen checkpoint was first gated on the same 225 no-blackout validation
+shots used for the structured student. It saved 223/225 shots (99.1%), with
+two contact timeouts kept separate from genuine saves, no concessions and no
+simulator or safety faults. This exceeded the predeclared 75% threshold and
+returned `GO`.
+
+Only after that result was hashed did a separate configuration open the five
+paired blackout lengths. Across 1,125 episodes, the unchanged checkpoint
+saved 1,107 (98.4%) and conceded three. Save rates at blackout lengths 0, 5,
+10, 15 and 20 were 99.1%, 100.0%, 98.2%, 97.3% and 97.3%. The 225 no-blackout
+episode records reproduced the gate evaluation exactly.
+
+This demonstrates strong closed-loop behaviour for this frozen engineering
+checkpoint. It is still not a fair GRU-versus-structured comparison because
+the shared aggregate's shadow half was collected under the structured
+student. A principal comparison needs data whose collection policy does not
+favour either recurrent family.
+
+The compact evaluation result is
+`results/gru_n64_full_pilot_evaluation_v1.json`. The two raw evaluation
+directories are root-owned and read-only on Marvin. Their eight-file checksum
+manifest has SHA-256
+`e1239cb77156a730be8d12b43140550dbc9c5e1f049ca9e8f854b74e2a84bcf8`;
+the 1,125 episode rows remain outside Git.

@@ -23,10 +23,11 @@ architecture and seed now save 98.7% of no-blackout validation shots and
 full-data structured-student vertical slice is successful.
 The matched GRU-64 runtime and its tiny deterministic-mean overfit gate are
 also complete. NumPy and PyTorch agree, checkpoint reload is exact and the
-gate returns `GO`; full-data GRU behaviour has not yet been measured.
-One seed has now completed the current 40,000-episode aggregate as a
-training-only engineering pilot. Its offline metrics and export checks pass;
-the structured-policy shadow provenance prevents a principal family claim.
+gate returns `GO`. One seed has completed the current 40,000-episode aggregate
+and passed its staged behavioural evaluation: 99.1% saves without blackout
+and 98.4% across the five paired conditions. Its offline metrics, export and
+closed-loop checks pass; the structured-policy shadow provenance still
+prevents a principal family claim.
 
 ## Completed
 
@@ -261,12 +262,18 @@ the structured-policy shadow provenance prevents a principal family claim.
   aggregate. Epoch 97 was selected at validation MSE `0.04521`; export matched
   within `3.1590e-6` and checkpoint reload was exact.
 - Froze the full-data pilot checkpoint and logs as six root-owned, read-only,
-  hash-verified files. No behavioural evaluation was opened.
+  hash-verified files.
+- Passed the GRU engineering pilot's predeclared visible-control gate with
+  223/225 saves, no concessions and no simulator or safety faults.
+- Opened the paired blackout evaluation only after the visible `GO`; the same
+  frozen checkpoint saved 1,107/1,125 episodes and 219/225 at 20 steps.
+- Verified exact reproduction of all 225 visible episode records and froze
+  the eight raw evaluation files as root-owned, read-only evidence on Marvin.
 
 ## Next actions
 
-- Decide and predeclare the behavioural gate for this engineering checkpoint,
-  while keeping it separate from the later equal-budget principal comparison.
+- Predeclare a neutral data-collection and equal-budget protocol before using
+  GRU and structured results for a principal recurrent-family comparison.
 - Retain direct launch as the core controlled task; a scripted physical strike
   remains a later secondary extension.
 
@@ -332,6 +339,8 @@ the structured-policy shadow provenance prevents a principal family claim.
 | 2026-08-13 | Evaluated the frozen shadow-round student on paired blackouts | 1,107/1,125 saves overall and 220/225 at 20 steps; raw evidence frozen and hashed |
 | 2026-08-13 | Implemented and gated the matched GRU-64 runtime | `GO`; one deterministic episode fitted to `7.7257e-5` MSE, export error `5.9605e-7`, exact reload and 124 passing tests |
 | 2026-08-13 | Trained one full-data GRU-64 engineering seed | Seed 14303 selected epoch 97 at validation MSE `0.04521`; exact reload; no behavioural evaluation opened |
+| 2026-08-13 | Applied the GRU pilot no-blackout gate | `GO`; 223/225 saves, no concessions or faults |
+| 2026-08-13 | Evaluated the frozen GRU pilot on paired blackouts | 1,107/1,125 saves overall and 219/225 at 20 steps; raw evidence frozen and hashed |
 
 ## Blockers
 
