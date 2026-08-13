@@ -226,15 +226,16 @@ failure and measures large closed-loop history shift after that divergence.
 - Found that the recurrent action input is the previous requested command,
   not the applied hold action during the five locked steps. The locked-command
   discrepancy has MSE `1.151`; the contract needs explicit terminology.
+- Retrained seed 14303 on the same frozen dataset with loss on every valid
+  step. The no-blackout save rate improved from 46.2% to 67.1% but missed the
+  predeclared 75% gate, so the decision is `NO_GO`. No blackout condition was
+  opened and no simulator or safety fault occurred.
 
 ## Next actions
 
-- Predeclare and train a corrected `n=64`, `k=2` seed with loss on every valid
-  step of the same frozen complete-episode dataset. Apply a no-blackout-only
-  validation gate before running the full blackout comparison.
-- If prefix supervision does not recover credible no-blackout control, collect
-  deterministic shadow-teacher targets on student rollouts to address the
-  measured covariate shift.
+- Collect deterministic shadow-teacher targets on trajectories controlled by
+  the all-step student, aggregate them with the frozen teacher-controlled
+  dataset, and retrain the same seed and architecture.
 - Implement the remaining matched student family only after that vertical
   slice passes.
 - Retain direct launch as the core controlled task; a scripted physical strike
@@ -296,6 +297,7 @@ failure and measures large closed-loop history shift after that divergence.
 | 2026-08-13 | Collected the full deterministic-mean dataset | 20,000 episodes, 713,257 transitions and 40 hashed shards |
 | 2026-08-13 | Ran full-data structured seed 14303 and paired validation | Training/export complete; validation MSE `0.10859`; weak 45.3% closed-loop save rate |
 | 2026-08-13 | Diagnosed the structured student's no-blackout failure | The unsupervised 16-step prefix is primary; teacher prefix recovers 224/225 saves; large rollout shift measured; exact repeats have no conflicting targets |
+| 2026-08-13 | Applied the all-valid-steps no-blackout gate | `NO_GO`; saves improve from 46.2% to 67.1% but remain below the predeclared 75% threshold |
 
 ## Blockers
 

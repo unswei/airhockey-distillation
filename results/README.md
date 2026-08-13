@@ -27,6 +27,9 @@ The follow-up
 [`failure diagnostic`](structured_n64_k2_failure_diagnostic_v1.json) records
 the phase errors, controlled-prefix comparison, history-distribution shift and
 dataset action-semantics audit. Its raw episode records remain outside Git.
+The subsequent [`all-step correction`](structured_n64_k2_all_steps_v2.json)
+improves no-blackout saves to 67.1% but returns `NO_GO` at the predeclared 75%
+gate. Only the no-blackout validation condition was opened.
 
 Canonical episode rows will include:
 

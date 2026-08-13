@@ -1,0 +1,42 @@
+{
+  "checkpoint_reload_exact": true,
+  "checkpoint_sha256": "92d7c68ed95b6e9c4217fc52a51225b3797bb6eb0d482cb1a7fd6c431027e5c1",
+  "code_commit": "255b9823c7f527aae30bb9914e706b6416bf6198",
+  "correction": "action loss on every valid step of each complete episode",
+  "dataset_manifest_sha256": "923497e3622209c7060196ff8322f4d333626138048ad94577034c67f01c60cf",
+  "decision": "NO_GO",
+  "epochs_completed": 100,
+  "export_maximum_absolute_error": 0.000010311603546142578,
+  "gate": {
+    "blackout_steps_opened": [0],
+    "episodes": 225,
+    "minimum_save_rate": 0.75,
+    "outcome_counts": {
+      "arrested": 1,
+      "goal_conceded": 9,
+      "returned": 150,
+      "timeout_after_contact": 65
+    },
+    "save_count": 151,
+    "save_rate": 0.6711111111111111,
+    "simulator_or_safety_faults": 0
+  },
+  "next_action": "collect_deterministic_shadow_teacher_labels_on_student_rollouts",
+  "raw_evidence": {
+    "directory": "phase3-structured-n64-k2-all-steps-seed-14303-2026-08-13-v2",
+    "evaluation_result_sha256": "0f1918aaf75d0a218e67f2d8cc69887addffef9dc4688bcb0fe9f0c6d3f00140",
+    "gate_result_sha256": "d72f16a09f443c4ddbf2a46e1f4edecdcf8642172800ca77a0f78d0dae6cf539",
+    "metrics_sha256": "912dc23adc60596fb10e6a027d0511197c891b116e3f43ce2e165015e43f2088",
+    "run_checksum_manifest_sha256": "7bf3d6258602b7bfd76ea00b0c08036bdc8ed9d5987eaf5355cc8b63939c3f74",
+    "training_result_sha256": "c6ce87d9ec532c6cfa255bf7dc8c00db5ee5eb0432fd71232aeb39594fba5953"
+  },
+  "schema_version": 1,
+  "selected_epoch": 99,
+  "selected_metrics": {
+    "internal_test_action_mse": 0.07830456412649561,
+    "train_action_mse": 0.07567617131956611,
+    "validation_action_mse": 0.07777841061710981
+  },
+  "status": "completed",
+  "training_seed": 14303
+}

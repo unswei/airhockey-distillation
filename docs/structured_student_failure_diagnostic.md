@@ -95,6 +95,23 @@ Evaluate only the 225 no-blackout validation shots first. If this does not
 recover credible control, the next correction is deterministic shadow-teacher
 labelling on student rollouts, aimed at the measured covariate shift.
 
+## All-step correction result
+
+The correction improved the no-blackout save rate from 46.2% to 67.1%, but it
+did not reach the predeclared 75% gate. It saved 151/225 shots: 150 returns,
+one arrest, nine concessions and 65 timeouts after contact. No simulator or
+safety fault occurred, and no blackout condition was evaluated. The decision
+is `NO_GO`, so the declared next step is deterministic shadow-teacher
+labelling on student-controlled rollouts.
+
+Training selected epoch 99 with full-step validation action MSE `0.07778`.
+The checkpoint SHA-256 is
+`92d7c68ed95b6e9c4217fc52a51225b3797bb6eb0d482cb1a7fd6c431027e5c1`.
+The v1 run is retained as an export-tolerance failure: its maximum
+NumPy/PyTorch action difference was `1.03116e-5`, just above `1e-5`. The
+export-only v2 correction used `2e-5`, repeated byte-identical training, and
+passed exact checkpoint reload.
+
 The compact result is
 `results/structured_n64_k2_failure_diagnostic_v1.json`. Raw episode records
 remain outside Git on Marvin under:
