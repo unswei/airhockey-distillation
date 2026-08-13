@@ -157,6 +157,13 @@ gate at 99.1%, then saved 98.4% across 1,125 paired blackout episodes and
 Because the aggregate's shadow half was collected under the structured `k=2`
 student, it is not treated as a fair recurrent-family comparison.
 
+The fair [`principal sweep`](docs/principal_sweep_v1.md) is now predeclared.
+It trains feed-forward, finite-stack, structured `k=0,1,2,4` and GRU-64
+students with five matched seeds and exactly 20,000 family-specific shadow
+episodes per family. Validation stays paired on the existing 225 shots; a new
+225-shot principal test remains closed until all 35 checkpoints, validation
+evidence and efficiency measurements are frozen.
+
 ## Scientific guardrails
 
 - Every policy receives the same non-privileged public observation.

@@ -1,0 +1,315 @@
+schema_version: 1
+status: phase_3_principal_sweep_predeclared_not_started
+
+scientific_question: >-
+  How much state-dependent nonlinear recurrence is needed to distil the
+  frozen DreamerV3 defence teacher under temporary puck-tracking loss?
+
+scope:
+  classification: principal_family_comparison
+  direct_launch_only: true
+  teacher_reference_is_not_a_student_family: true
+  preliminary_checkpoints_are_not_principal_evidence: true
+  no_best_family_selection: true
+
+families:
+  - id: feed_forward
+    type: feed_forward
+    observation_dimension: 19
+    encoder_hidden_widths: [64, 32]
+    action_head_hidden_width: 64
+    persistent_state_float32_values: 0
+    expected_total_parameters: 5602
+    expected_core_parameters: 0
+  - id: finite_stack_10
+    type: finite_puck_history
+    current_proprioception_dimension: 16
+    puck_history_steps: 10
+    puck_features_per_step: 3
+    puck_features: [normalised_x, normalised_y, visible]
+    history_order: oldest_to_newest
+    episode_start_padding: zero_position_and_zero_visibility
+    network_input_dimension: 46
+    encoder_hidden_widths: [64, 32]
+    action_head_hidden_width: 64
+    persistent_state_float32_values: 30
+    expected_total_parameters: 7330
+    expected_core_parameters: 0
+  - id: structured_k0
+    type: structured_recurrent
+    state_dimension: 64
+    innovation_rank: 0
+    expected_total_parameters: 12002
+    expected_core_parameters: 2304
+  - id: structured_k1
+    type: structured_recurrent
+    state_dimension: 64
+    innovation_rank: 1
+    expected_total_parameters: 12165
+    expected_core_parameters: 2467
+  - id: structured_k2
+    type: structured_recurrent
+    state_dimension: 64
+    innovation_rank: 2
+    expected_total_parameters: 12328
+    expected_core_parameters: 2630
+  - id: structured_k4
+    type: structured_recurrent
+    state_dimension: 64
+    innovation_rank: 4
+    expected_total_parameters: 12654
+    expected_core_parameters: 2956
+  - id: gru_n64
+    type: gru_recurrent
+    state_dimension: 64
+    expected_total_parameters: 28898
+    expected_core_parameters: 19200
+
+matched_architecture:
+  public_observation_dimension: 19
+  public_action_dimension: 2
+  encoder:
+    hidden_widths: [64, 32]
+    activation: silu
+    output_dimension: 32
+  recurrent_state_dimension: 64
+  include_previous_requested_action_for_recurrent_families: true
+  previous_action_dimension: 2
+  action_head:
+    hidden_width: 64
+    activation: silu
+    output: deterministic_tanh_mean
+  layer_normalisation: false
+  dropout: false
+  state_reset: true_episode_boundary_only
+  visibility_change_never_resets_state: true
+  structured_recurrence:
+    transition: stable_diagonal_linear_plus_low_rank_tanh_innovation
+    stable_diagonal_parameterisation: tanh
+    control_period_ms: 20
+    initial_time_constants_ms: [40, 2000]
+  finite_stack_contract: >-
+    Concatenate current 16-dimensional proprioception with ten triples of puck
+    x, puck y and visibility. The current triple is the newest entry. The
+    buffer resets only at a true episode boundary and contains no velocity,
+    opponent information or previous action.
+
+teacher:
+  checkpoint_step: 700000
+  actor_sha256: 6a672d5b6d7c2b9ca2335f1a85b69280ca7db58deb5e2f56d2ba033ebf636254
+  inference: deterministic_rssm_mode_and_actor_mean
+  role: fixed_reference_and_shadow_labeller
+
+base_teacher_dataset:
+  id: teacher_v3_structured_n64_k2_full_deterministic_v1
+  manifest_sha256: 923497e3622209c7060196ff8322f4d333626138048ad94577034c67f01c60cf
+  episodes: 20000
+  teacher_action_semantics: deterministic_actor_mean_after_public_adapter_clip
+  use: common_initial_and_final_training_source_for_every_family
+  privileged_fields_are_diagnostic_only: true
+
+matched_seeds:
+  training: [14303, 14304, 14305, 14306, 14307]
+  seed_pairing: same_seed_compared_across_every_family
+  initialisation: family_specific_deterministic_initialisation_from_training_seed
+
+shadow_labelling:
+  rounds: 1
+  budget_unit: complete_paired_rollout_episode
+  episodes_per_family: 20000
+  collectors_per_family: 5
+  episodes_per_collector: 4000
+  collector_training_seeds: [14303, 14304, 14305, 14306, 14307]
+  collection_sampling_seed: 52303
+  collection_offsets_by_seed:
+    "14303": [0, 3999]
+    "14304": [4000, 7999]
+    "14305": [8000, 11999]
+    "14306": [12000, 15999]
+    "14307": [16000, 19999]
+  aggregate_episode_indices: [20000, 39999]
+  paired_schedule: >-
+    Every family uses the same reset seed for each collection offset, hence
+    the same incoming shot and blackout schedule for each matched collector.
+  rollout_controller: family_and_seed_specific_base_only_checkpoint
+  teacher_action_semantics: deterministic_actor_mean_after_public_adapter_clip
+  teacher_previous_action: previous_behaviour_policy_requested_command
+  labelled_steps: every_valid_episode_step
+  loss_weighting: equal_total_weight_per_complete_episode
+  realised_teacher_queries: report_per_family
+  query_count_rule: >-
+    Complete histories are the fixed budget unit. Episode lengths may differ
+    under different behaviour policies, so realised valid-step query counts
+    are reported and never equalised by adaptive top-ups or truncation.
+  family_pooling: >-
+    Pool the five 4,000-episode collector partitions within a family. Never
+    mix shadow episodes across families.
+  weak_family_rule: no_extra_rounds_no_extra_queries_no_family_specific_top_up
+
+training:
+  initial_collector_stage:
+    start: from_scratch
+    data: common_base_teacher_dataset_only
+    seeds: [14303, 14304, 14305, 14306, 14307]
+  final_principal_stage:
+    start: from_scratch_not_from_collector_checkpoint
+    data_per_family:
+      base_teacher_episodes: 20000
+      family_specific_shadow_episodes: 20000
+      total_episodes: 40000
+    seeds: [14303, 14304, 14305, 14306, 14307]
+  episode_split:
+    modulus: 10
+    training_residues: [0, 1, 2, 3, 4, 5, 6, 7]
+    validation_residues: [8]
+    internal_test_residues: [9]
+  target: deterministic_teacher_action_mean
+  loss: action_mean_squared_error_on_every_valid_step
+  episode_weighting: each_complete_episode_contributes_equal_total_weight
+  sequence_length: 64
+  maximum_episode_steps: 128
+  batch_size: 128
+  optimiser: adamw
+  learning_rate: 0.0003
+  weight_decay: 0.00001
+  maximum_epochs: 100
+  patience_epochs: 10
+  minimum_validation_improvement: 0.000001
+  gradient_clip_global_norm: 1.0
+  checkpoint_selection: minimum_offline_validation_action_mse
+  closed_loop_validation_used_for_checkpoint_selection: false
+  family_specific_hyperparameter_tuning: forbidden
+  failed_seed_rule: >-
+    Retry only an identified technical failure with the same configuration and
+    data. Do not replace, discard or retune a weak completed seed.
+
+evaluation:
+  policy_action: deterministic_mean
+  save_outcomes: [returned, arrested, safe_deflection]
+  timeout_after_contact_is_save: false
+  bare_timeout_is_save: false
+  safety_and_simulator_faults_are_failures: true
+  validation:
+    distribution_config: configs/env/direct_launch_v3.yaml
+    split: validation
+    expected_shots: 225
+    blackout_steps: [0, 5, 10, 15, 20]
+    expected_episodes_per_student_seed: 1125
+    use: diagnostics_and_protocol_checks_only
+  test:
+    distribution_config: configs/env/direct_launch_v3_principal_test_v1.yaml
+    split: principal_test
+    expected_shots: 225
+    core_blackout_steps: [0, 5, 10, 15, 20]
+    extrapolation_blackout_steps: [25]
+    expected_core_episodes_per_student_seed: 1125
+    expected_total_episodes_per_student_seed: 1350
+    status: unopened_until_release_conditions_pass
+  pairing:
+    same_shot_and_blackout_across_families: true
+    same_shot_and_blackout_across_training_seeds: true
+    preserve_alias_pairs: true
+  teacher_reference:
+    evaluate_once_per_split_on_identical_episodes: true
+
+test_release_gate:
+  required_final_student_checkpoints: 35
+  require_all_final_checkpoint_hashes_frozen: true
+  require_all_collector_checkpoint_hashes_frozen: true
+  require_all_family_dataset_hashes_frozen: true
+  require_all_shadow_budget_audits_pass: true
+  require_all_validation_episode_files_frozen: true
+  require_parameter_state_and_cpu_latency_results_frozen: true
+  require_aggregation_code_commit_frozen: true
+  require_analysis_plan_frozen: true
+  require_test_outcomes_never_previously_inspected: true
+  action_if_any_check_fails: keep_principal_test_closed
+  after_release: no_retraining_reselection_or_hyperparameter_changes
+
+measurements:
+  behavioural:
+    primary_outcome: save_rate_at_20_blackout_steps_on_principal_test
+    required_curve_blackout_steps: [0, 5, 10, 15, 20]
+    extrapolation_blackout_steps: [25]
+    report_outcome_categories: true
+    report_each_training_seed: true
+    report_teacher_relative_gap: true
+  planned_primary_differences_at_20_steps:
+    - structured_k1_minus_structured_k0
+    - structured_k2_minus_structured_k0
+    - structured_k4_minus_structured_k0
+    - gru_n64_minus_structured_k0
+  secondary_differences:
+    - recurrent_family_minus_feed_forward
+    - recurrent_family_minus_finite_stack_10
+    - structured_family_minus_gru_n64
+  descriptive_gap_recovery_at_20_steps:
+    numerator: structured_k_save_rate_minus_structured_k0_save_rate
+    denominator: gru_n64_save_rate_minus_structured_k0_save_rate
+    report_only_when_absolute_denominator_at_least_points: 5
+  uncertainty:
+    method: paired_hierarchical_cluster_bootstrap_percentile_95
+    replicates: 10000
+    seed: 74303
+    resample_training_seeds: true
+    resample_evaluation_units: true
+    evaluation_unit: alias_family_or_individual_support_shot
+    common_resamples_across_compared_families: true
+    keep_blackout_conditions_within_unit: true
+    significance_language: forbidden
+  efficiency:
+    total_trainable_parameters: exported_tensor_element_count
+    core_parameters: >-
+      recurrent update parameters for recurrent policies; zero for the two
+      non-recurrent baselines
+    recurrent_memory_bytes: runtime_memory_array_nbytes
+    total_policy_carry_bytes: include_previous_action_and_stack_buffer
+    multiply_add_estimate: analytical_per_control_step
+  cpu_latency:
+    host: marvin
+    cpu: Intel Core Ultra 9 285
+    runtime: exported_numpy_float32_batch_one
+    pinned_logical_cpu: 0
+    processes: 1
+    threads: 1
+    environment_variables:
+      OMP_NUM_THREADS: 1
+      OPENBLAS_NUM_THREADS: 1
+      MKL_NUM_THREADS: 1
+      NUMEXPR_NUM_THREADS: 1
+    warmup_calls_per_checkpoint: 10000
+    timed_calls_per_repetition: 10000
+    repetitions_per_checkpoint: 10
+    clocks: perf_counter_ns
+    include: [history_or_recurrent_update, observation_encoder, action_head]
+    exclude: [simulator, rendering, inverse_kinematics, process_startup, checkpoint_load]
+    report_per_checkpoint: [median_microseconds, p95_microseconds]
+    report_per_family: [five_seed_raw_points, median_of_seed_medians]
+    record_cpu_governor_and_frequency_state: true
+
+reporting:
+  principal_plot: save_rate_by_blackout_steps_with_all_seven_families_visible
+  efficiency_table:
+    - total_trainable_parameters
+    - core_parameters
+    - recurrent_memory_bytes
+    - total_policy_carry_bytes
+    - multiply_adds_per_step
+    - cpu_latency_median_microseconds
+    - cpu_latency_p95_microseconds
+    - overall_core_test_save_rate
+  raw_episode_rows_outside_git: true
+  immutable_results_only: true
+
+provenance:
+  predeclaration_parent_code_commit: 2e13759e4f987b449372dee28faff8d5d557785e
+  motivating_gru_result: results/gru_n64_full_pilot_evaluation_v1.json
+  motivating_gru_result_sha256: fb962ff1e0c5cfe110af3b64674f7d9a43143f8bd61b627991210a26468d3332
+  motivating_result_use: architecture_and_pipeline_readiness_only
+  motivating_result_excluded_from_principal_statistics: true
+  existing_structured_k2_pilot_excluded_from_principal_statistics: true
+  direct_launch_v3_config_sha256: 036eee7205317358d8050f5ab7f9d88769fd2d848c0ea3499aaed014dfae2e23
+  structured_architecture_config_sha256: deefd88754538186df25593870f53fa78895960da4453bc63bc45ae8eeeed9dd
+  gru_architecture_config_sha256: 8b59adfbed73f3594b851432710092171608b3c5a5a0513d313a924f0ac73eb6
+  principal_test_config_sha256: c0118dc2f9d30dbde580ba865ddc7483f6c259455ac5ce15c8a402483292dd12
+  container_digest: sha256:de846e25961d2408db73a6b5cfe2afc7ecf0e14e0e8ac837f97212a180e51d5f

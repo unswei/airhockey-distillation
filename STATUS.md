@@ -28,6 +28,10 @@ and passed its staged behavioural evaluation: 99.1% saves without blackout
 and 98.4% across the five paired conditions. Its offline metrics, export and
 closed-loop checks pass; the structured-policy shadow provenance still
 prevents a principal family claim.
+The fair principal sweep is now predeclared: seven student families, five
+matched seeds, equal family-specific shadow-episode budgets, paired validation,
+a fresh unopened principal test split, and fixed parameter, state-size and
+single-thread Marvin CPU-latency measurements.
 
 ## Completed
 
@@ -269,11 +273,14 @@ prevents a principal family claim.
   frozen checkpoint saved 1,107/1,125 episodes and 219/225 at 20 steps.
 - Verified exact reproduction of all 225 visible episode records and froze
   the eight raw evaluation files as root-owned, read-only evidence on Marvin.
+- Predeclared the fair principal sweep without reusing either successful pilot
+  as principal evidence. The protocol fixes 35 final checkpoints, 140,000
+  family-specific shadow episodes in total and a new unopened test split.
 
 ## Next actions
 
-- Predeclare a neutral data-collection and equal-budget protocol before using
-  GRU and structured results for a principal recurrent-family comparison.
+- Implement the finite-stack and rank-configurable structured runtimes, then
+  execute the predeclared principal sweep without opening `principal_test`.
 - Retain direct launch as the core controlled task; a scripted physical strike
   remains a later secondary extension.
 
@@ -341,6 +348,7 @@ prevents a principal family claim.
 | 2026-08-13 | Trained one full-data GRU-64 engineering seed | Seed 14303 selected epoch 97 at validation MSE `0.04521`; exact reload; no behavioural evaluation opened |
 | 2026-08-13 | Applied the GRU pilot no-blackout gate | `GO`; 223/225 saves, no concessions or faults |
 | 2026-08-13 | Evaluated the frozen GRU pilot on paired blackouts | 1,107/1,125 saves overall and 219/225 at 20 steps; raw evidence frozen and hashed |
+| 2026-08-13 | Predeclared the fair principal sweep | Seven families, five matched seeds, 20,000 shadow episodes per family and a fresh unopened 225-shot test split |
 
 ## Blockers
 
