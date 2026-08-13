@@ -178,6 +178,9 @@ shard-level shadow-budget audit, exact parameter/state accounting, the pinned
 Marvin CPU-latency benchmark and a fail-closed evidence gate. The untouched
 test evaluator requires a `GO` report and re-runs the gate before constructing
 the test schedule.
+The separate [seven-family engineering dry run](docs/principal_engineering_dry_run.md)
+exercises tiny overfit, checkpoint export/reload, paired schedules, short real
+rollouts and reduced latency measurement without creating principal evidence.
 
 ## Scientific guardrails
 

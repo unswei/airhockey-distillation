@@ -84,6 +84,9 @@ def test_latency_benchmark_measures_complete_calls_and_repetition_means():
     assert result["repetition_mean_microseconds"] == [1.0, 2.0]
     assert result["median_microseconds"] == 1.5
     assert result["p95_microseconds"] == pytest.approx(1.95)
+    assert result["p95_definition"] == (
+        "95th percentile across the configured repetition means"
+    )
 
 
 def test_latency_runtime_fails_closed_off_marvin(monkeypatch):
