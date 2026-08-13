@@ -63,6 +63,11 @@ workflow.
   framework-neutral NumPy checkpoint, and gates PyTorch/NumPy parity plus
   exact reload. `run_gru_tiny_overfit_on_marvin.sh` runs the engineering gate
   in the pinned Marvin image.
+- `train_gru_student.py` runs the predeclared full-data GRU-64 engineering
+  pilot on the frozen 40,000-episode teacher-plus-structured-shadow aggregate.
+  It reuses the structured trainer's hash-verified episode splitting and
+  chunked carry path, but exports and verifies GRU actions and states. The
+  result is explicitly not a fair principal family comparison.
 - `run_structured_full_seed_on_marvin.sh RUN_ID CODE_COMMIT` collects the
   20,000-episode deterministic-mean dataset, trains seed 14303 and runs paired
   closed-loop validation from one clean, exact Marvin commit.
