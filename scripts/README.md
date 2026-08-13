@@ -69,7 +69,7 @@ workflow.
   repeated deterministic input trajectories ever have conflicting targets.
 - `gate_structured_no_blackout.py` applies the predeclared 225-shot visible
   validation gate without opening any blackout condition.
-- `run_structured_all_steps_correction_on_marvin.sh RUN_ID CODE_COMMIT`
+- `run_structured_all_steps_correction_on_marvin.sh RUN_ID CODE_COMMIT CONFIG`
   retrains seed 14303 on the frozen dataset with every valid step supervised,
   then evaluates and gates only the no-blackout validation shots.
 - `train_feed_forward.py` trains and validation-selects the Stage B

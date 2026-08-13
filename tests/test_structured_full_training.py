@@ -78,6 +78,30 @@ def test_zero_burn_in_supervises_every_valid_step():
     assert not np.any(split.loss_mask[0, 20:])
 
 
+def test_v2_all_steps_correction_changes_only_export_tolerance():
+    v1 = yaml.safe_load(
+        Path(
+            "configs/student/structured_n64_k2_full_seed_14303_all_steps_v1.yaml"
+        ).read_text()
+    )
+    v2 = yaml.safe_load(
+        Path(
+            "configs/student/structured_n64_k2_full_seed_14303_all_steps_v2.yaml"
+        ).read_text()
+    )
+
+    assert v2["policy"] == v1["policy"]
+    assert v2["dataset"] == v1["dataset"]
+    assert v2["training"] == v1["training"]
+    assert v2["evaluation"] == v1["evaluation"]
+    assert v2["no_blackout_gate"] == v1["no_blackout_gate"]
+    assert v2["provenance"] == v1["provenance"]
+    assert v2["export"] == {
+        **v1["export"],
+        "maximum_absolute_error": 0.00002,
+    }
+
+
 def test_full_trainer_rejects_sampled_action_manifest():
     dataset = _dataset_config()
     manifest = _manifest()

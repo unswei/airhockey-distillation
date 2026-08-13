@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -ne 2 ]]; then
-  echo "usage: $0 RUN_ID CODE_COMMIT" >&2
+if [[ $# -ne 3 ]]; then
+  echo "usage: $0 RUN_ID CODE_COMMIT CONFIG" >&2
   exit 2
 fi
 
 readonly RUN_ID="$1"
 readonly CODE_COMMIT="$2"
+readonly CONFIG="$3"
 readonly CODE_ROOT="/home/oliver/Code/airhockey-memory-distillation"
 readonly EXPERIMENT_ROOT="/home/oliver/experiments/airhockey-memory-distillation"
 readonly RUN_ROOT="${EXPERIMENT_ROOT}/${RUN_ID}"
@@ -16,7 +17,6 @@ readonly DATASET_ROOT="${EXPERIMENT_ROOT}/teacher-datasets/${DATASET_RUN}"
 readonly STUDENT_RUN="structured-n64-k2-full-all-steps-seed-14303-2026-08-13-v1"
 readonly STUDENT_ROOT="${EXPERIMENT_ROOT}/students/${STUDENT_RUN}"
 readonly IMAGE="marvin/drl-air-hockey:2025-a41081c4c386-blackwell-rebuilt"
-readonly CONFIG="configs/student/structured_n64_k2_full_seed_14303_all_steps_v1.yaml"
 
 cd "${CODE_ROOT}"
 test "$(git rev-parse HEAD)" = "${CODE_COMMIT}"
