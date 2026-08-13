@@ -63,6 +63,22 @@ def test_predeclared_gru_gate_is_no_blackout_only():
     assert config["no_blackout_gate"]["maximum_simulator_or_safety_faults"] == 0
 
 
+def test_paired_gru_pilot_is_bound_to_successful_visible_gate():
+    config = yaml.safe_load(
+        Path("configs/student/gru_n64_full_pilot_paired_v1.yaml").read_text()
+    )
+
+    assert config["evaluation"]["shot_count"] == 225
+    assert config["evaluation"]["blackout_steps"] == [0, 5, 10, 15, 20]
+    assert config["provenance"]["qualification_decision"] == "GO"
+    assert config["provenance"]["qualification_gate_sha256"] == (
+        "284d0051f52f71ca73a3346fb245f5674036175e23279a5bc48bd47a954cdd31"
+    )
+    assert config["provenance"]["checkpoint_sha256"] == (
+        "13cd9a53f3c1470a24fb777c45ea74ca4f48a8906e1ae7c1353ff0ccd5d24d4a"
+    )
+
+
 def _config():
     return {
         "pilot_scope": {

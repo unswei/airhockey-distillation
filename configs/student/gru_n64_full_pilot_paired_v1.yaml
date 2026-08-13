@@ -1,0 +1,42 @@
+schema_version: 1
+status: phase_3_gru64_full_pilot_paired_validation_predeclared
+
+purpose: >-
+  Open the full paired blackout validation only after the frozen GRU-64 pilot
+  passed its 225-shot no-blackout gate. This changes evaluation coverage only;
+  the checkpoint, training data, architecture and seed remain unchanged.
+
+pilot_scope:
+  classification: engineering_pilot_not_principal_family_comparison
+  disallowed_claim: fair_gru_versus_structured_behavioural_comparison
+
+policy:
+  config: configs/student/gru_n64.yaml
+  id: gru_n64
+  state_dimension: 64
+
+dataset:
+  id: teacher_v3_structured_n64_k2_teacher_plus_shadow_round1_v1
+  teacher_action_semantics: deterministic_actor_mean_after_public_adapter_clip
+  episodes: 40000
+  reward_config: configs/reward/defend_shot_v1.yaml
+  blackout_start_observation_step: 5
+  action_lock_steps: 5
+
+evaluation:
+  distribution_config: configs/env/direct_launch_v3.yaml
+  distribution_split: validation
+  shot_count: 225
+  blackout_steps: [0, 5, 10, 15, 20]
+
+provenance:
+  qualification_gate: phase3-gru-n64-full-pilot-no-blackout-2026-08-13-v1/no_blackout_gate.json
+  qualification_gate_sha256: 284d0051f52f71ca73a3346fb245f5674036175e23279a5bc48bd47a954cdd31
+  qualification_decision: GO
+  qualification_save_rate: 0.9911111111111112
+  training_result: students/gru-n64-full-pilot-seed-14303-2026-08-13-v1/result.json
+  training_result_sha256: a41a314630344307ce16e446554d249515c3664f45012700afff0e9d8f82637e
+  training_code_commit: d02b924dab06ded5b8e4c1f5f87e5a02f308c5ed
+  checkpoint: students/gru-n64-full-pilot-seed-14303-2026-08-13-v1/checkpoint.npz
+  checkpoint_sha256: 13cd9a53f3c1470a24fb777c45ea74ca4f48a8906e1ae7c1353ff0ccd5d24d4a
+  aggregate_manifest_sha256: e67438a24da12cfc1aed92f6df64253f82ce000cb52c3085d28468007ebf0d0d

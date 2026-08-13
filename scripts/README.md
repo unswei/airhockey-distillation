@@ -71,6 +71,8 @@ workflow.
 - `evaluate_gru_student.py` evaluates a hash-bound frozen GRU checkpoint on
   versioned validation shots. `gate_gru_no_blackout.py` prevents any blackout
   arm from opening before the 225-shot visible-control gate passes.
+  `run_gru_paired_evaluation_on_marvin.sh` verifies the frozen GO artefact and
+  then runs the five predeclared paired blackout conditions.
 - `run_structured_full_seed_on_marvin.sh RUN_ID CODE_COMMIT` collects the
   20,000-episode deterministic-mean dataset, trains seed 14303 and runs paired
   closed-loop validation from one clean, exact Marvin commit.
