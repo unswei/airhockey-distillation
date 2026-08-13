@@ -181,6 +181,8 @@ the test schedule.
 The separate [seven-family engineering dry run](docs/principal_engineering_dry_run.md)
 exercises tiny overfit, checkpoint export/reload, paired schedules, short real
 rollouts and reduced latency measurement without creating principal evidence.
+Its canonical Marvin run passed all six checks for all seven families; this is
+an engineering `GO`, not a principal comparison or test-release decision.
 
 ## Scientific guardrails
 

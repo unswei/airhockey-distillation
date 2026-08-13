@@ -42,6 +42,11 @@ One principal pipeline now dispatches all seven families for training, shadow
 collection, aggregation and paired validation. It hash-binds the common base
 data, normalises loss per complete episode and verifies realised shadow and
 validation schedules. No principal checkpoint has been trained yet.
+The small non-principal pipeline dry run has passed for all seven families:
+tiny overfit, exact reload, NumPy/PyTorch agreement, paired shadow schedules,
+four real validation rollouts and reduced Marvin latency measurement all
+completed. This is an engineering `GO`; it neither opens the principal test
+split nor supplies principal evidence.
 
 ## Completed
 
@@ -373,6 +378,7 @@ validation schedules. No principal checkpoint has been trained yet.
 | 2026-08-13 | Implemented rank-configurable structured students | `k=0,1,2,4` NumPy/PyTorch paths pass; frozen `k=2` actions and states remain bit-exact |
 | 2026-08-13 | Implemented the ten-step finite-stack student | 46-value input, 7,330 parameters, 30-float history and matched NumPy/PyTorch export |
 | 2026-08-13 | Generalised the principal pipeline across all seven families | Common data loader, equal episode weighting, paired shadow/validation schedules and seven-family export dry run |
+| 2026-08-13 | Ran the canonical seven-family engineering dry run on Marvin | `GO` for all plumbing checks; explicitly non-principal and ineligible for test release |
 
 ## Blockers
 

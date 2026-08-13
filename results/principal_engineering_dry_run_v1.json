@@ -1,0 +1,118 @@
+{
+  "artefacts": {
+    "checkpoints": {
+      "feed_forward": "7cd8f68deb44ab9d89062b712261259cd57af1c819590422b04efd02040ccaea",
+      "finite_stack_10": "2219faebd7653c60a14c2119b82ad40e65406ee0cb0f0573ead4f6067947eec7",
+      "gru_n64": "18910af10527fe8dbb860a394453c0e3a658148682a7a2fba17d19f337c2f62b",
+      "structured_k0": "c8b7cc3c5965d52bf80b22484596d4941edefc3fffb9c289d6e0432407320e5e",
+      "structured_k1": "02619f1efb0a31d06958e66a100c72709ac328b006b56269dea5b9c90d2bd4ac",
+      "structured_k2": "0e56365534d158703262da786db258811b91a73aea457f8666d9b93ca0a67dd8",
+      "structured_k4": "43d56973dec4d4565c3f665f2e1bbda80aa0f36ab38a0988d94ad60b36abf0cc"
+    },
+    "raw_result_sha256": "9377d8d1e90413d764bc12fac78c2a5a5b624c6de7566e94be9a3e74bee2a8fe",
+    "run": "principal-engineering-dry-run-2026-08-13-v6",
+    "run_path_on_marvin": "/home/oliver/experiments/airhockey-memory-distillation/principal-engineering-dry-run-2026-08-13-v6"
+  },
+  "checks": {
+    "all_checkpoint_reloads_exact": true,
+    "all_latency_measurements_complete": true,
+    "all_numpy_pytorch_agree": true,
+    "all_seven_families_completed": true,
+    "all_short_validation_rollouts_complete": true,
+    "all_tiny_overfits_pass": true,
+    "paired_shadow_schedules_identical": true
+  },
+  "classification": "non_principal_engineering_dry_run",
+  "code_commit": "404c621abf69e671ad1d7363859befea5eafed58",
+  "container_digest": "sha256:de846e25961d2408db73a6b5cfe2afc7ecf0e14e0e8ac837f97212a180e51d5f",
+  "created_at": "2026-08-13T11:20:19.516708+00:00",
+  "dataset_manifest_sha256": "a55c31c9581a09dcb36571c89ac448ba9bed14b0aa969fd0826e2a53f99dcd1a",
+  "decision": "GO",
+  "dry_run_limits": {
+    "latency_repetitions": 3,
+    "latency_timed_calls_per_repetition": 200,
+    "latency_warmup_calls": 100,
+    "maximum_epochs": 3000,
+    "minimum_fractional_loss_reduction": 0.98,
+    "overfit_mse_threshold": 0.01,
+    "training_episodes": 1,
+    "validation_episodes_per_family": 4
+  },
+  "families": {
+    "feed_forward": {
+      "fractional_loss_reduction": 0.9818283163265584,
+      "latency_median_microseconds": 13.11859,
+      "latency_p95_microseconds": 13.1622175,
+      "numpy_pytorch_action_maximum_absolute_error": 0.0000030249357223510742,
+      "numpy_pytorch_carry_maximum_absolute_error": 0.0,
+      "selected_action_mse": 0.009925570338964462,
+      "validation_outcomes": {"goal_conceded": 2, "returned": 2}
+    },
+    "finite_stack_10": {
+      "fractional_loss_reduction": 0.9816311372808845,
+      "latency_median_microseconds": 17.79258,
+      "latency_p95_microseconds": 17.857254,
+      "numpy_pytorch_action_maximum_absolute_error": 0.0000019669532775878906,
+      "numpy_pytorch_carry_maximum_absolute_error": 0.0,
+      "selected_action_mse": 0.009870367124676704,
+      "validation_outcomes": {"goal_conceded": 2, "returned": 1, "timeout_after_contact": 1}
+    },
+    "gru_n64": {
+      "fractional_loss_reduction": 0.9834376553599457,
+      "latency_median_microseconds": 40.306505,
+      "latency_p95_microseconds": 40.387757,
+      "numpy_pytorch_action_maximum_absolute_error": 0.0000009834766387939453,
+      "numpy_pytorch_carry_maximum_absolute_error": 0.0000008642673492431641,
+      "selected_action_mse": 0.008975348435342312,
+      "validation_outcomes": {"goal_conceded": 2, "returned": 2}
+    },
+    "structured_k0": {
+      "fractional_loss_reduction": 0.9940584229445038,
+      "latency_median_microseconds": 21.065535,
+      "latency_p95_microseconds": 21.250053,
+      "numpy_pytorch_action_maximum_absolute_error": 0.0000010728836059570312,
+      "numpy_pytorch_carry_maximum_absolute_error": 0.000003814697265625,
+      "selected_action_mse": 0.009241580031812191,
+      "validation_outcomes": {"goal_conceded": 2, "returned": 1, "timeout_after_contact": 1}
+    },
+    "structured_k1": {
+      "fractional_loss_reduction": 0.9930068994615064,
+      "latency_median_microseconds": 24.79233,
+      "latency_p95_microseconds": 24.9385305,
+      "numpy_pytorch_action_maximum_absolute_error": 0.00000260770320892334,
+      "numpy_pytorch_carry_maximum_absolute_error": 0.000006079673767089844,
+      "selected_action_mse": 0.009808924980461597,
+      "validation_outcomes": {"goal_conceded": 2, "returned": 1, "timeout_after_contact": 1}
+    },
+    "structured_k2": {
+      "fractional_loss_reduction": 0.9937230804092467,
+      "latency_median_microseconds": 24.37184,
+      "latency_p95_microseconds": 24.4882235,
+      "numpy_pytorch_action_maximum_absolute_error": 0.0000016689300537109375,
+      "numpy_pytorch_carry_maximum_absolute_error": 0.0000095367431640625,
+      "selected_action_mse": 0.009709101170301437,
+      "validation_outcomes": {"goal_conceded": 2, "returned": 1, "timeout_after_contact": 1}
+    },
+    "structured_k4": {
+      "fractional_loss_reduction": 0.9946242160570252,
+      "latency_median_microseconds": 24.493515,
+      "latency_p95_microseconds": 24.674685,
+      "numpy_pytorch_action_maximum_absolute_error": 0.0000025704503059387207,
+      "numpy_pytorch_carry_maximum_absolute_error": 0.000007152557373046875,
+      "selected_action_mse": 0.009340266697108746,
+      "validation_outcomes": {"goal_conceded": 2, "returned": 2}
+    }
+  },
+  "latency_runtime": {
+    "cpu_model": "Intel(R) Core(TM) Ultra 9 285",
+    "hostname": "marvin",
+    "logical_cpu_affinity": [0],
+    "single_thread_environment": true
+  },
+  "paired_shadow_schedule_sha256": "0a644d99bc5f142184fafb36c0ce678273d191b1b338fee4d02f9a2e2498fdb0",
+  "principal_evidence_eligible": false,
+  "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+  "release_manifest_eligible": false,
+  "schema_version": 1,
+  "status": "completed"
+}

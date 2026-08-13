@@ -56,3 +56,21 @@ docker run --rm --ipc host --hostname marvin --cpuset-cpus 0 \
 The result file and every checkpoint remain outside Git. The top-level result
 sets both `principal_evidence_eligible` and `release_manifest_eligible` to
 false, and every checkpoint is labelled `non_principal_dry_run`.
+
+## Canonical result
+
+The canonical Marvin run `principal-engineering-dry-run-2026-08-13-v6`
+returned `GO` from code commit
+`404c621abf69e671ad1d7363859befea5eafed58`. All seven families passed the
+tiny overfit, exact reload, NumPy/PyTorch agreement, paired shadow schedule,
+short rollout and reduced latency checks. The common ten-record shadow
+schedule has SHA-256
+`0a644d99bc5f142184fafb36c0ce678273d191b1b338fee4d02f9a2e2498fdb0`.
+
+The raw `result.json` has SHA-256
+`9377d8d1e90413d764bc12fac78c2a5a5b624c6de7566e94be9a3e74bee2a8fe`.
+The compact [result summary](../results/principal_engineering_dry_run_v1.json)
+records its bindings, checkpoint hashes and per-family diagnostics. The four
+rollouts per family check only that closed-loop evaluation completes with
+clean terminal outcomes. Their save rates, and the reduced latency samples,
+are not scientific comparisons.

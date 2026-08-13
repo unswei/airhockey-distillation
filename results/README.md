@@ -61,3 +61,10 @@ action_mse,episode_steps,policy_latency_ms
 
 Raw result files are immutable. Corrections produce a new version rather than
 overwriting an existing result.
+
+The compact
+[`seven-family engineering dry-run result`](principal_engineering_dry_run_v1.json)
+hash-binds the canonical Marvin run and its seven checkpoints. It is a
+non-principal plumbing `GO`: its tiny-data losses, four-rollout validation
+samples and reduced latency measurements are expressly ineligible for the
+principal release manifest.
