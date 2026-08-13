@@ -83,6 +83,60 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         evaluation = protocol["evaluation"]["validation"]
         schedule_hash = evaluation_schedule_sha256(protocol)
 
+    episodes, inference_seconds = evaluate_policy_on_schedule(
+        policy,
+        schedule,
+        protocol,
+    )
+
+    output = args.output.resolve()
+    if output.exists():
+        raise FileExistsError(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    result = {
+        "schema_version": 1,
+        "status": "completed",
+        "created_at": datetime.now(UTC).isoformat(),
+        "family_id": args.family,
+        "training_seed": args.seed,
+        "checkpoint": str(checkpoint),
+        "checkpoint_sha256": sha256_file(checkpoint),
+        "code_commit": args.code_commit,
+        "protocol_sha256": sha256_file(protocol_path),
+        "evaluation_split": evaluation["split"],
+        "evaluation_schedule_sha256": schedule_hash,
+        "release_report": None if args.release_report is None else str(args.release_report.resolve()),
+        "release_report_sha256": None if args.release_report is None else sha256_file(args.release_report.resolve()),
+        "release_evidence_manifest_sha256": None if release is None else release["evidence_manifest_sha256"],
+        "runtime": {
+            "hostname": platform.node(),
+            "python": sys.version,
+            "mujoco": mujoco.__version__,
+        },
+        "summary": summarise(
+            episodes,
+            inference_seconds,
+            protocol,
+            blackout_steps=(
+                evaluation["blackout_steps"]
+                if args.split == "validation"
+                else evaluation["core_blackout_steps"]
+                + evaluation["extrapolation_blackout_steps"]
+            ),
+        ),
+        "episodes": episodes,
+    }
+    output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+    return result
+
+
+def evaluate_policy_on_schedule(
+    policy: Any,
+    schedule: tuple[tuple[Any, int], ...],
+    protocol: dict[str, Any],
+) -> tuple[list[dict[str, Any]], list[float]]:
+    """Evaluate one exported policy without constructing or releasing a split."""
+
     reward_specification = load_defence_reward(
         protocol["shadow_labelling"]["reward_config"]
     )
@@ -137,45 +191,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     finally:
         environment.close()
 
-    output = args.output.resolve()
-    if output.exists():
-        raise FileExistsError(output)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    result = {
-        "schema_version": 1,
-        "status": "completed",
-        "created_at": datetime.now(UTC).isoformat(),
-        "family_id": args.family,
-        "training_seed": args.seed,
-        "checkpoint": str(checkpoint),
-        "checkpoint_sha256": sha256_file(checkpoint),
-        "code_commit": args.code_commit,
-        "protocol_sha256": sha256_file(protocol_path),
-        "evaluation_split": evaluation["split"],
-        "evaluation_schedule_sha256": schedule_hash,
-        "release_report": None if args.release_report is None else str(args.release_report.resolve()),
-        "release_report_sha256": None if args.release_report is None else sha256_file(args.release_report.resolve()),
-        "release_evidence_manifest_sha256": None if release is None else release["evidence_manifest_sha256"],
-        "runtime": {
-            "hostname": platform.node(),
-            "python": sys.version,
-            "mujoco": mujoco.__version__,
-        },
-        "summary": summarise(
-            episodes,
-            inference_seconds,
-            protocol,
-            blackout_steps=(
-                evaluation["blackout_steps"]
-                if args.split == "validation"
-                else evaluation["core_blackout_steps"]
-                + evaluation["extrapolation_blackout_steps"]
-            ),
-        ),
-        "episodes": episodes,
-    }
-    output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
-    return result
+    return episodes, inference_seconds
 
 
 def summarise(

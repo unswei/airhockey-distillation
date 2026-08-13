@@ -134,3 +134,11 @@ The corresponding evidence controls are implemented in
 realised shadow shards, measure every exact final checkpoint, freeze an
 outside-Git evidence manifest and fail closed before the untouched
 principal-test schedule can be built.
+
+After release, `evaluate_principal_test_once.py` validates the gate once and
+uses one resumable opening record to evaluate all 35 final policies and the
+teacher on the same constructed schedule. `analyse_principal_sweep.py` then
+applies the predeclared paired hierarchical cluster bootstrap and writes the
+final statistics, seven-family curve and efficiency table. The execution
+commit containing both scripts is frozen in the release manifest before the
+test is opened.
