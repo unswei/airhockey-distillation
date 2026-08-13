@@ -21,6 +21,9 @@ predeclared deterministic shadow-teacher correction then succeeded: the same
 architecture and seed now save 98.7% of no-blackout validation shots and
 98.4% across the subsequently opened paired blackout evaluation. The first
 full-data structured-student vertical slice is successful.
+The matched GRU-64 runtime and its tiny deterministic-mean overfit gate are
+also complete. NumPy and PyTorch agree, checkpoint reload is exact and the
+gate returns `GO`; full-data GRU behaviour has not yet been measured.
 
 ## Completed
 
@@ -243,11 +246,20 @@ full-data structured-student vertical slice is successful.
   checkpoint saved 1,107/1,125 episodes overall and 220/225 at 20 steps.
 - Froze 59 raw evidence files as root-owned, read-only artefacts on Marvin and
   recorded a complete checksum manifest.
+- Implemented matched NumPy and PyTorch GRU-64 runtimes with the same encoder,
+  action head, previous-action input and recurrent-state size as the
+  structured student. Its standard gate update matches `torch.nn.GRUCell`.
+- Passed the GRU tiny deterministic-mean overfit gate. MSE reached
+  `7.7257e-5`, maximum export error was `5.9605e-7`, and NPZ reload reproduced
+  action and state sequences exactly.
+- Preserved the pre-training v1 import failure and froze both GRU gate runs as
+  seven root-owned, read-only, hash-verified files on Marvin.
 
 ## Next actions
 
-- Implement and evaluate the remaining predeclared matched recurrent student
-  family now that the structured vertical slice passes.
+- Predeclare the fair full-data GRU pilot, including whether its first
+  engineering run may use the `k=2` shadow aggregate or requires its own
+  equal-budget shadow collection.
 - Retain direct launch as the core controlled task; a scripted physical strike
   remains a later secondary extension.
 
@@ -311,6 +323,7 @@ full-data structured-student vertical slice is successful.
 | 2026-08-13 | Collected deterministic shadow-teacher round one | 20,000 student-controlled episodes, 1,453,360 transitions and 40 hashed shards |
 | 2026-08-13 | Applied the shadow-round no-blackout gate | `GO`; 222/225 saves (98.7%), no concessions and no faults |
 | 2026-08-13 | Evaluated the frozen shadow-round student on paired blackouts | 1,107/1,125 saves overall and 220/225 at 20 steps; raw evidence frozen and hashed |
+| 2026-08-13 | Implemented and gated the matched GRU-64 runtime | `GO`; one deterministic episode fitted to `7.7257e-5` MSE, export error `5.9605e-7`, exact reload and 124 passing tests |
 
 ## Blockers
 

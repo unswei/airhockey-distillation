@@ -37,6 +37,11 @@ subsequently opened paired evaluation records 1,107/1,125 saves across the
 five blackout lengths. Its 1,125 episode rows remain outside Git in the
 frozen Marvin run.
 
+The matched GRU-64
+[`tiny-overfit gate`](gru_n64_tiny_overfit_v1.json) records deterministic-mean
+training, PyTorch/NumPy parity and exact framework-neutral checkpoint reload.
+It returns `GO`, but is an engineering result rather than a full-data policy.
+
 Canonical episode rows will include:
 
 ```text

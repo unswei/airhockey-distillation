@@ -144,6 +144,12 @@ shadow-teacher round then recovered 98.7% no-blackout saves with the same
 saved 98.4% over 1,125 paired episodes and 97.8% at 20 blackout steps. This is
 the first successful full-data structured-student vertical slice.
 
+The matched [`GRU-64 baseline`](docs/gru_student_n64.md) is now implemented as
+NumPy and PyTorch runtimes. Its standard gate equations match
+`torch.nn.GRUCell`, and its deterministic one-episode overfit gate returns
+`GO` with exact checkpoint reload. This verifies the GRU engineering path; it
+does not yet provide a full-data GRU comparison.
+
 ## Scientific guardrails
 
 - Every policy receives the same non-privileged public observation.

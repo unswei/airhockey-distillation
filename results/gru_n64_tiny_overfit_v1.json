@@ -1,0 +1,48 @@
+{
+  "checkpoint_reload_exact": true,
+  "checkpoint_sha256": "ca17041aa58a1432dec1619a110b72dc7a58574dd8006e08d96eb709814c4ce4",
+  "checks": {
+    "exact_checkpoint_reload": true,
+    "maximum_export_absolute_error": {
+      "observed": 5.960464477539062e-07,
+      "required_maximum": 0.00001
+    },
+    "minimum_fractional_loss_reduction": {
+      "observed": 0.9998418876059226,
+      "required_minimum": 0.99
+    },
+    "training_action_mse": {
+      "observed": 0.00007725706382188946,
+      "required_maximum": 0.0001
+    }
+  },
+  "code_commit": "ef6b93b5ac43e2c8d21d165a6c4980332eb2f2b7",
+  "config_sha256": "f5510627f2bfd70a2c6323e58f264f817c984310661f440b30dbebf7c0783663",
+  "dataset_manifest_sha256": "a55c31c9581a09dcb36571c89ac448ba9bed14b0aa969fd0826e2a53f99dcd1a",
+  "decision": "GO",
+  "episode_length": 32,
+  "epochs_completed": 1150,
+  "export_action_maximum_absolute_error": 5.960464477539062e-07,
+  "export_state_maximum_absolute_error": 2.980232238769531e-07,
+  "failed_invocation": {
+    "code_commit": "d1b0e3cd80ac8130ff325c9c903e37b3479185ce",
+    "reason": "direct-script shared-helper import failed before dataset loading or model initialisation",
+    "run": "phase3-gru-n64-tiny-overfit-2026-08-13-v1"
+  },
+  "frozen_evidence": {
+    "checksum_manifest_sha256": "a0b0d036135f1b09938f848408c76e1b30541705ccfe013a7c505d99f1c5ef61",
+    "files": 7,
+    "run": "phase3-gru-n64-tiny-overfit-2026-08-13-v2"
+  },
+  "initial_training_action_mse": 0.48862117528915405,
+  "loss_bearing_action_values": 64,
+  "parameter_count": 28898,
+  "recurrent_parameter_count": 19200,
+  "result_sha256": "c126987b05b7a188efd235cfdf76adf138045a79b670e82132af5ca630264917",
+  "schema_version": 1,
+  "selected_epoch": 1150,
+  "status": "completed",
+  "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+  "training_episode_count": 1,
+  "training_seed": 13303
+}
