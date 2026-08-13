@@ -1,8 +1,13 @@
 # Air-hockey memory distillation
 
-This repository contains the software and experiment definitions for
-**Distilling Recurrent World-Model Policies for Robot Air Hockey under
-Tracking Loss**.
+How much memory does a robot need when it temporarily loses sight of a moving
+object?
+
+This project studies that question in simulated robot air hockey. A defending
+robot observes an incoming puck, loses puck tracking for up to 400 ms, and must
+keep moving before vision returns. A policy that only sees the current frame
+cannot know which way an unseen puck is travelling, so successful defence
+requires information from earlier observations.
 
 <p align="center">
   <a href="docs/assets/upstream-self-play-2023.mp4?raw=1">
@@ -15,183 +20,72 @@ Tracking Loss**.
 </p>
 
 <p align="center">
-  <sub>Reproduced upstream 2023 DreamerV3 self-play demo on Marvin. The inline preview loops; open it for the full-quality 13-second MP4.</sub>
+  <sub>Simulated robot air hockey. Open the preview to view the full video.</sub>
 </p>
 
-The project studies whether a DreamerV3 defence policy can be distilled into
-a compact recurrent policy whose memory has diagonal linear dynamics and only
-`k = 0, 1, 2, or 4` nonlinear innovation channels. The core task is a
-controlled incoming shot with a single temporary loss of puck tracking.
+## What we are testing
 
-## Repository boundary
+We first train a strong recurrent DreamerV3 policy to defend the goal during
+temporary tracking loss. We then distil its behaviour into smaller policies
+and compare several ways of retaining history:
 
-This repository contains code, configuration, tests, provenance records,
-result schemas and figure/table generation. The LaTeX paper is maintained in a
-separate Git repository. The parent project directory is only an unversioned
-umbrella containing links to the two repositories and the private project
-brief.
+- no memory;
+- a fixed window of recent observations;
+- a conventional GRU;
+- structured recurrent memory with mostly linear dynamics and a small
+  nonlinear correction.
 
-Large datasets, checkpoints and raw run directories must not be added to Git.
-Store them in an appropriate artefact location and version their hashes and
-retrieval instructions here. Small curated GitHub media may live under
-`docs/assets/`; its source and hashes are recorded there.
+The structured students vary the number of nonlinear recurrent channels
+(`k = 0, 1, 2, 4`). This lets us test whether the task needs complex recurrent
+dynamics, or whether simple state propagation with a small learned correction
+is enough.
 
-## Execution environment
+Policies are compared on closed-loop save rate as tracking loss becomes
+longer, as well as parameter count, recurrent-state size, action agreement and
+single-step inference time.
 
-Development files may be edited locally, but code and experiments are run on
-the `marvin` Linux box. Marvin's checkout and artefact paths, accelerator
-details, container digest and upstream reproduction are recorded in
-[`docs/marvin.md`](docs/marvin.md) and
-[`docs/upstream_audit.md`](docs/upstream_audit.md). A shorter operational guide
-is in [`docs/air_hockey_marvin.md`](docs/air_hockey_marvin.md).
+## Experimental task
 
-The code repository is published at
-[`unswei/airhockey-distillation`](https://github.com/unswei/airhockey-distillation).
-No deployment path is configured.
+Each episode contains one incoming shot and one defending KUKA iiwa robot. The
+policy receives robot proprioception, puck position when visible, and a
+visibility flag. During a blackout, puck position is removed. The policy never
+receives puck velocity or privileged simulator state.
 
-## Planned layout
+Evaluation uses matched shots and blackout schedules so that every policy
+faces the same situations. Special paired shots create the same observation at
+the start of a blackout while requiring different defensive movements; these
+pairs make the need for observation history directly testable.
+
+## Repository contents
 
 ```text
-configs/                 Versioned environment and experiment definitions
-src/airhockey_distill/   Environment, teacher, student and evaluation code
-scripts/                 Reproduction and Marvin execution entry points
-tests/                   Unit and integration tests
-docs/                    Upstream and execution-environment audits
-results/                 Result schema and retrieval metadata only
-artifacts/                Generated paper figures/tables (ignored by Git)
-STATUS.md                 Commands, results, decisions and blockers
-UPSTREAM.md               Dependency commits and licence obligations
+configs/                 Environment, model and experiment definitions
+src/airhockey_distill/   Task, policy and evaluation implementations
+scripts/                 Training, evaluation and reproduction entry points
+tests/                   Unit and simulator integration tests
+docs/                    Method, provenance and reproducibility notes
+results/                 Compact, versioned result summaries
 ```
 
-The upstream audit and minimal direct-launch task slice are complete. The
-slice has one deterministic shot and blackout, the 19-dimensional public
-observation, the two-dimensional action adapter, deterministic replay and
-three task-validity controls; see
-[`docs/minimal_task_slice.md`](docs/minimal_task_slice.md). The pre-training
-gate now returns `GO`; see
-[`docs/teacher_training_gate.md`](docs/teacher_training_gate.md). The preserved
-balanced v1 manifest records the initial failed task calibration, while the
-corrected 216-shot
-[`direct_launch_v2`](docs/direct_launch_distribution_v2.md) is the current
-default. Inactive and fixed-centre each concede 92.6% of v2, and the privileged
-controller saves 100%. The bounded
-[`DreamerV3 smoke test`](docs/teacher_smoke_test.md) also passes on Marvin,
-including CUDA compilation and 108 optimiser updates. The versioned
-[`teacher reward`](docs/teacher_reward.md) produces concession, contact and
-save returns in the same training path. The first
-[`short learning diagnostic`](docs/teacher_learning_diagnostic.md) completed
-20,000 requested steps but did not improve held-out save rate. The main
-fault was an optimisation budget that ended before Dreamer's optimiser
-completed warm-up. The
-[`corrected training procedure`](docs/teacher_training_procedure.md) improves
-held-out return and concession rate in a matched 20,000-step check, preserves
-exact step checkpoints, and produced a validation-selected teacher at step
-720,000. The first
-[`Stage B memory validation`](docs/stage_b_memory_validation.md) returned
-`NO_GO` on the earlier task because its predeclared effect sizes were too
-small. The
-[`observation-aliased v3 task`](docs/direct_launch_distribution_v3.md) then
-passed its physical, aliasing and control gates, and a fresh v3 teacher saved
-98.9% across its readiness evaluation. The
-[`Stage B v2 comparison`](docs/stage_b_memory_validation_v2.md) remained
-inconclusive because its imitation-trained feed-forward policy was too weak
-without blackout. The separately predeclared
-[`visible-baseline correction`](docs/stage_b_visible_baseline_v3.md) therefore
-trained three strictly memoryless PPO policies directly on task reward and
-selected seed 14304 using only no-blackout validation shots.
+Large datasets, checkpoints and raw evaluation runs are stored outside Git.
+Versioned configurations, hashes and compact result summaries keep those
+artefacts traceable.
 
-The held-out
-[`Stage B v3 comparison`](docs/stage_b_memory_validation_v3.md) is now
-complete and returns `GO`. On the untouched test split, the selected
-feed-forward policy saved 90.7% without blackout and 33.3% at 20 steps; the
-teacher saved 99.6% and 96.9%. The paired teacher advantage grew from 8.9 to
-63.6 percentage points, with a 20-step bootstrap 95% interval of
-[56.9, 70.2]. All five predeclared checks passed. This supports a memory
-requirement in the controlled `direct_launch_v3` task and authorises the
-principal recurrent-student work.
+## Reproducibility
 
-The follow-up
-[`causal recurrent-state ablation`](docs/causal_memory_ablation.md) also
-returns `GO`. Under deterministic inference, resetting the teacher state at
-blackout onset reduces its 20-step save rate from 96.0% to 50.2%, a paired
-45.8-point drop with 95% interval [38.7, 52.9]. An independent normal-state
-replay reproduces all 1,125 episode records exactly, and the no-blackout arms
-are identical. This directly supports the role of carried recurrent state in
-the teacher's blackout performance.
+The project pins the upstream source revisions and records the software
+environment used for experiments. See [UPSTREAM.md](UPSTREAM.md) for dependency
+provenance and [scripts/README.md](scripts/README.md) for the available command
+line entry points.
 
-Phase 3 now has its first implemented policy: the
-[`n=64, k=2 structured recurrent student`](docs/structured_student_n64_k2.md).
-Its diagonal 64-value memory receives a rank-2 nonlinear innovation and the
-previous requested public command. Matched NumPy and PyTorch implementations provide
-deterministic evaluation, sequence training and exact checkpoint reload. The
-architecture now passes its tiny-dataset overfit gate: a newly collected
-deterministic-mean episode is fit to `7.46e-5` action MSE, and an independent
-repeat produces the same checkpoint hash. This establishes the training and
-export path, not full-data or closed-loop student quality. The first full-data
-seed is predeclared at 20,000 newly collected deterministic-mean episodes with
-an episode-level 80/10/10 split. That seed has now completed, but its paired
-validation save rate is only 45.3%; it is evidence that the vertical slice
-runs, not evidence of a successful distilled controller. A controlled
-[`failure diagnostic`](docs/structured_student_failure_diagnostic.md) now
-locates the main error in the loss-masked initial 16 steps. Teacher control
-over only that prefix recovers 224/225 no-blackout saves after the student
-takes over, while student rollouts move far outside the teacher-data history
-distribution. Exact repeated deterministic trajectories do not have
-conflicting targets. The declared all-valid-step correction improved the
-no-blackout save rate to 67.1% but did not pass its 75% gate. One deterministic
-shadow-teacher round then recovered 98.7% no-blackout saves with the same
-`n=64`, `k=2` architecture and seed. After that gate passed, the frozen student
-saved 98.4% over 1,125 paired episodes and 97.8% at 20 blackout steps. This is
-the first successful full-data structured-student vertical slice.
+The main implementation builds on:
 
-The matched [`GRU-64 baseline`](docs/gru_student_n64.md) is now implemented as
-NumPy and PyTorch runtimes. Its standard gate equations match
-`torch.nn.GRUCell`, and its deterministic one-episode overfit gate returns
-`GO` with exact checkpoint reload. This verifies the GRU engineering path; it
-does not yet provide a full-data GRU comparison.
-One full-data GRU engineering pilot is also complete on the current frozen
-40,000-episode aggregate. It selected validation action MSE `0.04521` with
-exact reload. Its staged closed-loop evaluation passed the 225-shot visible
-gate at 99.1%, then saved 98.4% across 1,125 paired blackout episodes and
-97.3% at 20 steps. This establishes strong behaviour for the checkpoint.
-Because the aggregate's shadow half was collected under the structured `k=2`
-student, it is not treated as a fair recurrent-family comparison.
+- [Learning to Play Air Hockey with Model-Based Deep Reinforcement Learning](https://github.com/AndrejOrsula/drl_air_hockey)
+- [Robot Air Hockey Challenge](https://github.com/AndrejOrsula/air_hockey_challenge)
+- [DreamerV3](https://github.com/danijar/dreamerv3)
 
-The fair [`principal sweep`](docs/principal_sweep_v1.md) is now predeclared.
-It trains feed-forward, finite-stack, structured `k=0,1,2,4` and GRU-64
-students with five matched seeds and exactly 20,000 family-specific shadow
-episodes per family. Validation stays paired on the existing 225 shots; a new
-225-shot principal test remains closed until all 35 checkpoints, validation
-evidence and efficiency measurements are frozen.
-Its structured NumPy/PyTorch runtime is now rank-configurable for
-`k=0,1,2,4`; the frozen successful `k=2` checkpoint remains bit-exact under
-the refactor. The new ranks are implemented but untrained.
-The predeclared [ten-step finite-stack baseline](docs/finite_stack_student_10.md)
-is also implemented with matched NumPy/PyTorch execution and framework-neutral
-checkpoint export. It is untrained.
-The [principal sweep pipeline](docs/principal_sweep_v1.md#shared-executable-pipeline)
-now trains, shadow-labels and evaluates all seven families through common
-code. It enforces the hash-bound base data, equal complete-episode loss
-weighting and paired shadow/validation schedules. No principal run has started.
-The [principal release controls](docs/principal_release_controls.md) now add a
-shard-level shadow-budget audit, exact parameter/state accounting, the pinned
-Marvin CPU-latency benchmark and a fail-closed evidence gate. The untouched
-test evaluator requires a `GO` report and re-runs the gate before constructing
-the test schedule.
-The separate [seven-family engineering dry run](docs/principal_engineering_dry_run.md)
-exercises tiny overfit, checkpoint export/reload, paired schedules, short real
-rollouts and reduced latency measurement without creating principal evidence.
-Its canonical Marvin run passed all six checks for all seven families; this is
-an engineering `GO`, not a principal comparison or test-release decision.
+## Scope
 
-## Scientific guardrails
-
-- Every policy receives the same non-privileged public observation.
-- No puck velocity, observation stack or hidden simulator state enters the
-  principal teacher or recurrent students.
-- Recurrent state and previous action reset only at episode boundaries.
-- Final test seeds are never used for training or architecture selection.
-- Raw data and results are immutable; plots and tables are derived by script.
-- Experimental values and citations remain explicit TODOs until verified.
-
-See [`STATUS.md`](STATUS.md) for the current state of the project.
+This is research software for a controlled simulation study. It evaluates
+policy behaviour under temporary perception loss; it does not claim
+sim-to-real performance, safety guarantees or general-purpose robot memory.
