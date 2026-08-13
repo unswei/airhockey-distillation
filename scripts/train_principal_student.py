@@ -173,6 +173,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     if best_state is None:
         raise RuntimeError("training did not produce a selected checkpoint")
     module.load_state_dict(best_state)
+    module.prepare_for_numpy_export()
     module.eval()
     selected_metrics = {
         name: evaluate_principal_split(module, split, batch_size, sequence_length)
@@ -190,6 +191,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "dataset_manifest_sha256": manifest_hash,
         "teacher_action_semantics": manifest["teacher_action_semantics"],
         "loss_weighting": "equal_total_weight_per_complete_episode",
+        "training_arithmetic": "pytorch_float32",
         "selected_epoch": best_epoch,
         "validation_equal_episode_action_mse": best_validation,
     }

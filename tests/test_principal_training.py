@@ -72,6 +72,7 @@ def test_all_seven_families_share_training_export_and_reload_path(
         generator=torch.Generator().manual_seed(14303),
     )
     metrics = evaluate_principal_split(module, split, 2, 8)
+    module.prepare_for_numpy_export()
     parameters = module.export_numpy_parameters()
     metadata = {
         "student_id": family_id,

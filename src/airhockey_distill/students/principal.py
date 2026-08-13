@@ -19,6 +19,7 @@ from airhockey_distill.students.finite_stack import (
 )
 from airhockey_distill.students.gru import GRURecurrentPolicy, save_gru_checkpoint
 from airhockey_distill.students.structured import (
+    CANONICAL_FLOAT32_ARITHMETIC,
     StructuredRecurrentPolicy,
     save_structured_checkpoint,
 )
@@ -150,6 +151,10 @@ def principal_policy_from_parameters(
     elif family_id == "gru_n64":
         policy = GRURecurrentPolicy(parameters, checked_metadata)
     else:
+        checked_metadata.setdefault(
+            "inference_arithmetic",
+            CANONICAL_FLOAT32_ARITHMETIC,
+        )
         policy = StructuredRecurrentPolicy(
             parameters,
             checked_metadata,
@@ -178,6 +183,10 @@ def save_principal_checkpoint(
     elif family_id == "gru_n64":
         save_gru_checkpoint(path, parameters, checkpoint_metadata)
     else:
+        checkpoint_metadata.setdefault(
+            "inference_arithmetic",
+            CANONICAL_FLOAT32_ARITHMETIC,
+        )
         save_structured_checkpoint(
             path,
             parameters,

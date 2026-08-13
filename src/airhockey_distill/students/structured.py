@@ -21,6 +21,12 @@ STATE_DIM = 64
 INNOVATION_RANK = 2
 SUPPORTED_INNOVATION_RANKS = (0, 1, 2, 4)
 CONTROL_PERIOD_MS = 20.0
+LEGACY_FLOAT32_ARITHMETIC = "legacy_float32"
+CANONICAL_FLOAT32_ARITHMETIC = "canonical_float32_v1"
+SUPPORTED_INFERENCE_ARITHMETICS = (
+    LEGACY_FLOAT32_ARITHMETIC,
+    CANONICAL_FLOAT32_ARITHMETIC,
+)
 
 
 def _validate_innovation_rank(value: Any) -> int:
@@ -133,6 +139,11 @@ class StructuredRecurrentPolicy:
             requested_rank=self.innovation_rank,
         )
         object.__setattr__(self, "innovation_rank", rank)
+        if self.inference_arithmetic not in SUPPORTED_INFERENCE_ARITHMETICS:
+            raise ValueError(
+                "inference_arithmetic must be legacy_float32 or "
+                "canonical_float32_v1"
+            )
         parameter_shapes = structured_parameter_shapes(rank)
         for name, shape in parameter_shapes.items():
             if name not in self.parameters:
@@ -174,6 +185,20 @@ class StructuredRecurrentPolicy:
     @property
     def parameter_shapes(self) -> dict[str, tuple[int, ...]]:
         return structured_parameter_shapes(int(self.innovation_rank))
+
+    @property
+    def inference_arithmetic(self) -> str:
+        """Return the checkpoint-declared numerical inference contract."""
+
+        declared = self.metadata.get("inference_arithmetic")
+        if declared is not None:
+            return str(declared)
+        principal_student = str(self.metadata.get("student_id", ""))
+        return (
+            CANONICAL_FLOAT32_ARITHMETIC
+            if principal_student.startswith("structured_k")
+            else LEGACY_FLOAT32_ARITHMETIC
+        )
 
     @property
     def parameter_count(self) -> int:
@@ -250,6 +275,15 @@ class StructuredRecurrentPolicy:
         states = _matching_batch(
             "previous state", previous_state, STATE_DIM, batch_size, single
         )
+        if self.inference_arithmetic == CANONICAL_FLOAT32_ARITHMETIC:
+            action, next_state = self._step_canonical_float32(
+                observations,
+                actions,
+                states,
+            )
+            if single:
+                return action[0], next_state[0]
+            return action, next_state
         encoded = self._encode_batch(observations)
         next_state = self._update_batch(encoded, actions, states)
         action_input = np.concatenate((next_state, encoded), axis=1)
@@ -264,6 +298,80 @@ class StructuredRecurrentPolicy:
         if single:
             return action[0], next_state[0]
         return action, next_state
+
+    def _step_canonical_float32(
+        self,
+        observations: NDArray[np.float32],
+        previous_actions: NDArray[np.float32],
+        previous_states: NDArray[np.float32],
+    ) -> tuple[NDArray[np.float32], NDArray[np.float32]]:
+        """Use a fixed float32 reduction independent of the linked BLAS."""
+
+        parameters = self.parameters
+        hidden = _canonical_silu_float32(
+            _pairwise_linear_float32(
+                observations,
+                parameters["encoder_0_weight"],
+                parameters["encoder_0_bias"],
+            )
+        )
+        encoded = _canonical_silu_float32(
+            _pairwise_linear_float32(
+                hidden,
+                parameters["encoder_1_weight"],
+                parameters["encoder_1_bias"],
+            )
+        )
+        next_state = (
+            previous_states
+            * _canonical_tanh_float32(parameters["recurrence_alpha"])
+            + _pairwise_linear_float32(
+                encoded,
+                parameters["recurrence_input_weight"],
+                parameters["recurrence_bias"],
+            )
+            + _pairwise_linear_float32(
+                previous_actions,
+                parameters["recurrence_action_weight"],
+            )
+        )
+        if self.innovation_rank:
+            innovation = _canonical_tanh_float32(
+                _pairwise_linear_float32(
+                    previous_states,
+                    parameters["innovation_state_weight"],
+                    parameters["innovation_bias"],
+                )
+                + _pairwise_linear_float32(
+                    encoded,
+                    parameters["innovation_input_weight"],
+                )
+                + _pairwise_linear_float32(
+                    previous_actions,
+                    parameters["innovation_action_weight"],
+                )
+            )
+            next_state = next_state + _pairwise_linear_float32(
+                innovation,
+                parameters["innovation_output_weight"],
+            )
+
+        action_input = np.concatenate((next_state, encoded), axis=1)
+        action_hidden = _canonical_silu_float32(
+            _pairwise_linear_float32(
+                action_input,
+                parameters["action_hidden_weight"],
+                parameters["action_hidden_bias"],
+            )
+        )
+        action = _canonical_tanh_float32(
+            _pairwise_linear_float32(
+                action_hidden,
+                parameters["action_output_weight"],
+                parameters["action_output_bias"],
+            )
+        ).astype(np.float32)
+        return action, next_state.astype(np.float32)
 
     def teacher_forced_sequence(
         self,
@@ -605,3 +713,42 @@ def _single_feature(name: str, value: ArrayLike, width: int) -> NDArray[np.float
 def _silu(value: NDArray[np.float32]) -> NDArray[np.float32]:
     exponent = np.clip(-value, -60.0, 60.0)
     return value / (1.0 + np.exp(exponent))
+
+
+def _pairwise_linear_float32(
+    value: NDArray[np.float32],
+    weight: NDArray[np.float32],
+    bias: NDArray[np.float32] | None = None,
+) -> NDArray[np.float32]:
+    """Apply a linear map with an explicit balanced float32 reduction tree."""
+
+    terms = value[:, None, :] * weight[None, :, :]
+    while terms.shape[-1] > 1:
+        pair_count = terms.shape[-1] // 2
+        reduced = (
+            terms[..., : 2 * pair_count : 2]
+            + terms[..., 1 : 2 * pair_count : 2]
+        )
+        if terms.shape[-1] % 2:
+            reduced = np.concatenate((reduced, terms[..., -1:]), axis=-1)
+        terms = reduced
+    result = terms[..., 0]
+    return result if bias is None else result + bias
+
+
+def _canonical_silu_float32(
+    value: NDArray[np.float32],
+) -> NDArray[np.float32]:
+    exponent = np.clip(-value, -60.0, 60.0)
+    sigmoid = np.float32(1.0) / (
+        np.float32(1.0) + np.exp(exponent).astype(np.float32)
+    )
+    return value * sigmoid
+
+
+def _canonical_tanh_float32(
+    value: NDArray[np.float32],
+) -> NDArray[np.float32]:
+    bounded = np.clip(value, -20.0, 20.0)
+    exponent = np.exp(np.float32(-2.0) * bounded).astype(np.float32)
+    return (np.float32(1.0) - exponent) / (np.float32(1.0) + exponent)

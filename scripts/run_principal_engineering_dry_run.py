@@ -250,6 +250,7 @@ def run_family(
             ):
                 break
     checkpoint = output / "checkpoints" / f"{family_id}.npz"
+    module.prepare_for_numpy_export()
     metadata = {
         "schema_version": 1,
         "student_id": family_id,

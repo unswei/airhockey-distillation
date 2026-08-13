@@ -13,6 +13,7 @@ from airhockey_distill.students.principal import (
     PRINCIPAL_FAMILY_IDS,
     principal_structured_rank,
 )
+from airhockey_distill.students.structured import CANONICAL_FLOAT32_ARITHMETIC
 from airhockey_distill.students.structured_torch import StructuredRecurrentModule
 
 
@@ -66,3 +67,9 @@ class PrincipalStudentModule(nn.Module):
 
     def export_numpy_parameters(self) -> dict[str, NDArray]:
         return self.student.export_numpy_parameters()
+
+    def prepare_for_numpy_export(self) -> None:
+        """Use the portable deployment arithmetic after training is complete."""
+
+        if principal_structured_rank(self.family_id) is not None:
+            self.student.inference_arithmetic = CANONICAL_FLOAT32_ARITHMETIC

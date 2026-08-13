@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "status": "failed_before_release",
+  "attempt": "principal-sweep-v1-2026-08-13-v1",
+  "code_commit": "1139793774b651a9599995a9cc3d8c79af20335a",
+  "failed_stage": "collector_training",
+  "family_id": "structured_k0",
+  "training_seed": 14305,
+  "checkpoint_sha256": "b63afcd76e7be256022ebe5d289b36c59268dfaa772120db21ea7b29c7670483",
+  "export_gate": {
+    "maximum_absolute_error": 0.00002,
+    "observed_action_maximum_absolute_error": 0.000008460134267807007,
+    "observed_carry_maximum_absolute_error": 0.0000209808349609375,
+    "decision": "NO_GO"
+  },
+  "cause": "Accumulated float32 reduction differences between the NumPy and PyTorch CPU matrix kernels exceeded the predeclared carry tolerance.",
+  "release_gate_created": false,
+  "principal_test_constructed_or_evaluated": false,
+  "disposition": "Attempt preserved and superseded by a fresh versioned run after correcting the exported structured-policy arithmetic."
+}

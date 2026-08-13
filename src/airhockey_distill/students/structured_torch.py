@@ -15,9 +15,12 @@ from airhockey_distill.envs.policy_interface import (
     PUBLIC_OBSERVATION_DIM,
 )
 from airhockey_distill.students.structured import (
+    CANONICAL_FLOAT32_ARITHMETIC,
     ENCODED_DIM,
     INNOVATION_RANK,
+    LEGACY_FLOAT32_ARITHMETIC,
     STATE_DIM,
+    SUPPORTED_INFERENCE_ARITHMETICS,
     initialise_structured_parameters,
     infer_structured_innovation_rank,
     structured_parameter_shapes,
@@ -32,6 +35,7 @@ class StructuredRecurrentModule(nn.Module):
         *,
         seed: int = 0,
         innovation_rank: int | None = None,
+        inference_arithmetic: str = LEGACY_FLOAT32_ARITHMETIC,
         parameters: Mapping[str, ArrayLike] | None = None,
     ) -> None:
         super().__init__()
@@ -54,6 +58,9 @@ class StructuredRecurrentModule(nn.Module):
             initial,
             requested_rank=innovation_rank,
         )
+        if inference_arithmetic not in SUPPORTED_INFERENCE_ARITHMETICS:
+            raise ValueError("unsupported structured inference arithmetic")
+        self.inference_arithmetic = inference_arithmetic
         self.innovation_rank = rank
         self.parameter_shapes = structured_parameter_shapes(rank)
         for name, shape in self.parameter_shapes.items():
@@ -104,52 +111,96 @@ class StructuredRecurrentModule(nn.Module):
         ):
             raise ValueError("previous state shape must match the observation")
 
-        encoded = functional.silu(
-            functional.linear(
-                observation, self.encoder_0_weight, self.encoder_0_bias
+        parameters = self._forward_parameters()
+        return self._forward_step(
+            observation,
+            previous_action,
+            previous_state,
+            parameters,
+        )
+
+    def _forward_parameters(self) -> dict[str, Tensor]:
+        return dict(self.named_parameters())
+
+    def _forward_step(
+        self,
+        observation: Tensor,
+        previous_action: Tensor,
+        previous_state: Tensor,
+        parameters: Mapping[str, Tensor],
+    ) -> tuple[Tensor, Tensor]:
+        canonical = (
+            self.inference_arithmetic == CANONICAL_FLOAT32_ARITHMETIC
+        )
+        linear = _pairwise_linear_float32 if canonical else functional.linear
+
+        activation_silu = (
+            _canonical_silu_float32 if canonical else functional.silu
+        )
+        activation_tanh = _canonical_tanh_float32 if canonical else torch.tanh
+
+        encoded = activation_silu(
+            linear(
+                observation,
+                parameters["encoder_0_weight"],
+                parameters["encoder_0_bias"],
             )
         )
-        encoded = functional.silu(
-            functional.linear(encoded, self.encoder_1_weight, self.encoder_1_bias)
+        encoded = activation_silu(
+            linear(
+                encoded,
+                parameters["encoder_1_weight"],
+                parameters["encoder_1_bias"],
+            )
         )
         state = (
-            torch.tanh(self.recurrence_alpha) * previous_state
-            + functional.linear(
-                encoded, self.recurrence_input_weight, self.recurrence_bias
+            activation_tanh(parameters["recurrence_alpha"]) * previous_state
+            + linear(
+                encoded,
+                parameters["recurrence_input_weight"],
+                parameters["recurrence_bias"],
             )
-            + functional.linear(
-                previous_action, self.recurrence_action_weight, bias=None
+            + linear(
+                previous_action,
+                parameters["recurrence_action_weight"],
+                bias=None,
             )
         )
         if self.innovation_rank:
-            innovation = torch.tanh(
-                functional.linear(
+            innovation = activation_tanh(
+                linear(
                     previous_state,
-                    self.innovation_state_weight,
-                    self.innovation_bias,
+                    parameters["innovation_state_weight"],
+                    parameters["innovation_bias"],
                 )
-                + functional.linear(
-                    encoded, self.innovation_input_weight, bias=None
+                + linear(
+                    encoded,
+                    parameters["innovation_input_weight"],
+                    bias=None,
                 )
-                + functional.linear(
-                    previous_action, self.innovation_action_weight, bias=None
+                + linear(
+                    previous_action,
+                    parameters["innovation_action_weight"],
+                    bias=None,
                 )
             )
-            state = state + functional.linear(
-                innovation, self.innovation_output_weight, bias=None
+            state = state + linear(
+                innovation,
+                parameters["innovation_output_weight"],
+                bias=None,
             )
-        action_hidden = functional.silu(
-            functional.linear(
+        action_hidden = activation_silu(
+            linear(
                 torch.cat((state, encoded), dim=-1),
-                self.action_hidden_weight,
-                self.action_hidden_bias,
+                parameters["action_hidden_weight"],
+                parameters["action_hidden_bias"],
             )
         )
-        action = torch.tanh(
-            functional.linear(
+        action = activation_tanh(
+            linear(
                 action_hidden,
-                self.action_output_weight,
-                self.action_output_bias,
+                parameters["action_output_weight"],
+                parameters["action_output_bias"],
             )
         )
         return action, state
@@ -183,11 +234,13 @@ class StructuredRecurrentModule(nn.Module):
             raise ValueError("initial state must have shape (batch, 64)")
         actions = []
         states = []
+        parameters = self._forward_parameters()
         for time_index in range(observations.shape[1]):
-            action, state = self.forward_step(
+            action, state = self._forward_step(
                 observations[:, time_index],
                 previous_actions[:, time_index],
                 state,
+                parameters,
             )
             actions.append(action)
             states.append(state)
@@ -200,3 +253,35 @@ class StructuredRecurrentModule(nn.Module):
             name: parameter.detach().cpu().numpy().astype(np.float32, copy=True)
             for name, parameter in self.named_parameters()
         }
+
+
+def _pairwise_linear_float32(
+    value: Tensor,
+    weight: Tensor,
+    bias: Tensor | None = None,
+) -> Tensor:
+    """Mirror the exported NumPy policy's balanced float32 reduction tree."""
+
+    terms = value.unsqueeze(-2) * weight.unsqueeze(0)
+    while terms.shape[-1] > 1:
+        pair_count = terms.shape[-1] // 2
+        reduced = (
+            terms[..., : 2 * pair_count : 2]
+            + terms[..., 1 : 2 * pair_count : 2]
+        )
+        if terms.shape[-1] % 2:
+            reduced = torch.cat((reduced, terms[..., -1:]), dim=-1)
+        terms = reduced
+    result = terms[..., 0]
+    return result if bias is None else result + bias
+
+
+def _canonical_silu_float32(value: Tensor) -> Tensor:
+    exponent = torch.clip(-value, -60.0, 60.0)
+    return value * (1.0 / (1.0 + torch.exp(exponent)))
+
+
+def _canonical_tanh_float32(value: Tensor) -> Tensor:
+    bounded = torch.clip(value, -20.0, 20.0)
+    exponent = torch.exp(-2.0 * bounded)
+    return (1.0 - exponent) / (1.0 + exponent)

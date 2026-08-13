@@ -4,6 +4,7 @@ import pytest
 torch = pytest.importorskip("torch")
 
 from airhockey_distill.students import StructuredRecurrentPolicy
+from airhockey_distill.students.structured import CANONICAL_FLOAT32_ARITHMETIC
 from airhockey_distill.students.structured_torch import StructuredRecurrentModule
 
 
@@ -70,6 +71,66 @@ def test_sequence_loss_backpropagates_through_structured_recurrence(rank):
     if rank:
         names.extend(("innovation_output_weight", "innovation_state_weight"))
     for name in names:
+        gradient = getattr(module, name).grad
+        assert gradient is not None
+        assert torch.all(torch.isfinite(gradient))
+        assert torch.any(gradient != 0.0)
+
+
+@pytest.mark.parametrize("rank", (0, 1, 2, 4))
+def test_portable_export_arithmetic_matches_full_episode_sequence(rank):
+    rng = np.random.default_rng(88103 + rank)
+    module = StructuredRecurrentModule(
+        seed=14305,
+        innovation_rank=rank,
+        inference_arithmetic=CANONICAL_FLOAT32_ARITHMETIC,
+    )
+    numpy_policy = StructuredRecurrentPolicy(
+        module.export_numpy_parameters(),
+        {"inference_arithmetic": CANONICAL_FLOAT32_ARITHMETIC},
+    )
+    observations = rng.normal(size=(128, 19)).astype(np.float32)
+    previous_actions = rng.uniform(-1.0, 1.0, size=(128, 2)).astype(
+        np.float32
+    )
+    previous_actions[0] = 0.0
+    initial_state = rng.normal(size=64).astype(np.float32)
+
+    with torch.no_grad():
+        torch_actions, torch_states = module.forward_sequence(
+            torch.from_numpy(observations[None, :]),
+            torch.from_numpy(previous_actions[None, :]),
+            torch.from_numpy(initial_state[None, :]),
+        )
+    numpy_actions, numpy_states = numpy_policy.teacher_forced_sequence(
+        observations,
+        previous_actions,
+        initial_state,
+    )
+
+    np.testing.assert_allclose(
+        torch_actions.numpy()[0], numpy_actions, rtol=0.0, atol=2e-5
+    )
+    np.testing.assert_allclose(
+        torch_states.numpy()[0], numpy_states, rtol=0.0, atol=2e-5
+    )
+
+
+def test_portable_export_arithmetic_backpropagates():
+    generator = torch.Generator().manual_seed(14305)
+    module = StructuredRecurrentModule(
+        seed=14305,
+        innovation_rank=2,
+        inference_arithmetic=CANONICAL_FLOAT32_ARITHMETIC,
+    )
+    observations = torch.randn((2, 16, 19), generator=generator)
+    previous_actions = torch.randn((2, 16, 2), generator=generator)
+    targets = torch.tanh(torch.randn((2, 16, 2), generator=generator))
+
+    predictions, _ = module.forward_sequence(observations, previous_actions)
+    torch.mean((predictions - targets) ** 2).backward()
+
+    for name in ("recurrence_alpha", "innovation_output_weight"):
         gradient = getattr(module, name).grad
         assert gradient is not None
         assert torch.all(torch.isfinite(gradient))
