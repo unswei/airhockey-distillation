@@ -137,7 +137,12 @@ locates the main error in the loss-masked initial 16 steps. Teacher control
 over only that prefix recovers 224/225 no-blackout saves after the student
 takes over, while student rollouts move far outside the teacher-data history
 distribution. Exact repeated deterministic trajectories do not have
-conflicting targets.
+conflicting targets. The declared all-valid-step correction improved the
+no-blackout save rate to 67.1% but did not pass its 75% gate. One deterministic
+shadow-teacher round then recovered 98.7% no-blackout saves with the same
+`n=64`, `k=2` architecture and seed. After that gate passed, the frozen student
+saved 98.4% over 1,125 paired episodes and 97.8% at 20 blackout steps. This is
+the first successful full-data structured-student vertical slice.
 
 ## Scientific guardrails
 

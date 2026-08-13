@@ -125,3 +125,31 @@ The raw diagnostic used code commit
 `c5f17a769983b7f8fb4a2d785a86d2eecc95b21a`; the reproducible dataset audit
 used `490e27c7c33b95076e6cd06373c7de3bf5ddb32f`. File hashes are recorded in
 the compact result and the raw `sha256sums.txt`.
+
+## Shadow-teacher correction result
+
+The predeclared next correction succeeded. We collected 20,000 trajectories
+controlled by the all-step student and labelled every step with the frozen
+teacher's deterministic action mean. The teacher recurrence consumed the
+previous student-requested command, matching the student's history contract.
+The 1,453,360-transition shadow set was combined one-to-one with the original
+20,000 teacher-controlled episodes by a hash-verified manifest; shards were
+not copied or changed.
+
+Retraining the same `n=64`, `k=2` architecture from scratch with seed 14303
+selected epoch 100 at validation action MSE `0.06461`. On the gate's 225
+no-blackout validation shots it saved 222 (98.7%), with no concession or
+simulator/safety fault. This passes the predeclared 75% gate and is a
+31.6-point improvement over the all-step teacher-only run.
+
+The gate then opened the full paired validation without changing the frozen
+checkpoint. It saved 1,107/1,125 episodes (98.4% overall), including 220/225
+(97.8%) at 20 blackout steps. The blackout-specific save rates at 0, 5, 10,
+15 and 20 steps were 98.7%, 99.6%, 97.8%, 98.2% and 97.8%. This paired run is
+descriptive rather than a new thresholded gate.
+
+The compact result is
+`results/structured_n64_k2_shadow_round1_v1.json`. The 59 frozen evidence
+files are root-owned and read-only on Marvin; their checksum manifest has
+SHA-256
+`b8f45ad808891c0b02a677d5a1e13b1502dbde162a5d6b12cca02066b506d116`.

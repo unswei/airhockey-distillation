@@ -1,0 +1,76 @@
+{
+  "aggregate_dataset": {
+    "episode_count": 40000,
+    "manifest_sha256": "e67438a24da12cfc1aed92f6df64253f82ce000cb52c3085d28468007ebf0d0d",
+    "student_controlled_shadow_episodes": 20000,
+    "teacher_controlled_episodes": 20000,
+    "transition_count": 2166617
+  },
+  "checkpoint_reload_exact": true,
+  "checkpoint_sha256": "c6e5556690bf6215c94da32cd07286487f581b1ae67ff5b117501ad68b4ee9e1",
+  "collection_and_training_code_commit": "9d091e612214f7ad6d99cb432eaecfe4619453d4",
+  "decision": "GO",
+  "epochs_completed": 100,
+  "export_maximum_absolute_error": 0.000009387731552124023,
+  "full_paired_validation": {
+    "code_commit": "ea394cf550118ecbcf6ab2075f147860ce570b24",
+    "config_sha256": "f7b9996af4c04b26b8b75709837739d8070d16ca2f19b5d48933e44baea6ad81",
+    "episodes": 1125,
+    "outcome_counts": {
+      "arrested": 4,
+      "goal_conceded": 1,
+      "returned": 1103,
+      "timeout_after_contact": 17
+    },
+    "result_sha256": "a1e76ef7d2eb9ca63e173645d1ce3bdfa53f00b9bd33a257a83e15a54f2dda94",
+    "save_count": 1107,
+    "save_rate": 0.984,
+    "save_rate_by_blackout_steps": {
+      "0": 0.9866666666666667,
+      "5": 0.9955555555555555,
+      "10": 0.9777777777777777,
+      "15": 0.9822222222222222,
+      "20": 0.9777777777777777
+    }
+  },
+  "no_blackout_gate": {
+    "decision": "GO",
+    "episodes": 225,
+    "evaluation_result_sha256": "81bcc1aae39681bbfb9022f5366b8b0e768fa152882b0ecaba73224ce2a6da3b",
+    "gate_result_sha256": "cbdab1480b62518595cb0280d59d042e07ea2e562399d7146d2acc876488064b",
+    "minimum_save_rate": 0.75,
+    "outcome_counts": {
+      "returned": 222,
+      "timeout_after_contact": 3
+    },
+    "save_count": 222,
+    "save_rate": 0.9866666666666667,
+    "simulator_or_safety_faults": 0
+  },
+  "raw_evidence": {
+    "frozen_checksum_manifest_sha256": "b8f45ad808891c0b02a677d5a1e13b1502dbde162a5d6b12cca02066b506d116",
+    "frozen_files": 59,
+    "paired_run": "phase3-structured-n64-k2-shadow-round1-paired-2026-08-13-v1",
+    "training_run": "phase3-structured-n64-k2-shadow-round1-2026-08-13-v1"
+  },
+  "schema_version": 1,
+  "selected_epoch": 100,
+  "selected_metrics": {
+    "internal_test_action_mse": 0.06482884684070046,
+    "train_action_mse": 0.0632497945082476,
+    "validation_action_mse": 0.06460905172130482,
+    "validation_hidden_action_mse": 0.017512921399848405
+  },
+  "shadow_dataset": {
+    "episode_count": 20000,
+    "manifest_sha256": "3c85bc7f9df356bc4abd770e2251d6209388136691813b2ce27101cdddf3ac65",
+    "sampling_seed": 42303,
+    "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+    "teacher_previous_action": "previous_student_requested_command",
+    "transition_count": 1453360
+  },
+  "status": "completed",
+  "teacher_actor_sha256": "6a672d5b6d7c2b9ca2335f1a85b69280ca7db58deb5e2f56d2ba033ebf636254",
+  "training_result_sha256": "ba294f2121b42708cb1f812e4a2c13e680e810ad03ba2e4998bd9d9ba0127db3",
+  "training_seed": 14303
+}

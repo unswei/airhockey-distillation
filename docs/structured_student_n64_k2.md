@@ -235,3 +235,19 @@ handing control back to the student. Student rollouts also have a 16.8-fold
 larger 95th-percentile nearest-training-history distance. Exact repeats in the
 deterministic dataset have no conflicting targets, so target multimodality is
 not established as the primary cause.
+
+## First deterministic shadow-teacher round
+
+Loss on every valid step improved no-blackout control to 151/225 saves but
+missed its predeclared 75% gate. The next declared correction collected 20,000
+student-controlled episodes and deterministic teacher-mean targets. These were
+aggregated one-to-one with the frozen teacher-controlled dataset and used to
+retrain the same architecture and seed from scratch.
+
+The corrected checkpoint saves 222/225 no-blackout validation shots (98.7%),
+so the gate returns `GO`. Its subsequently opened five-length paired
+validation saves 1,107/1,125 episodes (98.4%); at 20 blackout steps it saves
+220/225 (97.8%). The compact result and complete hash bindings are in
+`results/structured_n64_k2_shadow_round1_v1.json`. The raw datasets,
+checkpoint, logs and 1,125 episode rows remain outside Git under the frozen
+Marvin experiment directories named there.

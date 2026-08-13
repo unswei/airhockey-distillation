@@ -15,10 +15,12 @@ inference. Phase 3 — distillation infrastructure — is authorised.
 The first `n=64`, `k=2` structured recurrent student is implemented and its
 corrected tiny-dataset overfit gate returns `GO`. Its 20,000-episode
 deterministic-mean collection, single-seed training and paired validation run
-are complete. The vertical slice is technically sound but behaviourally weak:
-the selected student saves only 45.3% of paired validation episodes. The
-follow-up diagnosis finds that the loss-masked 16-step prefix is the primary
-failure and measures large closed-loop history shift after that divergence.
+are complete. The initial vertical slice was behaviourally weak and the
+all-valid-step correction remained below its no-blackout gate. The
+predeclared deterministic shadow-teacher correction then succeeded: the same
+architecture and seed now save 98.7% of no-blackout validation shots and
+98.4% across the subsequently opened paired blackout evaluation. The first
+full-data structured-student vertical slice is successful.
 
 ## Completed
 
@@ -230,14 +232,22 @@ failure and measures large closed-loop history shift after that divergence.
   step. The no-blackout save rate improved from 46.2% to 67.1% but missed the
   predeclared 75% gate, so the decision is `NO_GO`. No blackout condition was
   opened and no simulator or safety fault occurred.
+- Collected 20,000 student-controlled trajectories with 1,453,360 exact
+  deterministic teacher-mean labels and combined them one-to-one with the
+  original frozen teacher-controlled set.
+- Retrained the same `n=64`, `k=2` architecture and seed from scratch on the
+  40,000-episode aggregate. It selected epoch 100 at validation MSE `0.06461`.
+- Passed the no-blackout-only gate with 222/225 saves (98.7%), zero
+  concessions and zero simulator/safety faults.
+- Opened the full paired blackout evaluation only after that `GO`. The frozen
+  checkpoint saved 1,107/1,125 episodes overall and 220/225 at 20 steps.
+- Froze 59 raw evidence files as root-owned, read-only artefacts on Marvin and
+  recorded a complete checksum manifest.
 
 ## Next actions
 
-- Collect deterministic shadow-teacher targets on trajectories controlled by
-  the all-step student, aggregate them with the frozen teacher-controlled
-  dataset, and retrain the same seed and architecture.
-- Implement the remaining matched student family only after that vertical
-  slice passes.
+- Implement and evaluate the remaining predeclared matched recurrent student
+  family now that the structured vertical slice passes.
 - Retain direct launch as the core controlled task; a scripted physical strike
   remains a later secondary extension.
 
@@ -298,6 +308,9 @@ failure and measures large closed-loop history shift after that divergence.
 | 2026-08-13 | Ran full-data structured seed 14303 and paired validation | Training/export complete; validation MSE `0.10859`; weak 45.3% closed-loop save rate |
 | 2026-08-13 | Diagnosed the structured student's no-blackout failure | The unsupervised 16-step prefix is primary; teacher prefix recovers 224/225 saves; large rollout shift measured; exact repeats have no conflicting targets |
 | 2026-08-13 | Applied the all-valid-steps no-blackout gate | `NO_GO`; saves improve from 46.2% to 67.1% but remain below the predeclared 75% threshold |
+| 2026-08-13 | Collected deterministic shadow-teacher round one | 20,000 student-controlled episodes, 1,453,360 transitions and 40 hashed shards |
+| 2026-08-13 | Applied the shadow-round no-blackout gate | `GO`; 222/225 saves (98.7%), no concessions and no faults |
+| 2026-08-13 | Evaluated the frozen shadow-round student on paired blackouts | 1,107/1,125 saves overall and 220/225 at 20 steps; raw evidence frozen and hashed |
 
 ## Blockers
 

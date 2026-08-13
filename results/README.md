@@ -30,6 +30,12 @@ dataset action-semantics audit. Its raw episode records remain outside Git.
 The subsequent [`all-step correction`](structured_n64_k2_all_steps_v2.json)
 improves no-blackout saves to 67.1% but returns `NO_GO` at the predeclared 75%
 gate. Only the no-blackout validation condition was opened.
+The first deterministic
+[`shadow-teacher round`](structured_n64_k2_shadow_round1_v1.json) then returns
+`GO`: the same architecture and seed save 222/225 no-blackout shots. The
+subsequently opened paired evaluation records 1,107/1,125 saves across the
+five blackout lengths. Its 1,125 episode rows remain outside Git in the
+frozen Marvin run.
 
 Canonical episode rows will include:
 
