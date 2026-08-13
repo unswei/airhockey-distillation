@@ -202,6 +202,122 @@ def complete_shadow_schedule_sha256(protocol: dict[str, Any]) -> str:
     return _json_sha256(records)
 
 
+def validate_shadow_partition_shards(
+    protocol: dict[str, Any],
+    seed: int,
+    directory: Path,
+    manifest: dict[str, Any],
+) -> dict[str, int]:
+    """Re-open one shadow partition and validate its realised budget.
+
+    This deliberately checks the data rather than trusting the collector
+    manifest.  In addition to the paired schedule, it verifies that every
+    labelled transition has a deterministic teacher mean and that the
+    recurrent previous-action input is the behaviour policy's prior command.
+    """
+
+    expected = shadow_schedule_records(protocol, seed)
+    observed: list[dict[str, Any]] = []
+    transition_count = 0
+    for entry in manifest.get("shards", []):
+        raw_path = Path(entry["file"])
+        path = raw_path if raw_path.is_absolute() else directory / raw_path
+        if sha256_file(path) != entry["sha256"]:
+            raise ValueError(f"shadow shard hash mismatch: {path}")
+        with np.load(path, allow_pickle=False) as shard:
+            if int(shard["dataset_schema_version"]) != 2:
+                raise ValueError("unsupported shadow shard schema")
+            if str(shard["teacher_action_semantics"]) != (
+                DETERMINISTIC_ACTION_SEMANTICS
+            ):
+                raise ValueError("shadow shard does not contain teacher means")
+            observations = np.asarray(shard["observations"])
+            previous_actions = np.asarray(shard["previous_actions"])
+            teacher_actions = np.asarray(shard["teacher_actions"])
+            behaviour_actions = np.asarray(shard["behaviour_actions"])
+            rewards = np.asarray(shard["rewards"])
+            terminals = np.asarray(shard["terminals"])
+            puck_visible = np.asarray(shard["puck_visible"])
+            transition_count += len(observations)
+            if observations.shape != (len(observations), 19):
+                raise ValueError("shadow observations do not have shape (steps, 19)")
+            if observations.dtype != np.float32:
+                raise ValueError("shadow observations are not float32")
+            for name, values in (
+                ("previous actions", previous_actions),
+                ("teacher actions", teacher_actions),
+                ("behaviour actions", behaviour_actions),
+            ):
+                if values.shape != (len(observations), 2):
+                    raise ValueError(f"shadow {name} do not have shape (steps, 2)")
+                if values.dtype != np.float32:
+                    raise ValueError(f"shadow {name} are not float32")
+                if not np.all(np.isfinite(values)):
+                    raise ValueError(f"shadow {name} contain non-finite values")
+            if rewards.shape != (len(observations),) or rewards.dtype != np.float32:
+                raise ValueError("shadow rewards are not a float32 step vector")
+            if terminals.shape != (len(observations),) or terminals.dtype != np.bool_:
+                raise ValueError("shadow terminals are not a boolean step vector")
+            if puck_visible.shape != (len(observations),) or (
+                puck_visible.dtype != np.bool_
+            ):
+                raise ValueError("shadow visibility is not a boolean step vector")
+            if not np.all(np.isfinite(rewards)):
+                raise ValueError("shadow rewards contain non-finite values")
+            if not np.all(np.isfinite(observations)):
+                raise ValueError("shadow observations contain non-finite values")
+            if np.any(np.abs(teacher_actions) > 1.0):
+                raise ValueError("shadow teacher actions exceed the public range")
+
+            offsets = np.asarray(shard["episode_offsets"], dtype=np.int64)
+            episode_indices = np.asarray(shard["episode_indices"])
+            if len(offsets) != len(episode_indices) + 1 or (
+                len(offsets) and (int(offsets[0]) != 0 or int(offsets[-1]) != len(observations))
+            ):
+                raise ValueError("shadow episode offsets do not cover the shard")
+            if np.any(np.diff(offsets) <= 0):
+                raise ValueError("shadow partition contains an empty episode")
+            for local_index in range(len(episode_indices)):
+                first = int(offsets[local_index])
+                last = int(offsets[local_index + 1])
+                if not np.array_equal(previous_actions[first], np.zeros(2)):
+                    raise ValueError("shadow previous action does not reset at episode start")
+                if not np.array_equal(
+                    previous_actions[first + 1 : last],
+                    behaviour_actions[first : last - 1],
+                ):
+                    raise ValueError("shadow previous actions are not behaviour commands")
+                if not bool(terminals[last - 1]) or bool(np.any(terminals[first : last - 1])):
+                    raise ValueError("shadow terminal flags do not delimit the episode")
+
+            for episode_index, offset, reset_seed, shot_id, blackout_steps in zip(
+                episode_indices,
+                shard["episode_collection_offsets"],
+                shard["episode_reset_seeds"],
+                shard["episode_shot_ids"],
+                shard["episode_blackout_steps"],
+                strict=True,
+            ):
+                observed.append(
+                    {
+                        "episode_index": int(episode_index),
+                        "collection_offset": int(offset),
+                        "reset_seed": int(reset_seed),
+                        "shot_id": str(shot_id),
+                        "blackout_steps": int(blackout_steps),
+                    }
+                )
+    observed.sort(key=lambda value: value["collection_offset"])
+    if observed != expected:
+        raise ValueError("shadow shard contents do not match the paired schedule")
+    if transition_count != int(manifest.get("transition_count", -1)):
+        raise ValueError("shadow transition count disagrees with its manifest")
+    return {
+        "episode_count": len(observed),
+        "teacher_query_count": transition_count,
+    }
+
+
 def evaluation_schedule(
     protocol: dict[str, Any], split_name: str = "validation"
 ) -> tuple[tuple[Any, int], ...]:

@@ -128,3 +128,9 @@ all seven families on unequal-length synthetic complete episodes. It also
 checks that equal-episode MSE differs from transition-weighted MSE in the
 expected diagnostic case. These checks establish pipeline semantics only, not
 student performance.
+
+The corresponding evidence controls are implemented in
+[`principal_release_controls.md`](principal_release_controls.md). They audit
+realised shadow shards, measure every exact final checkpoint, freeze an
+outside-Git evidence manifest and fail closed before the untouched
+principal-test schedule can be built.

@@ -1,0 +1,18 @@
+{
+  "accounting_results": [],
+  "aggregation_code_commit": "REPLACE_WITH_40_CHARACTER_GIT_COMMIT",
+  "analysis_plan": {
+    "path": "../../docs/principal_sweep_v1.md",
+    "sha256": "REPLACE_WITH_SHA256"
+  },
+  "collector_checkpoints": [],
+  "cpu_latency_results": [],
+  "family_datasets": [],
+  "final_checkpoints": [],
+  "principal_test_outcomes_inspected": false,
+  "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+  "schema_version": 1,
+  "shadow_budget_audits": [],
+  "status": "draft_replace_every_placeholder_then_freeze",
+  "validation_episode_files": []
+}
