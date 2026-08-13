@@ -72,6 +72,14 @@ workflow.
 - `run_structured_all_steps_correction_on_marvin.sh RUN_ID STUDENT_RUN CODE_COMMIT CONFIG`
   retrains seed 14303 on the frozen dataset with every valid step supervised,
   then evaluates and gates only the no-blackout validation shots.
+- `collect_student_shadow_dataset.py` executes the structured student and
+  records deterministic frozen-teacher means on the resulting student
+  histories, with the teacher recurrence driven by prior student commands.
+- `aggregate_teacher_shadow_datasets.py` creates a hash-verified manifest over
+  disjoint original and shadow shards without copying their large payloads.
+- `run_structured_shadow_round1_on_marvin.sh RUN_ID CODE_COMMIT` collects one
+  predeclared shadow round, aggregates it one-to-one, retrains seed 14303 from
+  scratch and applies the no-blackout-only gate.
 - `train_feed_forward.py` trains and validation-selects the Stage B
   observation-only policy, then exports a framework-neutral NumPy checkpoint.
 - `evaluate_feed_forward.py` evaluates that checkpoint on the exact validation
