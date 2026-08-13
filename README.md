@@ -173,6 +173,11 @@ The [principal sweep pipeline](docs/principal_sweep_v1.md#shared-executable-pipe
 now trains, shadow-labels and evaluates all seven families through common
 code. It enforces the hash-bound base data, equal complete-episode loss
 weighting and paired shadow/validation schedules. No principal run has started.
+The [principal release controls](docs/principal_release_controls.md) now add a
+shard-level shadow-budget audit, exact parameter/state accounting, the pinned
+Marvin CPU-latency benchmark and a fail-closed evidence gate. The untouched
+test evaluator requires a `GO` report and re-runs the gate before constructing
+the test schedule.
 
 ## Scientific guardrails
 

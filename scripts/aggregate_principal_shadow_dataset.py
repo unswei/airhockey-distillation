@@ -19,7 +19,7 @@ from airhockey_distill.principal_sweep import (
     principal_family_spec,
     sha256_file,
     shadow_schedule_sha256,
-    shadow_schedule_records,
+    validate_shadow_partition_shards,
 )
 
 
@@ -160,39 +160,7 @@ def _validate_actual_partition_schedule(
     directory: Path,
     manifest: dict[str, Any],
 ) -> None:
-    expected = shadow_schedule_records(protocol, seed)
-    observed: list[dict[str, Any]] = []
-    for entry in manifest["shards"]:
-        path = directory / entry["file"]
-        if sha256_file(path) != entry["sha256"]:
-            raise ValueError(f"shadow shard hash mismatch: {path}")
-        with np.load(path, allow_pickle=False) as shard:
-            if int(shard["dataset_schema_version"]) != 2:
-                raise ValueError("unsupported shadow shard schema")
-            if str(shard["teacher_action_semantics"]) != (
-                DETERMINISTIC_ACTION_SEMANTICS
-            ):
-                raise ValueError("shadow shard does not contain teacher means")
-            for episode_index, offset, reset_seed, shot_id, blackout_steps in zip(
-                shard["episode_indices"],
-                shard["episode_collection_offsets"],
-                shard["episode_reset_seeds"],
-                shard["episode_shot_ids"],
-                shard["episode_blackout_steps"],
-                strict=True,
-            ):
-                observed.append(
-                    {
-                        "episode_index": int(episode_index),
-                        "collection_offset": int(offset),
-                        "reset_seed": int(reset_seed),
-                        "shot_id": str(shot_id),
-                        "blackout_steps": int(blackout_steps),
-                    }
-                )
-    observed.sort(key=lambda value: value["collection_offset"])
-    if observed != expected:
-        raise ValueError("shadow shard contents do not match the paired schedule")
+    validate_shadow_partition_shards(protocol, seed, directory, manifest)
 
 
 def main() -> None:

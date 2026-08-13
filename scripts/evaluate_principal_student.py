@@ -29,6 +29,11 @@ from airhockey_distill.principal_sweep import (
     sha256_file,
     validate_training_seed,
 )
+from airhockey_distill.principal_release import (
+    principal_test_schedule,
+    principal_test_schedule_sha256,
+    validate_go_release_report,
+)
 from airhockey_distill.students import load_principal_policy
 
 
@@ -38,6 +43,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--family", required=True)
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--checkpoint", type=Path, required=True)
+    parser.add_argument("--split", choices=("validation", "test"), default="validation")
+    parser.add_argument("--release-report", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--code-commit", required=True)
     return parser.parse_args()
@@ -61,7 +68,21 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     if policy.metadata.get("protocol_sha256") != sha256_file(protocol_path):
         raise ValueError("checkpoint protocol hash mismatch")
 
-    evaluation = protocol["evaluation"]["validation"]
+    release: dict[str, Any] | None = None
+    if args.split == "test":
+        if args.release_report is None:
+            raise ValueError("principal test evaluation requires a GO release report")
+        release = validate_go_release_report(protocol_path, args.release_report)
+        schedule = principal_test_schedule(protocol)
+        evaluation = protocol["evaluation"]["test"]
+        schedule_hash = principal_test_schedule_sha256(protocol)
+    else:
+        if args.release_report is not None:
+            raise ValueError("a release report is only valid for principal test evaluation")
+        schedule = evaluation_schedule(protocol)
+        evaluation = protocol["evaluation"]["validation"]
+        schedule_hash = evaluation_schedule_sha256(protocol)
+
     reward_specification = load_defence_reward(
         protocol["shadow_labelling"]["reward_config"]
     )
@@ -73,7 +94,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     inference_seconds = []
     try:
         for schedule_index, (generated, blackout_steps) in enumerate(
-            evaluation_schedule(protocol)
+            schedule
         ):
             environment.blackout = BlackoutSchedule(
                 start_observation_step=int(
@@ -131,13 +152,26 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "code_commit": args.code_commit,
         "protocol_sha256": sha256_file(protocol_path),
         "evaluation_split": evaluation["split"],
-        "evaluation_schedule_sha256": evaluation_schedule_sha256(protocol),
+        "evaluation_schedule_sha256": schedule_hash,
+        "release_report": None if args.release_report is None else str(args.release_report.resolve()),
+        "release_report_sha256": None if args.release_report is None else sha256_file(args.release_report.resolve()),
+        "release_evidence_manifest_sha256": None if release is None else release["evidence_manifest_sha256"],
         "runtime": {
             "hostname": platform.node(),
             "python": sys.version,
             "mujoco": mujoco.__version__,
         },
-        "summary": summarise(episodes, inference_seconds, protocol),
+        "summary": summarise(
+            episodes,
+            inference_seconds,
+            protocol,
+            blackout_steps=(
+                evaluation["blackout_steps"]
+                if args.split == "validation"
+                else evaluation["core_blackout_steps"]
+                + evaluation["extrapolation_blackout_steps"]
+            ),
+        ),
         "episodes": episodes,
     }
     output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
@@ -148,6 +182,7 @@ def summarise(
     episodes: list[dict[str, Any]],
     inference_seconds: list[float],
     protocol: dict[str, Any],
+    blackout_steps: list[int] | None = None,
 ) -> dict[str, Any]:
     save_outcomes = frozenset(protocol["evaluation"]["save_outcomes"])
 
@@ -164,13 +199,18 @@ def summarise(
         }
 
     milliseconds = np.asarray(inference_seconds, dtype=np.float64) * 1000.0
+    reported_blackouts = (
+        protocol["evaluation"]["validation"]["blackout_steps"]
+        if blackout_steps is None
+        else blackout_steps
+    )
     return {
         **episode_summary(episodes),
         "by_blackout_steps": {
             str(blackout): episode_summary(
                 [value for value in episodes if value["blackout_steps"] == blackout]
             )
-            for blackout in protocol["evaluation"]["validation"]["blackout_steps"]
+            for blackout in reported_blackouts
         },
         "inference_milliseconds": {
             "median": float(np.median(milliseconds)),

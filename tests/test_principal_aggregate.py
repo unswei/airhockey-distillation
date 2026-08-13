@@ -26,6 +26,14 @@ def test_aggregate_rechecks_actual_shadow_shard_schedule(tmp_path):
         shard,
         dataset_schema_version=np.asarray(2),
         teacher_action_semantics=np.asarray(DETERMINISTIC_ACTION_SEMANTICS),
+        observations=np.zeros((3, 19), dtype=np.float32),
+        previous_actions=np.zeros((3, 2), dtype=np.float32),
+        teacher_actions=np.zeros((3, 2), dtype=np.float32),
+        behaviour_actions=np.zeros((3, 2), dtype=np.float32),
+        rewards=np.zeros(3, dtype=np.float32),
+        terminals=np.ones(3, dtype=bool),
+        puck_visible=np.ones(3, dtype=bool),
+        episode_offsets=np.arange(4, dtype=np.int64),
         episode_indices=np.asarray([value["episode_index"] for value in records]),
         episode_collection_offsets=np.asarray(
             [value["collection_offset"] for value in records]
@@ -37,6 +45,7 @@ def test_aggregate_rechecks_actual_shadow_shard_schedule(tmp_path):
         ),
     )
     manifest = {
+        "transition_count": 3,
         "shards": [
             {
                 "file": "shards/shard-0000.npz",
