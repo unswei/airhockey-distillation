@@ -39,6 +39,45 @@ def test_full_config_predeclares_project_sequence_and_episode_splits():
     assert config["training"]["batch_size"] == 128
 
 
+def test_all_steps_correction_changes_only_the_predeclared_loss_window():
+    path = Path("configs/student/structured_n64_k2_full_seed_14303_all_steps_v1.yaml")
+    config = yaml.safe_load(path.read_text())
+    parent = yaml.safe_load(
+        Path("configs/student/structured_n64_k2_full_seed_14303_v2.yaml").read_text()
+    )
+
+    validate_full_training_config(config)
+
+    assert config["policy"] == parent["policy"]
+    assert config["dataset"] == parent["dataset"]
+    assert config["export"] == parent["export"]
+    assert config["provenance"] == {
+        **parent["provenance"],
+        "dataset_manifest_sha256": (
+            "923497e3622209c7060196ff8322f4d333626138048ad94577034c67f01c60cf"
+        ),
+    }
+    unchanged_training = set(parent["training"]) - {"burn_in_steps", "loss_steps"}
+    assert all(
+        config["training"][key] == parent["training"][key] for key in unchanged_training
+    )
+    assert config["training"]["burn_in_steps"] == 0
+    assert config["training"]["loss_steps"] == 64
+    assert config["evaluation"]["blackout_steps"] == [0]
+    assert config["no_blackout_gate"]["minimum_save_rate"] == 0.75
+
+
+def test_zero_burn_in_supervises_every_valid_step():
+    split = pad_episode_split(
+        [_episode(episode_index=0, length=20)],
+        maximum_episode_steps=128,
+        burn_in_steps=0,
+    )
+
+    assert np.all(split.loss_mask[0, :20])
+    assert not np.any(split.loss_mask[0, 20:])
+
+
 def test_full_trainer_rejects_sampled_action_manifest():
     dataset = _dataset_config()
     manifest = _manifest()
@@ -130,9 +169,7 @@ def test_training_smoke_carries_across_two_chunks():
                     (length, 19), episode_index / 10.0, dtype=np.float32
                 ),
                 "previous_actions": previous_actions,
-                "teacher_actions": np.full(
-                    (length, 2), -0.2, dtype=np.float32
-                ),
+                "teacher_actions": np.full((length, 2), -0.2, dtype=np.float32),
                 "puck_visible": np.arange(length) < 20,
             }
         )
@@ -196,6 +233,16 @@ def _manifest():
         "deterministic_inference": True,
         "episode_count": 10,
         "shards": [],
+    }
+
+
+def _episode(*, episode_index, length):
+    return {
+        "episode_index": episode_index,
+        "observations": np.zeros((length, 19), dtype=np.float32),
+        "previous_actions": np.zeros((length, 2), dtype=np.float32),
+        "teacher_actions": np.zeros((length, 2), dtype=np.float32),
+        "puck_visible": np.ones(length, dtype=bool),
     }
 
 

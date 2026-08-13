@@ -1,0 +1,107 @@
+schema_version: 1
+status: phase_3_all_valid_steps_correction_predeclared
+
+correction:
+  parent_config: configs/student/structured_n64_k2_full_seed_14303_v2.yaml
+  parent_checkpoint_sha256: 8fbe2171fc4d7272dda0cbdd82adbf8c4bac506aaac21aada62fe9e37a99271f
+  diagnosed_by: results/structured_n64_k2_failure_diagnostic_v1.json
+  reason: >-
+    The parent masks steps 0 through 15 even though their requested commands
+    initialise the recurrent trajectory and steps 5 through 15 control the
+    robot. Apply action loss to every valid step of each complete episode.
+  training_changes:
+    burn_in_steps: [16, 0]
+    loss_steps: [48, 64]
+  unchanged:
+    - architecture
+    - training_seed
+    - frozen_dataset
+    - episode_splits
+    - sequence_length
+    - optimiser
+    - learning_rate
+    - weight_decay
+    - batch_size
+    - maximum_epochs
+    - checkpoint_selection_metric
+
+purpose: >-
+  Test whether supervision of the complete recurrent trajectory repairs the
+  first structured student's no-blackout control before collecting any
+  student-rollout shadow-teacher labels.
+
+policy:
+  config: configs/student/structured_n64_k2.yaml
+  id: structured_n64_k2
+  state_dimension: 64
+  innovation_rank: 2
+
+dataset:
+  id: teacher_v3_structured_n64_k2_full_deterministic_v1
+  teacher_action_semantics: deterministic_actor_mean_after_public_adapter_clip
+  distribution_config: configs/env/direct_launch_v3.yaml
+  distribution_split: train
+  reward_config: configs/reward/defend_shot_v1.yaml
+  sampling_seed: 12303
+  blackout_start_observation_step: 5
+  minimum_blackout_steps: 0
+  maximum_blackout_steps: 20
+  action_lock_steps: 5
+  episodes: 20000
+  episodes_per_shard: 500
+  episode_split_modulus: 10
+  train_residues: [0, 1, 2, 3, 4, 5, 6, 7]
+  validation_residues: [8]
+  internal_test_residues: [9]
+
+training:
+  seed: 14303
+  sequence_length: 64
+  burn_in_steps: 0
+  loss_steps: 64
+  maximum_episode_steps: 128
+  batch_size: 128
+  optimiser: adamw
+  learning_rate: 0.0003
+  weight_decay: 0.00001
+  maximum_epochs: 100
+  patience_epochs: 10
+  minimum_validation_improvement: 0.000001
+  gradient_clip_global_norm: 1.0
+  target: deterministic_teacher_action_mean
+  loss: masked_action_mean_squared_error
+  selection_metric: validation_action_mse
+  reset_state: episode_boundary_only
+  torch_threads: 16
+
+export:
+  verification_episodes: 32
+  maximum_absolute_error: 0.00001
+  require_exact_checkpoint_reload: true
+
+evaluation:
+  distribution_config: configs/env/direct_launch_v3.yaml
+  distribution_split: validation
+  shot_count: 225
+  blackout_steps: [0]
+
+no_blackout_gate:
+  required_episodes: 225
+  required_blackout_steps: [0]
+  minimum_save_rate: 0.75
+  maximum_simulator_or_safety_faults: 0
+  decision_if_go: run_full_paired_blackout_validation
+  decision_if_no_go: collect_deterministic_shadow_teacher_labels_on_student_rollouts
+
+provenance:
+  dataset_collection_commit: cdbde7d81aa6f5624cfbdc709ea368515634d39c
+  dataset_manifest_sha256: 923497e3622209c7060196ff8322f4d333626138048ad94577034c67f01c60cf
+  teacher_config: configs/teacher/dreamerv3_v3.yaml
+  teacher_checkpoint: frozen-teachers/dreamerv3-teacher-v3-step-700000
+  teacher_selection_step: 700000
+  teacher_actor_sha256: 6a672d5b6d7c2b9ca2335f1a85b69280ca7db58deb5e2f56d2ba033ebf636254
+  upstream_commits:
+    drl_air_hockey: a41081c4c3860877d7553c7eb9e84c1b7f5f7da0
+    air_hockey_challenge: 34729081d4327141dcf560c0fb8274cd4882e82c
+    dreamerv3: 4049794d4135e41c691f18da38a9af7541b01553
+  container_digest: sha256:de846e25961d2408db73a6b5cfe2afc7ecf0e14e0e8ac837f97212a180e51d5f
