@@ -1,0 +1,43 @@
+schema_version: 1
+status: phase_3_deterministic_shadow_round_1_paired_validation_predeclared
+
+purpose: >-
+  Open the full paired blackout validation only after the shadow-round student
+  passes its no-blackout-only gate. This changes evaluation coverage only; the
+  frozen checkpoint, training data, architecture and seed remain unchanged.
+
+policy:
+  config: configs/student/structured_n64_k2.yaml
+  id: structured_n64_k2
+  state_dimension: 64
+  innovation_rank: 2
+
+dataset:
+  id: teacher_v3_structured_n64_k2_teacher_plus_shadow_round1_v1
+  teacher_action_semantics: deterministic_actor_mean_after_public_adapter_clip
+  episodes: 40000
+  episode_split_modulus: 10
+  train_residues: [0, 1, 2, 3, 4, 5, 6, 7]
+  validation_residues: [8]
+  internal_test_residues: [9]
+  distribution_config: configs/env/direct_launch_v3.yaml
+  distribution_split: train
+  reward_config: configs/reward/defend_shot_v1.yaml
+  blackout_start_observation_step: 5
+  action_lock_steps: 5
+
+evaluation:
+  distribution_config: configs/env/direct_launch_v3.yaml
+  distribution_split: validation
+  shot_count: 225
+  blackout_steps: [0, 5, 10, 15, 20]
+
+provenance:
+  qualification_gate: phase3-structured-n64-k2-shadow-round1-2026-08-13-v1/no_blackout_gate.json
+  qualification_gate_sha256: cbdab1480b62518595cb0280d59d042e07ea2e562399d7146d2acc876488064b
+  qualification_decision: GO
+  qualification_save_rate: 0.9866666666666667
+  checkpoint: students/structured-n64-k2-shadow-round1-seed-14303-2026-08-13-v1/checkpoint.npz
+  checkpoint_sha256: c6e5556690bf6215c94da32cd07286487f581b1ae67ff5b117501ad68b4ee9e1
+  training_seed: 14303
+  training_code_commit: 9d091e612214f7ad6d99cb432eaecfe4619453d4
