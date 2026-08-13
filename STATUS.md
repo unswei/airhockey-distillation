@@ -24,6 +24,9 @@ full-data structured-student vertical slice is successful.
 The matched GRU-64 runtime and its tiny deterministic-mean overfit gate are
 also complete. NumPy and PyTorch agree, checkpoint reload is exact and the
 gate returns `GO`; full-data GRU behaviour has not yet been measured.
+One seed has now completed the current 40,000-episode aggregate as a
+training-only engineering pilot. Its offline metrics and export checks pass;
+the structured-policy shadow provenance prevents a principal family claim.
 
 ## Completed
 
@@ -254,12 +257,16 @@ gate returns `GO`; full-data GRU behaviour has not yet been measured.
   action and state sequences exactly.
 - Preserved the pre-training v1 import failure and froze both GRU gate runs as
   seven root-owned, read-only, hash-verified files on Marvin.
+- Trained GRU-64 seed 14303 for 100 epochs on the frozen 40,000-episode
+  aggregate. Epoch 97 was selected at validation MSE `0.04521`; export matched
+  within `3.1590e-6` and checkpoint reload was exact.
+- Froze the full-data pilot checkpoint and logs as six root-owned, read-only,
+  hash-verified files. No behavioural evaluation was opened.
 
 ## Next actions
 
-- Predeclare the fair full-data GRU pilot, including whether its first
-  engineering run may use the `k=2` shadow aggregate or requires its own
-  equal-budget shadow collection.
+- Decide and predeclare the behavioural gate for this engineering checkpoint,
+  while keeping it separate from the later equal-budget principal comparison.
 - Retain direct launch as the core controlled task; a scripted physical strike
   remains a later secondary extension.
 
@@ -324,6 +331,7 @@ gate returns `GO`; full-data GRU behaviour has not yet been measured.
 | 2026-08-13 | Applied the shadow-round no-blackout gate | `GO`; 222/225 saves (98.7%), no concessions and no faults |
 | 2026-08-13 | Evaluated the frozen shadow-round student on paired blackouts | 1,107/1,125 saves overall and 220/225 at 20 steps; raw evidence frozen and hashed |
 | 2026-08-13 | Implemented and gated the matched GRU-64 runtime | `GO`; one deterministic episode fitted to `7.7257e-5` MSE, export error `5.9605e-7`, exact reload and 124 passing tests |
+| 2026-08-13 | Trained one full-data GRU-64 engineering seed | Seed 14303 selected epoch 97 at validation MSE `0.04521`; exact reload; no behavioural evaluation opened |
 
 ## Blockers
 

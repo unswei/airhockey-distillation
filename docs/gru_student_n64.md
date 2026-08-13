@@ -41,3 +41,29 @@ Marvin. Their seven-file checksum manifest has SHA-256
 The compact result is `results/gru_n64_tiny_overfit_v1.json`. This establishes
 the GRU training and export path only; the checkpoint is not a full-data
 controller and must not be used as a behavioural baseline.
+
+## Full-data engineering pilot
+
+One GRU-64 seed was trained on the frozen 40,000-episode aggregate used by the
+successful structured vertical slice. Seed 14303, the episode split, all-step
+loss, optimiser, learning rate, batch size, validation selection and 100-epoch
+budget match the structured run. The aggregate manifest SHA-256 is
+`e67438a24da12cfc1aed92f6df64253f82ce000cb52c3085d28468007ebf0d0d`.
+
+Epoch 97 was selected at validation action MSE `0.04521`. Train and internal
+test MSE were `0.04402` and `0.04551`; internal-test hidden-step MSE was
+`0.00778`. Maximum PyTorch/NumPy error was `3.1590e-6` for actions and
+`1.0729e-6` for states, and checkpoint reload was exact. Training took 1,366.7
+seconds on Marvin.
+
+This is an engineering pilot, not a fair GRU-versus-structured comparison.
+Half of the aggregate consists of deterministic labels on trajectories
+controlled by the structured `k=2` policy. The result establishes that the
+GRU full-data path works and gives an offline imitation measurement. It does
+not establish relative closed-loop quality. No behavioural evaluation was
+opened in this training-only run.
+
+The checkpoint and raw logs are root-owned and read-only on Marvin. Their
+six-file checksum manifest has SHA-256
+`33d9745099c796dbf5c8faf0bbaf9b31c752b81aeea8491f5f3b073f910e8ee8`.
+The compact result is `results/gru_n64_full_pilot_seed_14303_v1.json`.

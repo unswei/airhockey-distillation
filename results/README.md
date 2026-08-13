@@ -41,6 +41,10 @@ The matched GRU-64
 [`tiny-overfit gate`](gru_n64_tiny_overfit_v1.json) records deterministic-mean
 training, PyTorch/NumPy parity and exact framework-neutral checkpoint reload.
 It returns `GO`, but is an engineering result rather than a full-data policy.
+The subsequent [`full-data GRU pilot`](gru_n64_full_pilot_seed_14303_v1.json)
+records one seed trained on the current 40,000-episode aggregate. It is an
+offline engineering result only because the shadow half of that aggregate was
+collected under the structured `k=2` policy.
 
 Canonical episode rows will include:
 

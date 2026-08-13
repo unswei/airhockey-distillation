@@ -149,6 +149,11 @@ NumPy and PyTorch runtimes. Its standard gate equations match
 `torch.nn.GRUCell`, and its deterministic one-episode overfit gate returns
 `GO` with exact checkpoint reload. This verifies the GRU engineering path; it
 does not yet provide a full-data GRU comparison.
+One full-data GRU engineering pilot is also complete on the current frozen
+40,000-episode aggregate. It selected validation action MSE `0.04521` with
+exact reload. Because the aggregate's shadow half was collected under the
+structured `k=2` student, this is not treated as a fair family comparison and
+no behavioural claim is made from it.
 
 ## Scientific guardrails
 
