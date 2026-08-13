@@ -61,6 +61,11 @@ workflow.
 - `check_structured_k2_compatibility.py` loads the frozen successful `k=2`
   checkpoint and verifies bit-exact action and state hashes on a fixed
   257-step sequence after rank-runtime changes.
+- The ten-step finite-stack training runtime is
+  `src/airhockey_distill/students/finite_stack_torch.py`; it exports through
+  the framework-neutral NumPy checkpoint helpers in `finite_stack.py`. A
+  principal-sweep trainer will consume this runtime after the seven-family
+  training/export dry run is fixed.
 - `train_gru_tiny_overfit.py` trains the matched GRU-64 on one complete
   deterministic-mean episode with loss on every valid step, exports its
   framework-neutral NumPy checkpoint, and gates PyTorch/NumPy parity plus

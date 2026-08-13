@@ -4,6 +4,11 @@ import hashlib
 import yaml
 
 from airhockey_distill.envs import load_direct_launch_distribution
+from airhockey_distill.students import (
+    FINITE_STACK_HISTORY_DIM,
+    FiniteStackPolicy,
+    initialise_finite_stack_parameters,
+)
 
 
 CONFIG_PATH = Path("configs/experiments/principal_sweep_v1.yaml")
@@ -95,6 +100,13 @@ def test_parameter_and_state_accounting_is_predeclared():
         assert family["expected_core_parameters"] == 2304 + 163 * rank
     assert families["gru_n64"]["expected_total_parameters"] == 28898
     assert families["finite_stack_10"]["persistent_state_float32_values"] == 30
+    finite_stack = FiniteStackPolicy(initialise_finite_stack_parameters(14303), {})
+    assert finite_stack.parameter_count == families["finite_stack_10"][
+        "expected_total_parameters"
+    ]
+    assert FINITE_STACK_HISTORY_DIM == families["finite_stack_10"][
+        "persistent_state_float32_values"
+    ]
     assert config["measurements"]["cpu_latency"]["host"] == "marvin"
     assert config["measurements"]["cpu_latency"]["threads"] == 1
     assert config["measurements"]["cpu_latency"]["warmup_calls_per_checkpoint"] >= 10000

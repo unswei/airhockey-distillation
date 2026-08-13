@@ -35,6 +35,9 @@ single-thread Marvin CPU-latency measurements.
 The structured runtime now implements all principal ranks `k=0,1,2,4` with
 matched non-innovation initialisation. Existing `k=2` checkpoints and outputs
 remain bit-exact; the other ranks are not yet trained.
+The ten-step finite-stack runtime is also implemented. It retains exactly ten
+masked puck-position/visibility triples, has a 30-float carry and exports a
+matched NumPy checkpoint from PyTorch. It is not yet trained.
 
 ## Completed
 
@@ -282,11 +285,15 @@ remain bit-exact; the other ranks are not yet trained.
 - Generalised the matched NumPy/PyTorch structured runtime to `k=0,1,2,4`.
   The `k=0` model has no nonlinear recurrent branch, rank bounds and checkpoint
   round trips pass for all ranks, and the frozen `k=2` output is bit-exact.
+- Implemented the ten-step finite-stack NumPy/PyTorch runtime and
+  framework-neutral checkpoint. Tests enforce oldest-to-newest masked puck
+  history, zero episode padding, exact capacity and no visibility-triggered
+  reset.
 
 ## Next actions
 
-- Implement the finite-stack runtime, then build the seven-family dry-run gate
-  without opening `principal_test`.
+- Build the seven-family training/export dry-run gate without opening
+  `principal_test`.
 - Retain direct launch as the core controlled task; a scripted physical strike
   remains a later secondary extension.
 
@@ -356,6 +363,7 @@ remain bit-exact; the other ranks are not yet trained.
 | 2026-08-13 | Evaluated the frozen GRU pilot on paired blackouts | 1,107/1,125 saves overall and 219/225 at 20 steps; raw evidence frozen and hashed |
 | 2026-08-13 | Predeclared the fair principal sweep | Seven families, five matched seeds, 20,000 shadow episodes per family and a fresh unopened 225-shot test split |
 | 2026-08-13 | Implemented rank-configurable structured students | `k=0,1,2,4` NumPy/PyTorch paths pass; frozen `k=2` actions and states remain bit-exact |
+| 2026-08-13 | Implemented the ten-step finite-stack student | 46-value input, 7,330 parameters, 30-float history and matched NumPy/PyTorch export |
 
 ## Blockers
 

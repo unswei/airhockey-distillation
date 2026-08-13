@@ -1,0 +1,38 @@
+schema_version: 1
+status: phase_3_principal_runtime_implemented_untrained
+
+policy:
+  type: finite_puck_history
+  id: finite_stack_10
+  observation_dimension: 19
+  current_proprioception_dimension: 16
+  puck_history:
+    steps: 10
+    features: [normalised_x, normalised_y, visible]
+    order: oldest_to_newest
+    episode_start_padding: zero_position_and_zero_visibility
+    visibility_change_resets_history: false
+  network_input_dimension: 46
+  encoder:
+    hidden_widths: [64, 32]
+    activation: silu
+    output_dimension: 32
+  action_head:
+    hidden_width: 64
+    activation: silu
+    action_dimension: 2
+    output: tanh_mean
+  include_previous_action: false
+  layer_normalisation: false
+  dropout: false
+
+expected_counts:
+  total_trainable_parameters: 7330
+  learned_core_parameters: 0
+  persistent_state_float32_values: 30
+  complete_policy_carry_bytes: 120
+
+provenance:
+  principal_protocol: configs/experiments/principal_sweep_v1.yaml
+  teacher_actor_sha256: 6a672d5b6d7c2b9ca2335f1a85b69280ca7db58deb5e2f56d2ba033ebf636254
+  container_digest: sha256:de846e25961d2408db73a6b5cfe2afc7ecf0e14e0e8ac837f97212a180e51d5f

@@ -166,6 +166,9 @@ evidence and efficiency measurements are frozen.
 Its structured NumPy/PyTorch runtime is now rank-configurable for
 `k=0,1,2,4`; the frozen successful `k=2` checkpoint remains bit-exact under
 the refactor. The new ranks are implemented but untrained.
+The predeclared [ten-step finite-stack baseline](docs/finite_stack_student_10.md)
+is also implemented with matched NumPy/PyTorch execution and framework-neutral
+checkpoint export. It is untrained.
 
 ## Scientific guardrails
 
