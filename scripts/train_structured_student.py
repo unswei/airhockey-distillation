@@ -98,7 +98,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     torch.set_num_threads(
         max(1, min(int(training["torch_threads"]), os.cpu_count() or 1))
     )
-    module = StructuredRecurrentModule(seed=seed)
+    innovation_rank = int(config["policy"]["innovation_rank"])
+    module = StructuredRecurrentModule(
+        seed=seed,
+        innovation_rank=innovation_rank,
+    )
     optimiser = torch.optim.AdamW(
         module.parameters(),
         lr=float(training["learning_rate"]),
@@ -182,6 +186,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "schema_version": 1,
         "student_id": config["policy"]["id"],
         "training_seed": seed,
+        "innovation_rank": innovation_rank,
         "code_commit": args.code_commit,
         "dataset_id": manifest["dataset_id"],
         "dataset_manifest_sha256": _sha256(manifest_path),
@@ -531,8 +536,8 @@ def validate_training_episode(
 def validate_full_training_config(config: dict[str, Any]) -> None:
     if int(config["policy"]["state_dimension"]) != 64:
         raise ValueError("full training requires state dimension 64")
-    if int(config["policy"]["innovation_rank"]) != 2:
-        raise ValueError("full training requires innovation rank 2")
+    if int(config["policy"]["innovation_rank"]) not in (0, 1, 2, 4):
+        raise ValueError("full training requires innovation rank 0, 1, 2 or 4")
     training = config["training"]
     if training["target"] != "deterministic_teacher_action_mean":
         raise ValueError("full training target must be deterministic teacher means")

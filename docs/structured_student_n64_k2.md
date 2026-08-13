@@ -1,5 +1,23 @@
 # Structured recurrent student: n=64, k=2
 
+## Rank-configurable principal runtime
+
+The NumPy and PyTorch implementations now accept innovation ranks 0, 1, 2
+and 4. `k=0` omits every nonlinear innovation tensor and branch rather than
+representing a zero-width nonlinear layer. For matched initialisation seeds,
+all four ranks receive byte-identical encoder, diagonal linear recurrence and
+action-head parameters; only the innovation parameters differ.
+
+The original `k=2` parameter names, shapes, random-number draw order,
+checkpoint metadata and update order are unchanged. The refactored runtime
+loads the frozen successful `k=2` checkpoint and reproduces a fixed 257-step
+compatibility sequence bit-for-bit. The action and state sequence SHA-256
+values are `2563e7ed...1bdd62` and `87571ac6...14271`; the executable check is
+`scripts/check_structured_k2_compatibility.py`. The expected total/recurrent
+parameter counts are 12,002/2,304 (`k=0`), 12,165/2,467 (`k=1`),
+12,328/2,630 (`k=2`) and 12,654/2,956 (`k=4`). This establishes implementation
+compatibility, not training or behavioural results for the new ranks.
+
 Status: **implemented; full-data seed diagnosed; correction required**.
 
 This is the first Phase 3 vertical-slice student. It implements the principal

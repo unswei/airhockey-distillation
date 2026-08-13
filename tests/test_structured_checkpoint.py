@@ -8,9 +8,10 @@ from airhockey_distill.students import (
 )
 
 
-def test_structured_checkpoint_round_trip_reproduces_action_sequence(tmp_path):
+@pytest.mark.parametrize("rank", (0, 1, 2, 4))
+def test_structured_checkpoint_round_trip_reproduces_action_sequence(tmp_path, rank):
     rng = np.random.default_rng(31)
-    parameters = initialise_structured_parameters(31)
+    parameters = initialise_structured_parameters(31, innovation_rank=rank)
     policy = StructuredRecurrentPolicy(parameters, {})
     observations = rng.normal(size=(17, 19)).astype(np.float32)
     previous_actions = rng.uniform(-1.0, 1.0, size=(17, 2)).astype(np.float32)
@@ -18,7 +19,7 @@ def test_structured_checkpoint_round_trip_reproduces_action_sequence(tmp_path):
     expected_actions, expected_states = policy.teacher_forced_sequence(
         observations, previous_actions
     )
-    path = tmp_path / "structured_n64_k2.npz"
+    path = tmp_path / f"structured_n64_k{rank}.npz"
 
     save_structured_checkpoint(path, parameters, {"training_seed": 31})
     restored = StructuredRecurrentPolicy.load(path)
@@ -30,7 +31,8 @@ def test_structured_checkpoint_round_trip_reproduces_action_sequence(tmp_path):
     np.testing.assert_array_equal(restored_states, expected_states)
     assert restored.metadata["training_seed"] == 31
     assert restored.metadata["state_dimension"] == 64
-    assert restored.metadata["innovation_rank"] == 2
+    assert restored.metadata["innovation_rank"] == rank
+    assert restored.metadata["policy"] == f"structured_recurrent_n64_k{rank}"
     assert restored.metadata["include_previous_action"] is True
 
 

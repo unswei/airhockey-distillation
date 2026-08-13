@@ -32,6 +32,9 @@ The fair principal sweep is now predeclared: seven student families, five
 matched seeds, equal family-specific shadow-episode budgets, paired validation,
 a fresh unopened principal test split, and fixed parameter, state-size and
 single-thread Marvin CPU-latency measurements.
+The structured runtime now implements all principal ranks `k=0,1,2,4` with
+matched non-innovation initialisation. Existing `k=2` checkpoints and outputs
+remain bit-exact; the other ranks are not yet trained.
 
 ## Completed
 
@@ -276,11 +279,14 @@ single-thread Marvin CPU-latency measurements.
 - Predeclared the fair principal sweep without reusing either successful pilot
   as principal evidence. The protocol fixes 35 final checkpoints, 140,000
   family-specific shadow episodes in total and a new unopened test split.
+- Generalised the matched NumPy/PyTorch structured runtime to `k=0,1,2,4`.
+  The `k=0` model has no nonlinear recurrent branch, rank bounds and checkpoint
+  round trips pass for all ranks, and the frozen `k=2` output is bit-exact.
 
 ## Next actions
 
-- Implement the finite-stack and rank-configurable structured runtimes, then
-  execute the predeclared principal sweep without opening `principal_test`.
+- Implement the finite-stack runtime, then build the seven-family dry-run gate
+  without opening `principal_test`.
 - Retain direct launch as the core controlled task; a scripted physical strike
   remains a later secondary extension.
 
@@ -349,6 +355,7 @@ single-thread Marvin CPU-latency measurements.
 | 2026-08-13 | Applied the GRU pilot no-blackout gate | `GO`; 223/225 saves, no concessions or faults |
 | 2026-08-13 | Evaluated the frozen GRU pilot on paired blackouts | 1,107/1,125 saves overall and 219/225 at 20 steps; raw evidence frozen and hashed |
 | 2026-08-13 | Predeclared the fair principal sweep | Seven families, five matched seeds, 20,000 shadow episodes per family and a fresh unopened 225-shot test split |
+| 2026-08-13 | Implemented rank-configurable structured students | `k=0,1,2,4` NumPy/PyTorch paths pass; frozen `k=2` actions and states remain bit-exact |
 
 ## Blockers
 

@@ -39,6 +39,26 @@ def test_full_config_predeclares_project_sequence_and_episode_splits():
     assert config["training"]["batch_size"] == 128
 
 
+@pytest.mark.parametrize("rank", (0, 1, 2, 4))
+def test_full_trainer_accepts_each_principal_structured_rank(rank):
+    config = yaml.safe_load(
+        Path("configs/student/structured_n64_k2_full_seed_14303.yaml").read_text()
+    )
+    config["policy"]["innovation_rank"] = rank
+
+    validate_full_training_config(config)
+
+
+def test_full_trainer_rejects_unapproved_structured_rank():
+    config = yaml.safe_load(
+        Path("configs/student/structured_n64_k2_full_seed_14303.yaml").read_text()
+    )
+    config["policy"]["innovation_rank"] = 3
+
+    with pytest.raises(ValueError, match="0, 1, 2 or 4"):
+        validate_full_training_config(config)
+
+
 def test_all_steps_correction_changes_only_the_predeclared_loss_window():
     path = Path("configs/student/structured_n64_k2_full_seed_14303_all_steps_v1.yaml")
     config = yaml.safe_load(path.read_text())

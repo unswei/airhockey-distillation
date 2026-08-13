@@ -75,7 +75,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     torch.manual_seed(seed)
     torch.use_deterministic_algorithms(True)
     torch.set_num_threads(max(1, min(4, os.cpu_count() or 1)))
-    module = StructuredRecurrentModule(seed=seed)
+    innovation_rank = int(config["policy"]["innovation_rank"])
+    module = StructuredRecurrentModule(
+        seed=seed,
+        innovation_rank=innovation_rank,
+    )
     optimiser = torch.optim.AdamW(
         module.parameters(),
         lr=float(training["learning_rate"]),
@@ -134,6 +138,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     checkpoint_path = output / "checkpoint.npz"
     checkpoint_metadata = {
         "training_seed": seed,
+        "innovation_rank": innovation_rank,
         "code_commit": args.code_commit,
         "dataset_id": manifest["dataset_id"],
         "dataset_manifest_sha256": _sha256(manifest_path),
@@ -414,8 +419,8 @@ def _validate_episode(episode: dict[str, np.ndarray[Any, Any]]) -> None:
 def _validate_config(config: dict[str, Any]) -> None:
     if int(config["policy"]["state_dimension"]) != 64:
         raise ValueError("tiny overfit requires state dimension 64")
-    if int(config["policy"]["innovation_rank"]) != 2:
-        raise ValueError("tiny overfit requires innovation rank 2")
+    if int(config["policy"]["innovation_rank"]) not in (0, 1, 2, 4):
+        raise ValueError("tiny overfit requires innovation rank 0, 1, 2 or 4")
     training = config["training"]
     training_episode_count = int(
         training.get("training_episode_count", config["dataset"]["episodes"])

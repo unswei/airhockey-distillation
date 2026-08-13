@@ -1,4 +1,4 @@
-"""Structured recurrent student with a rank-two nonlinear innovation."""
+"""Structured recurrent students with configurable low-rank innovations."""
 
 from __future__ import annotations
 
@@ -19,27 +19,58 @@ from airhockey_distill.envs.policy_interface import (
 ENCODED_DIM = 32
 STATE_DIM = 64
 INNOVATION_RANK = 2
+SUPPORTED_INNOVATION_RANKS = (0, 1, 2, 4)
 CONTROL_PERIOD_MS = 20.0
 
-STRUCTURED_PARAMETER_SHAPES = {
-    "encoder_0_weight": (64, PUBLIC_OBSERVATION_DIM),
-    "encoder_0_bias": (64,),
-    "encoder_1_weight": (ENCODED_DIM, 64),
-    "encoder_1_bias": (ENCODED_DIM,),
-    "recurrence_alpha": (STATE_DIM,),
-    "recurrence_input_weight": (STATE_DIM, ENCODED_DIM),
-    "recurrence_action_weight": (STATE_DIM, PUBLIC_ACTION_DIM),
-    "recurrence_bias": (STATE_DIM,),
-    "innovation_output_weight": (STATE_DIM, INNOVATION_RANK),
-    "innovation_state_weight": (INNOVATION_RANK, STATE_DIM),
-    "innovation_input_weight": (INNOVATION_RANK, ENCODED_DIM),
-    "innovation_action_weight": (INNOVATION_RANK, PUBLIC_ACTION_DIM),
-    "innovation_bias": (INNOVATION_RANK,),
-    "action_hidden_weight": (64, STATE_DIM + ENCODED_DIM),
-    "action_hidden_bias": (64,),
-    "action_output_weight": (PUBLIC_ACTION_DIM, 64),
-    "action_output_bias": (PUBLIC_ACTION_DIM,),
-}
+
+def _validate_innovation_rank(value: Any) -> int:
+    if isinstance(value, bool):
+        raise ValueError("innovation rank must be one of 0, 1, 2 or 4")
+    rank = int(value)
+    if rank != value or rank not in SUPPORTED_INNOVATION_RANKS:
+        raise ValueError("innovation rank must be one of 0, 1, 2 or 4")
+    return rank
+
+
+def structured_parameter_shapes(
+    innovation_rank: int = INNOVATION_RANK,
+) -> dict[str, tuple[int, ...]]:
+    """Return the parameter contract for one supported innovation rank."""
+
+    rank = _validate_innovation_rank(innovation_rank)
+    shapes = {
+        "encoder_0_weight": (64, PUBLIC_OBSERVATION_DIM),
+        "encoder_0_bias": (64,),
+        "encoder_1_weight": (ENCODED_DIM, 64),
+        "encoder_1_bias": (ENCODED_DIM,),
+        "recurrence_alpha": (STATE_DIM,),
+        "recurrence_input_weight": (STATE_DIM, ENCODED_DIM),
+        "recurrence_action_weight": (STATE_DIM, PUBLIC_ACTION_DIM),
+        "recurrence_bias": (STATE_DIM,),
+    }
+    if rank:
+        shapes.update(
+            {
+                "innovation_output_weight": (STATE_DIM, rank),
+                "innovation_state_weight": (rank, STATE_DIM),
+                "innovation_input_weight": (rank, ENCODED_DIM),
+                "innovation_action_weight": (rank, PUBLIC_ACTION_DIM),
+                "innovation_bias": (rank,),
+            }
+        )
+    shapes.update(
+        {
+            "action_hidden_weight": (64, STATE_DIM + ENCODED_DIM),
+            "action_hidden_bias": (64,),
+            "action_output_weight": (PUBLIC_ACTION_DIM, 64),
+            "action_output_bias": (PUBLIC_ACTION_DIM,),
+        }
+    )
+    return shapes
+
+
+# Backwards-compatible name for the original fixed k=2 parameter contract.
+STRUCTURED_PARAMETER_SHAPES = structured_parameter_shapes(INNOVATION_RANK)
 
 RECURRENT_PARAMETER_NAMES = frozenset(
     {
@@ -55,17 +86,28 @@ RECURRENT_PARAMETER_NAMES = frozenset(
     }
 )
 
-_CHECKPOINT_ARCHITECTURE = {
-    "schema_version": 1,
-    "policy": "structured_recurrent_n64_k2",
-    "observation_dimension": PUBLIC_OBSERVATION_DIM,
-    "encoded_dimension": ENCODED_DIM,
-    "state_dimension": STATE_DIM,
-    "innovation_rank": INNOVATION_RANK,
-    "action_dimension": PUBLIC_ACTION_DIM,
-    "include_previous_action": True,
-    "action_output": "tanh_mean",
-}
+
+def structured_checkpoint_architecture(
+    innovation_rank: int = INNOVATION_RANK,
+) -> dict[str, Any]:
+    """Return self-describing checkpoint metadata for one rank."""
+
+    rank = _validate_innovation_rank(innovation_rank)
+    return {
+        "schema_version": 1,
+        "policy": f"structured_recurrent_n64_k{rank}",
+        "observation_dimension": PUBLIC_OBSERVATION_DIM,
+        "encoded_dimension": ENCODED_DIM,
+        "state_dimension": STATE_DIM,
+        "innovation_rank": rank,
+        "action_dimension": PUBLIC_ACTION_DIM,
+        "include_previous_action": True,
+        "action_output": "tanh_mean",
+    }
+
+
+# Backwards-compatible name and value for existing k=2 checkpoints.
+_CHECKPOINT_ARCHITECTURE = structured_checkpoint_architecture(INNOVATION_RANK)
 
 
 @dataclass(frozen=True)
@@ -78,13 +120,21 @@ class StructuredPolicyCarry:
 
 @dataclass(frozen=True)
 class StructuredRecurrentPolicy:
-    """NumPy inference for the principal ``n=64, k=2`` student."""
+    """NumPy inference for a supported ``n=64`` structured student."""
 
     parameters: Mapping[str, NDArray[np.float32]]
     metadata: Mapping[str, Any]
+    innovation_rank: int | None = None
 
     def __post_init__(self) -> None:
-        for name, shape in STRUCTURED_PARAMETER_SHAPES.items():
+        rank = infer_structured_innovation_rank(
+            self.parameters,
+            self.metadata,
+            requested_rank=self.innovation_rank,
+        )
+        object.__setattr__(self, "innovation_rank", rank)
+        parameter_shapes = structured_parameter_shapes(rank)
+        for name, shape in parameter_shapes.items():
             if name not in self.parameters:
                 raise ValueError(f"missing structured parameter {name}")
             value = np.asarray(self.parameters[name])
@@ -92,7 +142,7 @@ class StructuredRecurrentPolicy:
                 raise ValueError(f"{name} must have shape {shape}, got {value.shape}")
             if value.dtype != np.float32 or not np.all(np.isfinite(value)):
                 raise ValueError(f"{name} must contain finite float32 values")
-        for key, expected in _CHECKPOINT_ARCHITECTURE.items():
+        for key, expected in structured_checkpoint_architecture(rank).items():
             if key in self.metadata and self.metadata[key] != expected:
                 raise ValueError(
                     f"checkpoint metadata {key} must be {expected!r}, "
@@ -103,29 +153,40 @@ class StructuredRecurrentPolicy:
     def load(cls, path: str | Path) -> StructuredRecurrentPolicy:
         with np.load(Path(path), allow_pickle=False) as checkpoint:
             metadata = json.loads(str(checkpoint["metadata_json"].item()))
+            rank = _metadata_innovation_rank(metadata)
+            parameter_shapes = structured_parameter_shapes(rank)
             parameters = {
                 name: np.asarray(checkpoint[name], dtype=np.float32)
-                for name in STRUCTURED_PARAMETER_SHAPES
+                for name in parameter_shapes
             }
-        for key, expected in _CHECKPOINT_ARCHITECTURE.items():
+        for key, expected in structured_checkpoint_architecture(rank).items():
             if metadata.get(key) != expected:
                 raise ValueError(
                     f"checkpoint metadata {key} must be {expected!r}, "
                     f"got {metadata.get(key)!r}"
                 )
-        return cls(parameters=parameters, metadata=metadata)
+        return cls(
+            parameters=parameters,
+            metadata=metadata,
+            innovation_rank=rank,
+        )
+
+    @property
+    def parameter_shapes(self) -> dict[str, tuple[int, ...]]:
+        return structured_parameter_shapes(int(self.innovation_rank))
 
     @property
     def parameter_count(self) -> int:
         return sum(
-            int(np.prod(shape)) for shape in STRUCTURED_PARAMETER_SHAPES.values()
+            int(np.prod(shape)) for shape in self.parameter_shapes.values()
         )
 
     @property
     def recurrent_parameter_count(self) -> int:
         return sum(
-            int(np.prod(STRUCTURED_PARAMETER_SHAPES[name]))
-            for name in RECURRENT_PARAMETER_NAMES
+            int(np.prod(shape))
+            for name, shape in self.parameter_shapes.items()
+            if name in RECURRENT_PARAMETER_NAMES
         )
 
     @property
@@ -262,6 +323,9 @@ class StructuredRecurrentPolicy:
         )
         state = _single_feature("previous state", previous_state, STATE_DIM)
         encoded = self._encode_batch(observations)[0]
+        fixed_jacobian = np.diag(self.diagonal_dynamics)
+        if not self.innovation_rank:
+            return fixed_jacobian.astype(np.float32)
         preactivation = (
             self.parameters["innovation_state_weight"] @ state
             + self.parameters["innovation_input_weight"] @ encoded
@@ -274,9 +338,7 @@ class StructuredRecurrentPolicy:
             @ np.diag(derivative)
             @ self.parameters["innovation_state_weight"]
         )
-        return (
-            np.diag(self.diagonal_dynamics) + innovation_jacobian
-        ).astype(np.float32)
+        return (fixed_jacobian + innovation_jacobian).astype(np.float32)
 
     def _encode_batch(
         self, observations: NDArray[np.float32]
@@ -302,6 +364,8 @@ class StructuredRecurrentPolicy:
             + previous_actions @ self.parameters["recurrence_action_weight"].T
             + self.parameters["recurrence_bias"]
         )
+        if not self.innovation_rank:
+            return linear.astype(np.float32)
         innovation = np.tanh(
             previous_states @ self.parameters["innovation_state_weight"].T
             + encoded @ self.parameters["innovation_input_weight"].T
@@ -317,12 +381,14 @@ class StructuredRecurrentPolicy:
 def initialise_structured_parameters(
     seed: int,
     *,
+    innovation_rank: int = INNOVATION_RANK,
     minimum_time_constant_ms: float = 40.0,
     maximum_time_constant_ms: float = 2000.0,
     control_period_ms: float = CONTROL_PERIOD_MS,
 ) -> dict[str, NDArray[np.float32]]:
-    """Initialise the fixed ``n=64, k=2`` architecture reproducibly."""
+    """Initialise one supported ``n=64`` architecture reproducibly."""
 
+    rank = _validate_innovation_rank(innovation_rank)
     if minimum_time_constant_ms <= 0:
         raise ValueError("minimum time constant must be positive")
     if maximum_time_constant_ms < minimum_time_constant_ms:
@@ -342,7 +408,7 @@ def initialise_structured_parameters(
     )
     diagonal = np.exp(-control_period_ms / time_constants)
     alpha = np.arctanh(diagonal).astype(np.float32)
-    return {
+    parameters = {
         "encoder_0_weight": weight(64, PUBLIC_OBSERVATION_DIM),
         "encoder_0_bias": np.zeros(64, dtype=np.float32),
         "encoder_1_weight": weight(ENCODED_DIM, 64),
@@ -351,27 +417,83 @@ def initialise_structured_parameters(
         "recurrence_input_weight": weight(STATE_DIM, ENCODED_DIM),
         "recurrence_action_weight": weight(STATE_DIM, PUBLIC_ACTION_DIM),
         "recurrence_bias": np.zeros(STATE_DIM, dtype=np.float32),
-        "innovation_output_weight": weight(STATE_DIM, INNOVATION_RANK),
-        "innovation_state_weight": weight(INNOVATION_RANK, STATE_DIM),
-        "innovation_input_weight": weight(INNOVATION_RANK, ENCODED_DIM),
-        "innovation_action_weight": weight(INNOVATION_RANK, PUBLIC_ACTION_DIM),
-        "innovation_bias": np.zeros(INNOVATION_RANK, dtype=np.float32),
-        "action_hidden_weight": weight(64, STATE_DIM + ENCODED_DIM),
-        "action_hidden_bias": np.zeros(64, dtype=np.float32),
-        "action_output_weight": weight(PUBLIC_ACTION_DIM, 64),
-        "action_output_bias": np.zeros(PUBLIC_ACTION_DIM, dtype=np.float32),
     }
+
+    # Preserve the original k=2 draw order exactly. Other ranks consume the
+    # same legacy draws before the common action head, so matched seeds share
+    # every non-innovation parameter across the principal rank sweep.
+    legacy_innovation: dict[str, NDArray[np.float32]] = {}
+    legacy_innovation["innovation_output_weight"] = weight(
+        STATE_DIM, INNOVATION_RANK
+    )
+    legacy_innovation["innovation_state_weight"] = weight(
+        INNOVATION_RANK, STATE_DIM
+    )
+    legacy_innovation["innovation_input_weight"] = weight(
+        INNOVATION_RANK, ENCODED_DIM
+    )
+    legacy_innovation["innovation_action_weight"] = weight(
+        INNOVATION_RANK, PUBLIC_ACTION_DIM
+    )
+    legacy_innovation["innovation_bias"] = np.zeros(
+        INNOVATION_RANK, dtype=np.float32
+    )
+    if rank == INNOVATION_RANK:
+        parameters.update(legacy_innovation)
+    elif rank:
+        innovation_rng = np.random.default_rng(
+            np.random.SeedSequence([seed, rank, 0xA17C0DE])
+        )
+
+        def innovation_weight(
+            output_width: int, input_width: int
+        ) -> NDArray[np.float32]:
+            standard_deviation = np.sqrt(2.0 / (input_width + output_width))
+            return innovation_rng.normal(
+                0.0,
+                standard_deviation,
+                (output_width, input_width),
+            ).astype(np.float32)
+
+        parameters.update(
+            {
+                "innovation_output_weight": innovation_weight(STATE_DIM, rank),
+                "innovation_state_weight": innovation_weight(rank, STATE_DIM),
+                "innovation_input_weight": innovation_weight(rank, ENCODED_DIM),
+                "innovation_action_weight": innovation_weight(
+                    rank, PUBLIC_ACTION_DIM
+                ),
+                "innovation_bias": np.zeros(rank, dtype=np.float32),
+            }
+        )
+    parameters.update(
+        {
+            "action_hidden_weight": weight(64, STATE_DIM + ENCODED_DIM),
+            "action_hidden_bias": np.zeros(64, dtype=np.float32),
+            "action_output_weight": weight(PUBLIC_ACTION_DIM, 64),
+            "action_output_bias": np.zeros(PUBLIC_ACTION_DIM, dtype=np.float32),
+        }
+    )
+    return parameters
 
 
 def save_structured_checkpoint(
     path: str | Path,
     parameters: Mapping[str, ArrayLike],
     metadata: Mapping[str, Any],
+    *,
+    innovation_rank: int | None = None,
 ) -> None:
     """Save a self-describing, framework-neutral structured checkpoint."""
 
     checkpoint_metadata = dict(metadata)
-    for key, expected in _CHECKPOINT_ARCHITECTURE.items():
+    rank = infer_structured_innovation_rank(
+        parameters,
+        checkpoint_metadata,
+        requested_rank=innovation_rank,
+    )
+    architecture = structured_checkpoint_architecture(rank)
+    for key, expected in architecture.items():
         if key in checkpoint_metadata and checkpoint_metadata[key] != expected:
             raise ValueError(f"metadata {key} conflicts with the architecture")
         checkpoint_metadata[key] = expected
@@ -381,14 +503,67 @@ def save_structured_checkpoint(
             for name, value in parameters.items()
         },
         metadata=checkpoint_metadata,
+        innovation_rank=rank,
     )
     payload: dict[str, Any] = {
-        name: checked.parameters[name] for name in STRUCTURED_PARAMETER_SHAPES
+        name: checked.parameters[name] for name in checked.parameter_shapes
     }
     payload["metadata_json"] = np.asarray(
         json.dumps(checkpoint_metadata, sort_keys=True)
     )
     np.savez(Path(path), **payload)
+
+
+def infer_structured_innovation_rank(
+    parameters: Mapping[str, ArrayLike],
+    metadata: Mapping[str, Any] | None = None,
+    *,
+    requested_rank: int | None = None,
+) -> int:
+    """Infer and cross-check the rank encoded by parameters and metadata."""
+
+    innovation_names = (
+        "innovation_output_weight",
+        "innovation_state_weight",
+        "innovation_input_weight",
+        "innovation_action_weight",
+        "innovation_bias",
+    )
+    present = [name in parameters for name in innovation_names]
+    if any(present) and not all(present):
+        raise ValueError(
+            "structured innovation parameters must be all present or absent"
+        )
+    if not any(present):
+        parameter_rank = 0
+    else:
+        candidate_widths = (
+            np.asarray(parameters["innovation_output_weight"]).shape[-1],
+            np.asarray(parameters["innovation_state_weight"]).shape[0],
+            np.asarray(parameters["innovation_input_weight"]).shape[0],
+            np.asarray(parameters["innovation_action_weight"]).shape[0],
+            np.asarray(parameters["innovation_bias"]).shape[0],
+        )
+        if len(set(candidate_widths)) != 1:
+            raise ValueError("structured innovation parameter ranks disagree")
+        parameter_rank = _validate_innovation_rank(candidate_widths[0])
+        if parameter_rank == 0:
+            raise ValueError("k=0 must omit the nonlinear innovation parameters")
+
+    declared = []
+    if metadata is not None and "innovation_rank" in metadata:
+        declared.append(_validate_innovation_rank(metadata["innovation_rank"]))
+    if requested_rank is not None:
+        declared.append(_validate_innovation_rank(requested_rank))
+    if any(rank != parameter_rank for rank in declared):
+        raise ValueError("structured innovation rank conflicts with parameters")
+    return parameter_rank
+
+
+def _metadata_innovation_rank(metadata: Mapping[str, Any]) -> int:
+    if "innovation_rank" not in metadata:
+        raise ValueError("checkpoint metadata is missing innovation_rank")
+    return _validate_innovation_rank(metadata["innovation_rank"])
 
 
 def _feature_batch(

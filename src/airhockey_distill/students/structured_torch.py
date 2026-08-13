@@ -1,4 +1,4 @@
-"""Trainable PyTorch form of the fixed structured recurrent student."""
+"""Trainable PyTorch form of the rank-configurable structured student."""
 
 from __future__ import annotations
 
@@ -16,31 +16,47 @@ from airhockey_distill.envs.policy_interface import (
 )
 from airhockey_distill.students.structured import (
     ENCODED_DIM,
+    INNOVATION_RANK,
     STATE_DIM,
-    STRUCTURED_PARAMETER_SHAPES,
     initialise_structured_parameters,
+    infer_structured_innovation_rank,
+    structured_parameter_shapes,
 )
 
 
 class StructuredRecurrentModule(nn.Module):
-    """Differentiable ``n=64, k=2`` policy with explicit sequence state."""
+    """Differentiable ``n=64`` policy with explicit sequence state."""
 
     def __init__(
         self,
         *,
         seed: int = 0,
+        innovation_rank: int | None = None,
         parameters: Mapping[str, ArrayLike] | None = None,
     ) -> None:
         super().__init__()
         initial = (
-            initialise_structured_parameters(seed)
+            initialise_structured_parameters(
+                seed,
+                innovation_rank=(
+                    INNOVATION_RANK
+                    if innovation_rank is None
+                    else innovation_rank
+                ),
+            )
             if parameters is None
             else {
                 name: np.asarray(value, dtype=np.float32)
                 for name, value in parameters.items()
             }
         )
-        for name, shape in STRUCTURED_PARAMETER_SHAPES.items():
+        rank = infer_structured_innovation_rank(
+            initial,
+            requested_rank=innovation_rank,
+        )
+        self.innovation_rank = rank
+        self.parameter_shapes = structured_parameter_shapes(rank)
+        for name, shape in self.parameter_shapes.items():
             if name not in initial:
                 raise ValueError(f"missing structured parameter {name}")
             value = initial[name]
@@ -105,22 +121,23 @@ class StructuredRecurrentModule(nn.Module):
                 previous_action, self.recurrence_action_weight, bias=None
             )
         )
-        innovation = torch.tanh(
-            functional.linear(
-                previous_state,
-                self.innovation_state_weight,
-                self.innovation_bias,
+        if self.innovation_rank:
+            innovation = torch.tanh(
+                functional.linear(
+                    previous_state,
+                    self.innovation_state_weight,
+                    self.innovation_bias,
+                )
+                + functional.linear(
+                    encoded, self.innovation_input_weight, bias=None
+                )
+                + functional.linear(
+                    previous_action, self.innovation_action_weight, bias=None
+                )
             )
-            + functional.linear(
-                encoded, self.innovation_input_weight, bias=None
+            state = state + functional.linear(
+                innovation, self.innovation_output_weight, bias=None
             )
-            + functional.linear(
-                previous_action, self.innovation_action_weight, bias=None
-            )
-        )
-        state = state + functional.linear(
-            innovation, self.innovation_output_weight, bias=None
-        )
         action_hidden = functional.silu(
             functional.linear(
                 torch.cat((state, encoded), dim=-1),

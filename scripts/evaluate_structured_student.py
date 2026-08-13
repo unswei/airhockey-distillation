@@ -106,7 +106,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "schema_version": 1,
         "status": "completed",
         "created_at": datetime.now(UTC).isoformat(),
-        "policy": "structured_n64_k2",
+        "policy": f"structured_n64_k{policy.innovation_rank}",
         "policy_metadata": policy.metadata,
         "checkpoint": str(checkpoint),
         "checkpoint_sha256": _sha256(checkpoint),

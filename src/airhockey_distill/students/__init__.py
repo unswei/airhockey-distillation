@@ -22,11 +22,15 @@ from airhockey_distill.students.structured import (
     INNOVATION_RANK,
     RECURRENT_PARAMETER_NAMES,
     STATE_DIM,
+    SUPPORTED_INNOVATION_RANKS,
     STRUCTURED_PARAMETER_SHAPES,
     StructuredPolicyCarry,
     StructuredRecurrentPolicy,
     initialise_structured_parameters,
+    infer_structured_innovation_rank,
     save_structured_checkpoint,
+    structured_checkpoint_architecture,
+    structured_parameter_shapes,
 )
 
 __all__ = [
@@ -44,12 +48,16 @@ __all__ = [
     "INNOVATION_RANK",
     "RECURRENT_PARAMETER_NAMES",
     "STATE_DIM",
+    "SUPPORTED_INNOVATION_RANKS",
     "STRUCTURED_PARAMETER_SHAPES",
     "StructuredPolicyCarry",
     "StructuredRecurrentPolicy",
     "initialise_structured_parameters",
+    "infer_structured_innovation_rank",
     "initialise_gru_parameters",
     "save_feed_forward_checkpoint",
     "save_gru_checkpoint",
     "save_structured_checkpoint",
+    "structured_checkpoint_architecture",
+    "structured_parameter_shapes",
 ]

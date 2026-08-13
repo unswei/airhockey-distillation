@@ -163,6 +163,9 @@ students with five matched seeds and exactly 20,000 family-specific shadow
 episodes per family. Validation stays paired on the existing 225 shots; a new
 225-shot principal test remains closed until all 35 checkpoints, validation
 evidence and efficiency measurements are frozen.
+Its structured NumPy/PyTorch runtime is now rank-configurable for
+`k=0,1,2,4`; the frozen successful `k=2` checkpoint remains bit-exact under
+the refactor. The new ranks are implemented but untrained.
 
 ## Scientific guardrails
 

@@ -7,9 +7,13 @@ from airhockey_distill.students import (
 )
 
 
-def test_automatic_differentiation_confirms_rank_two_innovation():
+@pytest.mark.parametrize("rank", (0, 1, 2, 4))
+def test_automatic_differentiation_confirms_rank_bound(rank):
     torch = pytest.importorskip("torch")
-    policy = StructuredRecurrentPolicy(initialise_structured_parameters(21), {})
+    policy = StructuredRecurrentPolicy(
+        initialise_structured_parameters(21, innovation_rank=rank),
+        {},
+    )
     rng = np.random.default_rng(21)
     observation = rng.normal(size=19).astype(np.float32)
     previous_action = rng.normal(size=2).astype(np.float32)
@@ -30,6 +34,8 @@ def test_automatic_differentiation_confirms_rank_two_innovation():
             + parameters["recurrence_action_weight"] @ action_tensor
             + parameters["recurrence_bias"]
         )
+        if rank == 0:
+            return linear
         innovation = torch.tanh(
             parameters["innovation_state_weight"] @ state
             + parameters["innovation_input_weight"] @ encoded_tensor
@@ -54,5 +60,8 @@ def test_automatic_differentiation_confirms_rank_two_innovation():
     nonlinear_departure = autodiff_jacobian - fixed_linear_jacobian
     singular_values = np.linalg.svd(nonlinear_departure, compute_uv=False)
 
-    assert np.linalg.matrix_rank(nonlinear_departure, tol=1e-7) <= 2
-    assert singular_values[2] < 1e-12
+    assert np.linalg.matrix_rank(nonlinear_departure, tol=1e-7) <= rank
+    if rank == 0:
+        np.testing.assert_allclose(nonlinear_departure, 0.0, atol=1e-12)
+    else:
+        assert singular_values[rank] < 1e-12

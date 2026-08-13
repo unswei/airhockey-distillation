@@ -1,12 +1,18 @@
+import hashlib
+from pathlib import Path
+
 import numpy as np
 import pytest
+import yaml
 
 from airhockey_distill.students import (
     INNOVATION_RANK,
     STATE_DIM,
+    SUPPORTED_INNOVATION_RANKS,
     STRUCTURED_PARAMETER_SHAPES,
     StructuredRecurrentPolicy,
     initialise_structured_parameters,
+    structured_parameter_shapes,
 )
 
 
@@ -19,6 +25,117 @@ def test_structured_student_has_fixed_n64_k2_architecture():
     assert STRUCTURED_PARAMETER_SHAPES["innovation_state_weight"] == (2, 64)
     assert policy.parameter_count == 12328
     assert policy.recurrent_parameter_count == 2630
+
+
+@pytest.mark.parametrize(
+    ("rank", "parameters", "recurrent_parameters"),
+    ((0, 12002, 2304), (1, 12165, 2467), (2, 12328, 2630), (4, 12654, 2956)),
+)
+def test_structured_student_supports_predeclared_ranks(
+    rank, parameters, recurrent_parameters
+):
+    policy = StructuredRecurrentPolicy(
+        initialise_structured_parameters(420 + rank, innovation_rank=rank),
+        {},
+    )
+
+    assert SUPPORTED_INNOVATION_RANKS == (0, 1, 2, 4)
+    assert policy.innovation_rank == rank
+    assert policy.parameter_count == parameters
+    assert policy.recurrent_parameter_count == recurrent_parameters
+    if rank == 0:
+        assert not any(name.startswith("innovation_") for name in policy.parameters)
+    else:
+        assert policy.parameters["innovation_output_weight"].shape == (64, rank)
+        assert policy.parameters["innovation_state_weight"].shape == (rank, 64)
+
+
+@pytest.mark.parametrize(
+    ("rank", "parameters", "recurrent_parameters"),
+    ((0, 12002, 2304), (1, 12165, 2467), (4, 12654, 2956)),
+)
+def test_new_rank_configs_match_runtime_counts(rank, parameters, recurrent_parameters):
+    config = yaml.safe_load(
+        Path(f"configs/student/structured_n64_k{rank}.yaml").read_text()
+    )
+    policy = StructuredRecurrentPolicy(
+        initialise_structured_parameters(427, innovation_rank=rank),
+        {},
+    )
+
+    assert config["policy"]["recurrence"]["innovation_rank"] == rank
+    assert config["expected_counts"]["total_trainable_parameters"] == parameters
+    assert (
+        config["expected_counts"]["recurrent_core_parameters"]
+        == recurrent_parameters
+    )
+    assert policy.parameter_count == parameters
+    assert policy.recurrent_parameter_count == recurrent_parameters
+
+
+def test_default_k2_initialisation_is_exactly_backwards_compatible():
+    default = initialise_structured_parameters(423)
+    explicit = initialise_structured_parameters(423, innovation_rank=2)
+
+    assert STRUCTURED_PARAMETER_SHAPES == structured_parameter_shapes(2)
+    assert default.keys() == explicit.keys()
+    for name in default:
+        np.testing.assert_array_equal(default[name], explicit[name])
+
+
+def test_default_k2_initialisation_matches_legacy_parameter_digest():
+    parameters = initialise_structured_parameters(42)
+    digest = hashlib.sha256()
+    for name, value in parameters.items():
+        digest.update(name.encode())
+        digest.update(str(value.dtype).encode())
+        digest.update(str(value.shape).encode())
+        digest.update(value.tobytes())
+
+    assert digest.hexdigest() == (
+        "93930bc5bf38543ef6accb75209409f6e577f957c02aff46582037d26c611b42"
+    )
+
+
+def test_matched_seed_shares_every_noninnovation_parameter_across_ranks():
+    by_rank = {
+        rank: initialise_structured_parameters(426, innovation_rank=rank)
+        for rank in SUPPORTED_INNOVATION_RANKS
+    }
+    common_names = {
+        name
+        for name in by_rank[2]
+        if not name.startswith("innovation_")
+    }
+
+    for name in common_names:
+        for rank in SUPPORTED_INNOVATION_RANKS:
+            np.testing.assert_array_equal(by_rank[rank][name], by_rank[2][name])
+
+
+def test_k0_is_exactly_linear_in_the_previous_state():
+    rng = np.random.default_rng(424)
+    policy = StructuredRecurrentPolicy(
+        initialise_structured_parameters(424, innovation_rank=0),
+        {},
+    )
+    observation = rng.normal(size=19).astype(np.float32)
+    previous_action = rng.normal(size=2).astype(np.float32)
+    previous_state = rng.normal(size=64).astype(np.float32)
+
+    jacobian = policy.recurrent_jacobian(
+        observation,
+        previous_action,
+        previous_state,
+    )
+
+    np.testing.assert_array_equal(jacobian, np.diag(policy.diagonal_dynamics))
+
+
+@pytest.mark.parametrize("rank", (-1, 3, 5, True))
+def test_structured_student_rejects_unapproved_ranks(rank):
+    with pytest.raises(ValueError, match="0, 1, 2 or 4"):
+        initialise_structured_parameters(425, innovation_rank=rank)
 
 
 def test_diagonal_initialisation_spans_declared_time_constants():
