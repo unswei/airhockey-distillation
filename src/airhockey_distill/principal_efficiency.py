@@ -218,7 +218,9 @@ def benchmark_policy_calls(
         "repetition_mean_microseconds": [float(value) for value in microseconds],
         "median_microseconds": float(np.median(microseconds)),
         "p95_microseconds": float(np.quantile(microseconds, 0.95)),
-        "p95_definition": "95th percentile across the ten repetition means",
+        "p95_definition": (
+            "95th percentile across the configured repetition means"
+        ),
     }
 
 
