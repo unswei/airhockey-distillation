@@ -4,7 +4,9 @@ import pytest
 from airhockey_distill.students import (
     PARAMETER_SHAPES,
     FeedForwardPolicy,
+    initialise_feed_forward_parameters,
     save_feed_forward_checkpoint,
+    save_principal_feed_forward_checkpoint,
 )
 
 
@@ -53,3 +55,22 @@ def test_feed_forward_rejects_wrong_observation_shape():
 
     with pytest.raises(ValueError, match="shape"):
         policy.action(np.zeros(18, dtype=np.float32))
+
+
+def test_principal_feed_forward_initialisation_and_checkpoint_are_self_describing(
+    tmp_path,
+):
+    parameters = initialise_feed_forward_parameters(13)
+    path = tmp_path / "principal-feed-forward.npz"
+
+    save_principal_feed_forward_checkpoint(
+        path,
+        parameters,
+        {"student_id": "feed_forward"},
+    )
+    restored = FeedForwardPolicy.load(path)
+
+    assert restored.metadata["policy"] == "feed_forward"
+    assert restored.metadata["observation_dimension"] == 19
+    assert restored.metadata["action_output"] == "tanh_mean"
+    assert restored.parameter_count == 5602

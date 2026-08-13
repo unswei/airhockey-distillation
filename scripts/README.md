@@ -63,9 +63,17 @@ workflow.
   257-step sequence after rank-runtime changes.
 - The ten-step finite-stack training runtime is
   `src/airhockey_distill/students/finite_stack_torch.py`; it exports through
-  the framework-neutral NumPy checkpoint helpers in `finite_stack.py`. A
-  principal-sweep trainer will consume this runtime after the seven-family
-  training/export dry run is fixed.
+  the framework-neutral NumPy checkpoint helpers in `finite_stack.py`. The
+  principal trainer consumes this runtime through the common family adapter.
+- `train_principal_student.py` is the canonical trainer for every principal
+  family and both collector/final stages. It enforces the common dataset and
+  split contracts and weights each complete episode equally.
+- `collect_principal_shadow_dataset.py` uses the family-neutral NumPy policy
+  interface and one fixed seed partition of the common paired schedule.
+- `aggregate_principal_shadow_dataset.py` verifies all five realised shadow
+  partitions before combining them with the hash-bound common base data.
+- `evaluate_principal_student.py` evaluates every final family checkpoint on
+  the identical validation schedule and refuses to open the principal test.
 - `train_gru_tiny_overfit.py` trains the matched GRU-64 on one complete
   deterministic-mean episode with loss on every valid step, exports its
   framework-neutral NumPy checkpoint, and gates PyTorch/NumPy parity plus

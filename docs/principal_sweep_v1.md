@@ -80,3 +80,51 @@ per checkpoint alongside the five seed-level values for each family.
 The canonical machine-readable protocol is
 `configs/experiments/principal_sweep_v1.yaml`. Corrections require a new
 version before the principal test is opened.
+
+## Shared executable pipeline
+
+The seven-family pipeline is implemented but no principal training run has
+started. All families are dispatched through the same four scripts:
+
+- `train_principal_student.py` for both base-only collector checkpoints and
+  from-scratch final checkpoints;
+- `collect_principal_shadow_dataset.py` for one fixed 4,000-episode collector
+  partition;
+- `aggregate_principal_shadow_dataset.py` for the common 20,000-episode base
+  dataset plus the five family-specific shadow partitions;
+- `evaluate_principal_student.py` for the canonical 1,125-episode validation
+  schedule.
+
+The original `principal_sweep_v1.yaml` predeclaration remains byte-identical
+to its committed form. Operational paths, architecture hashes, export checks
+and runtime thread settings are kept in
+`configs/experiments/principal_sweep_execution_v1.yaml`, which hash-binds the
+immutable predeclaration.
+
+The common teacher-controlled dataset is hash-bound and identical for all
+seven families. Shadow trajectories cannot be identical because each family
+controls its own rollout. Their experimental schedule is identical: every
+family uses collection offsets 0--19,999, reset seeds 52,303--72,302 and the
+resulting paired shot and blackout assignments. The aggregator reopens every
+shard and checks its realised episode index, collection offset, reset seed,
+shot ID and blackout length. Shadow data is pooled only within its originating
+family.
+
+Training supervises every valid step and gives every complete episode equal
+total weight. For episode `i`, its two-dimensional action squared errors are
+summed over valid steps and divided by `2 T_i`; a batch then averages those
+episode means. Gradients are accumulated across the fixed 64-step chunks
+before one optimiser update, with recurrent carry detached only at chunk
+boundaries. Consequently, longer episodes supply more labelled steps but no
+greater total optimisation weight.
+
+The common evaluator uses the complete generated 225-shot validation split in
+shot-major, blackout-minor order at blackout lengths 0, 5, 10, 15 and 20. It
+records a schedule hash in every result. The shared evaluator deliberately
+rejects requests for the unopened principal-test split.
+
+The implementation dry run constructs, updates, exports and exactly reloads
+all seven families on unequal-length synthetic complete episodes. It also
+checks that equal-episode MSE differs from transition-weighted MSE in the
+expected diagnostic case. These checks establish pipeline semantics only, not
+student performance.

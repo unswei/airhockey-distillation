@@ -3,7 +3,9 @@
 from airhockey_distill.students.feed_forward import (
     PARAMETER_SHAPES,
     FeedForwardPolicy,
+    initialise_feed_forward_parameters,
     save_feed_forward_checkpoint,
+    save_principal_feed_forward_checkpoint,
 )
 from airhockey_distill.students.finite_stack import (
     FINITE_STACK_HISTORY_DIM,
@@ -44,9 +46,18 @@ from airhockey_distill.students.structured import (
     structured_checkpoint_architecture,
     structured_parameter_shapes,
 )
+from airhockey_distill.students.principal import (
+    PRINCIPAL_FAMILY_IDS,
+    PrincipalPolicy,
+    load_principal_policy,
+    principal_policy_from_parameters,
+    principal_structured_rank,
+    save_principal_checkpoint,
+)
 
 __all__ = [
     "PARAMETER_SHAPES",
+    "PRINCIPAL_FAMILY_IDS",
     "CONTROL_PERIOD_MS",
     "ENCODED_DIM",
     "FeedForwardPolicy",
@@ -72,11 +83,18 @@ __all__ = [
     "STRUCTURED_PARAMETER_SHAPES",
     "StructuredPolicyCarry",
     "StructuredRecurrentPolicy",
+    "PrincipalPolicy",
+    "initialise_feed_forward_parameters",
     "initialise_structured_parameters",
     "initialise_finite_stack_parameters",
     "infer_structured_innovation_rank",
     "initialise_gru_parameters",
+    "load_principal_policy",
+    "principal_policy_from_parameters",
+    "principal_structured_rank",
     "save_feed_forward_checkpoint",
+    "save_principal_feed_forward_checkpoint",
+    "save_principal_checkpoint",
     "save_finite_stack_checkpoint",
     "save_gru_checkpoint",
     "save_structured_checkpoint",

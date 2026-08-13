@@ -1,0 +1,50 @@
+schema_version: 1
+status: phase_3_principal_sweep_pipeline_implemented_not_started
+
+protocol:
+  path: configs/experiments/principal_sweep_v1.yaml
+  sha256: 7e63396224ff9513eaf1b7ff9512f03ee026e62c6c4c07f030002a4a9270abf9
+
+architecture_configs:
+  feed_forward:
+    path: configs/student/feed_forward.yaml
+    sha256: b7d3cf3b37495c9011a820be92ecd90652ae8500abadfeeb7062e9ffbeee538b
+  finite_stack_10:
+    path: configs/student/finite_stack_10.yaml
+    sha256: 1895f7dbd39b7db0658955871f7d652b1884190ef94a80c4b972650ffb4302f1
+  structured_k0:
+    path: configs/student/structured_n64_k0.yaml
+    sha256: c866834d15426a4a0321a0953bfaa4916f8c42f572b9e567d478bd85e7d22438
+  structured_k1:
+    path: configs/student/structured_n64_k1.yaml
+    sha256: da7345ea10bb88e9af9bc26a255b183a64b845775f880b01dbdc7afe981d8c17
+  structured_k2:
+    path: configs/student/structured_n64_k2.yaml
+    sha256: 3601ab7421af0b91c4c529c04b97d153e197ecd332d6cdddaf0527645c3baf9e
+  structured_k4:
+    path: configs/student/structured_n64_k4.yaml
+    sha256: daaf51ff3a84adc594cdced8246146c0b30e3d2ddc1cc82bfb9ef789f1856d49
+  gru_n64:
+    path: configs/student/gru_n64.yaml
+    sha256: 8b59adfbed73f3594b851432710092171608b3c5a5a0513d313a924f0ac73eb6
+
+shadow_runtime:
+  distribution_config: configs/env/direct_launch_v3.yaml
+  distribution_config_sha256: 036eee7205317358d8050f5ab7f9d88769fd2d848c0ea3499aaed014dfae2e23
+  distribution_split: train
+  reward_config: configs/reward/defend_shot_v1.yaml
+  reward_config_sha256: 7ca33aa738603ea018df8e95e819b289df4572e5410fa46415083552fc037b5a
+  teacher_config: configs/teacher/dreamerv3_v3.yaml
+  teacher_config_sha256: 537c68a17dbcf9d29665e3726a94e61a99a0bdaf07fb1e69946c09e34a1770d4
+  blackout_start_observation_step: 5
+  minimum_blackout_steps: 0
+  maximum_blackout_steps: 20
+  action_lock_steps: 5
+  episodes_per_shard: 500
+
+training_runtime:
+  torch_threads: 16
+  export:
+    verification_episodes: 32
+    maximum_absolute_error: 0.00002
+    require_exact_checkpoint_reload: true

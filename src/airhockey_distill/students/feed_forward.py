@@ -27,6 +27,15 @@ PARAMETER_SHAPES = {
     "action_output_bias": (PUBLIC_ACTION_DIM,),
 }
 
+_CHECKPOINT_ARCHITECTURE = {
+    "schema_version": 1,
+    "policy": "feed_forward",
+    "observation_dimension": PUBLIC_OBSERVATION_DIM,
+    "action_dimension": PUBLIC_ACTION_DIM,
+    "include_previous_action": False,
+    "action_output": "tanh_mean",
+}
+
 
 @dataclass(frozen=True)
 class FeedForwardPolicy:
@@ -44,6 +53,13 @@ class FeedForwardPolicy:
                 raise ValueError(f"{name} must have shape {shape}, got {value.shape}")
             if value.dtype != np.float32 or not np.all(np.isfinite(value)):
                 raise ValueError(f"{name} must contain finite float32 values")
+        if self.metadata.get("policy") == "feed_forward":
+            for key, expected in _CHECKPOINT_ARCHITECTURE.items():
+                if self.metadata.get(key) != expected:
+                    raise ValueError(
+                        f"checkpoint metadata {key} must be {expected!r}, "
+                        f"got {self.metadata.get(key)!r}"
+                    )
 
     @classmethod
     def load(cls, path: str | Path) -> FeedForwardPolicy:
@@ -105,6 +121,48 @@ def save_feed_forward_checkpoint(
     }
     payload["metadata_json"] = np.asarray(json.dumps(dict(metadata), sort_keys=True))
     np.savez(Path(path), **payload)
+
+
+def initialise_feed_forward_parameters(
+    seed: int,
+) -> dict[str, NDArray[np.float32]]:
+    """Initialise the principal observation-only network reproducibly."""
+
+    rng = np.random.default_rng(seed)
+
+    def weight(output_width: int, input_width: int) -> NDArray[np.float32]:
+        standard_deviation = np.sqrt(2.0 / (input_width + output_width))
+        return rng.normal(
+            0.0,
+            standard_deviation,
+            (output_width, input_width),
+        ).astype(np.float32)
+
+    return {
+        "encoder_0_weight": weight(64, PUBLIC_OBSERVATION_DIM),
+        "encoder_0_bias": np.zeros(64, dtype=np.float32),
+        "encoder_1_weight": weight(32, 64),
+        "encoder_1_bias": np.zeros(32, dtype=np.float32),
+        "action_hidden_weight": weight(64, 32),
+        "action_hidden_bias": np.zeros(64, dtype=np.float32),
+        "action_output_weight": weight(PUBLIC_ACTION_DIM, 64),
+        "action_output_bias": np.zeros(PUBLIC_ACTION_DIM, dtype=np.float32),
+    }
+
+
+def save_principal_feed_forward_checkpoint(
+    path: str | Path,
+    parameters: Mapping[str, ArrayLike],
+    metadata: Mapping[str, Any],
+) -> None:
+    """Save a self-describing principal feed-forward checkpoint."""
+
+    checkpoint_metadata = dict(metadata)
+    for key, expected in _CHECKPOINT_ARCHITECTURE.items():
+        if key in checkpoint_metadata and checkpoint_metadata[key] != expected:
+            raise ValueError(f"metadata {key} conflicts with the architecture")
+        checkpoint_metadata[key] = expected
+    save_feed_forward_checkpoint(path, parameters, checkpoint_metadata)
 
 
 def _silu(value: NDArray[np.float32]) -> NDArray[np.float32]:

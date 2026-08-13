@@ -169,6 +169,10 @@ the refactor. The new ranks are implemented but untrained.
 The predeclared [ten-step finite-stack baseline](docs/finite_stack_student_10.md)
 is also implemented with matched NumPy/PyTorch execution and framework-neutral
 checkpoint export. It is untrained.
+The [principal sweep pipeline](docs/principal_sweep_v1.md#shared-executable-pipeline)
+now trains, shadow-labels and evaluates all seven families through common
+code. It enforces the hash-bound base data, equal complete-episode loss
+weighting and paired shadow/validation schedules. No principal run has started.
 
 ## Scientific guardrails
 

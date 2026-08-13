@@ -38,6 +38,10 @@ remain bit-exact; the other ranks are not yet trained.
 The ten-step finite-stack runtime is also implemented. It retains exactly ten
 masked puck-position/visibility triples, has a 30-float carry and exports a
 matched NumPy checkpoint from PyTorch. It is not yet trained.
+One principal pipeline now dispatches all seven families for training, shadow
+collection, aggregation and paired validation. It hash-binds the common base
+data, normalises loss per complete episode and verifies realised shadow and
+validation schedules. No principal checkpoint has been trained yet.
 
 ## Completed
 
@@ -289,11 +293,15 @@ matched NumPy checkpoint from PyTorch. It is not yet trained.
   framework-neutral checkpoint. Tests enforce oldest-to-newest masked puck
   history, zero episode padding, exact capacity and no visibility-triggered
   reset.
+- Generalised the principal training, shadow and validation pipeline across
+  all seven families. The dry run covers every family, exact NumPy export and
+  reload, equal complete-episode weighting, common split hashes and fail-closed
+  paired schedules; the principal test remains inaccessible.
 
 ## Next actions
 
-- Build the seven-family training/export dry-run gate without opening
-  `principal_test`.
+- Freeze the pipeline commit, then run the five matched base-only collector
+  seeds for each family without opening `principal_test`.
 - Retain direct launch as the core controlled task; a scripted physical strike
   remains a later secondary extension.
 
@@ -364,6 +372,7 @@ matched NumPy checkpoint from PyTorch. It is not yet trained.
 | 2026-08-13 | Predeclared the fair principal sweep | Seven families, five matched seeds, 20,000 shadow episodes per family and a fresh unopened 225-shot test split |
 | 2026-08-13 | Implemented rank-configurable structured students | `k=0,1,2,4` NumPy/PyTorch paths pass; frozen `k=2` actions and states remain bit-exact |
 | 2026-08-13 | Implemented the ten-step finite-stack student | 46-value input, 7,330 parameters, 30-float history and matched NumPy/PyTorch export |
+| 2026-08-13 | Generalised the principal pipeline across all seven families | Common data loader, equal episode weighting, paired shadow/validation schedules and seven-family export dry run |
 
 ## Blockers
 

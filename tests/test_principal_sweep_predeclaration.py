@@ -6,7 +6,9 @@ import yaml
 from airhockey_distill.envs import load_direct_launch_distribution
 from airhockey_distill.students import (
     FINITE_STACK_HISTORY_DIM,
+    FeedForwardPolicy,
     FiniteStackPolicy,
+    initialise_feed_forward_parameters,
     initialise_finite_stack_parameters,
 )
 
@@ -99,6 +101,10 @@ def test_parameter_and_state_accounting_is_predeclared():
         assert family["expected_total_parameters"] == 12002 + 163 * rank
         assert family["expected_core_parameters"] == 2304 + 163 * rank
     assert families["gru_n64"]["expected_total_parameters"] == 28898
+    feed_forward = FeedForwardPolicy(initialise_feed_forward_parameters(14303), {})
+    assert feed_forward.parameter_count == families["feed_forward"][
+        "expected_total_parameters"
+    ]
     assert families["finite_stack_10"]["persistent_state_float32_values"] == 30
     finite_stack = FiniteStackPolicy(initialise_finite_stack_parameters(14303), {})
     assert finite_stack.parameter_count == families["finite_stack_10"][
