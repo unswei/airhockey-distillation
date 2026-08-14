@@ -17,7 +17,10 @@ from airhockey_distill.students import (
 )
 from airhockey_distill.students.principal_torch import PrincipalStudentModule
 from scripts.train_principal_student import (
+    PRINCIPAL_EXPORT_CARRY_ABSOLUTE_TOLERANCE,
+    PRINCIPAL_EXPORT_CARRY_RELATIVE_TOLERANCE,
     evaluate_principal_split,
+    scale_aware_carry_error,
     train_principal_epoch,
     verify_principal_export,
 )
@@ -83,12 +86,14 @@ def test_all_seven_families_share_training_export_and_reload_path(
     checkpoint = tmp_path / f"{family_id}.npz"
     save_principal_checkpoint(family_id, checkpoint, parameters, metadata)
     restored = load_principal_policy(family_id, checkpoint)
-    action_error, carry_error, exact = verify_principal_export(
-        module,
-        exported,
-        restored,
-        split,
-        episode_count=2,
+    action_error, carry_error, carry_tolerance_fraction, exact = (
+        verify_principal_export(
+            module,
+            exported,
+            restored,
+            split,
+            episode_count=2,
+        )
     )
 
     assert np.isfinite(training_mse)
@@ -97,7 +102,36 @@ def test_all_seven_families_share_training_export_and_reload_path(
     assert exported.parameter_count == expected[family_id]
     assert action_error <= 2e-6
     assert carry_error <= 2e-6
+    assert carry_tolerance_fraction <= 1.0
     assert exact
+
+
+def test_carry_export_gate_uses_absolute_and_relative_scale():
+    torch_carries = np.asarray([[0.0, -30.663333892822266]])
+    numpy_carries = np.asarray([[0.000019, -30.66335678100586]])
+
+    maximum_absolute_error, maximum_tolerance_fraction = scale_aware_carry_error(
+        torch_carries,
+        numpy_carries,
+    )
+
+    assert maximum_absolute_error == pytest.approx(0.00002288818359375)
+    assert maximum_tolerance_fraction <= 1.0
+    expected_large_state_tolerance = (
+        PRINCIPAL_EXPORT_CARRY_ABSOLUTE_TOLERANCE
+        + PRINCIPAL_EXPORT_CARRY_RELATIVE_TOLERANCE
+        * max(abs(torch_carries[0, 1]), abs(numpy_carries[0, 1]))
+    )
+    assert maximum_absolute_error <= expected_large_state_tolerance
+
+
+def test_carry_export_gate_rejects_excess_error_near_zero():
+    _, maximum_tolerance_fraction = scale_aware_carry_error(
+        np.asarray([[0.0]]),
+        np.asarray([[0.000021]]),
+    )
+
+    assert maximum_tolerance_fraction > 1.0
 
 
 def test_training_objective_weights_complete_episodes_equally():

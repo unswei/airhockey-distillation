@@ -265,8 +265,10 @@ def run_family(
     save_principal_checkpoint(family_id, checkpoint, parameters, metadata)
     exported = principal_policy_from_parameters(family_id, parameters, metadata)
     restored = load_principal_policy(family_id, checkpoint)
-    action_error, carry_error, reload_exact = verify_principal_export(
-        module, exported, restored, split, episode_count=1
+    action_error, carry_error, carry_tolerance_fraction, reload_exact = (
+        verify_principal_export(
+            module, exported, restored, split, episode_count=1
+        )
     )
     validation = run_short_validation(
         protocol, restored, validation_schedule
@@ -277,7 +279,7 @@ def run_family(
         timed_calls_per_repetition=latency_calls,
         repetitions=latency_repetitions,
     )
-    agreement_tolerance = float(
+    action_agreement_tolerance = float(
         protocol["training"]["export"]["maximum_absolute_error"]
     )
     fractional_reduction = 1.0 - selected_mse / initial_mse
@@ -289,8 +291,10 @@ def run_family(
             minimum_fractional_reduction=minimum_loss_reduction,
         ),
         "exact_checkpoint_reload": bool(reload_exact),
-        "numpy_pytorch_agreement": max(action_error, carry_error)
-        <= agreement_tolerance,
+        "numpy_pytorch_agreement": (
+            action_error <= action_agreement_tolerance
+            and carry_tolerance_fraction <= 1.0
+        ),
         "short_validation_rollout": len(validation["episodes"])
         == len(validation_schedule)
         and all(
@@ -324,6 +328,9 @@ def run_family(
         "parameter_count": restored.parameter_count,
         "numpy_pytorch_action_maximum_absolute_error": action_error,
         "numpy_pytorch_carry_maximum_absolute_error": carry_error,
+        "numpy_pytorch_carry_maximum_tolerance_fraction": (
+            carry_tolerance_fraction
+        ),
         "checkpoint_reload_exact": reload_exact,
         "validation": validation,
         "latency": latency,

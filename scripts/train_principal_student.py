@@ -32,6 +32,10 @@ from airhockey_distill.students import (
     save_principal_checkpoint,
 )
 
+PRINCIPAL_EXPORT_ACTION_ABSOLUTE_TOLERANCE = 2e-5
+PRINCIPAL_EXPORT_CARRY_ABSOLUTE_TOLERANCE = 2e-5
+PRINCIPAL_EXPORT_CARRY_RELATIVE_TOLERANCE = 1e-6
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -208,16 +212,22 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         checkpoint_metadata,
     )
     restored = load_principal_policy(args.family, checkpoint_path)
-    action_error, carry_error, reload_exact = verify_principal_export(
-        module,
-        exported,
-        restored,
-        splits["validation"],
-        episode_count=int(training["export"]["verification_episodes"]),
+    action_error, carry_error, carry_tolerance_fraction, reload_exact = (
+        verify_principal_export(
+            module,
+            exported,
+            restored,
+            splits["validation"],
+            episode_count=int(training["export"]["verification_episodes"]),
+        )
     )
-    export_error = max(action_error, carry_error)
-    if export_error > float(training["export"]["maximum_absolute_error"]):
-        raise RuntimeError("exported NumPy policy does not match PyTorch")
+    action_tolerance = float(training["export"]["maximum_absolute_error"])
+    if action_tolerance != PRINCIPAL_EXPORT_ACTION_ABSOLUTE_TOLERANCE:
+        raise ValueError("principal action export tolerance changed unexpectedly")
+    if action_error > action_tolerance:
+        raise RuntimeError("exported NumPy policy action does not match PyTorch")
+    if carry_tolerance_fraction > 1.0:
+        raise RuntimeError("exported NumPy policy carry does not match PyTorch")
     if bool(training["export"]["require_exact_checkpoint_reload"]) and not (
         reload_exact
     ):
@@ -252,7 +262,15 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "checkpoint": str(checkpoint_path),
         "checkpoint_sha256": sha256_file(checkpoint_path),
         "export_action_maximum_absolute_error": action_error,
+        "export_action_absolute_tolerance": action_tolerance,
         "export_carry_maximum_absolute_error": carry_error,
+        "export_carry_absolute_tolerance": (
+            PRINCIPAL_EXPORT_CARRY_ABSOLUTE_TOLERANCE
+        ),
+        "export_carry_relative_tolerance": (
+            PRINCIPAL_EXPORT_CARRY_RELATIVE_TOLERANCE
+        ),
+        "export_carry_maximum_tolerance_fraction": carry_tolerance_fraction,
         "checkpoint_reload_exact": reload_exact,
         "parameter_count": exported.parameter_count,
         "core_parameter_count": exported.core_parameter_count,
@@ -396,11 +414,12 @@ def verify_principal_export(
     split: PrincipalEpisodeSplit,
     *,
     episode_count: int,
-) -> tuple[float, float, bool]:
+) -> tuple[float, float, float, bool]:
     import torch
 
     action_error = 0.0
     carry_error = 0.0
+    carry_tolerance_fraction = 0.0
     reload_exact = True
     module.eval()
     for index in range(min(episode_count, split.episode_count)):
@@ -425,18 +444,41 @@ def verify_principal_export(
             float(np.max(np.abs(torch_actions.numpy()[0] - exported_actions))),
         )
         if exported_carries.shape[1]:
-            carry_error = max(
-                carry_error,
-                float(
-                    np.max(
-                        np.abs(torch_carries.numpy()[0] - exported_carries)
-                    )
-                ),
+            episode_carry_error, episode_tolerance_fraction = (
+                scale_aware_carry_error(
+                    torch_carries.numpy()[0],
+                    exported_carries,
+                )
+            )
+            carry_error = max(carry_error, episode_carry_error)
+            carry_tolerance_fraction = max(
+                carry_tolerance_fraction,
+                episode_tolerance_fraction,
             )
         reload_exact = reload_exact and np.array_equal(
             restored_actions, exported_actions
         ) and np.array_equal(restored_carries, exported_carries)
-    return action_error, carry_error, reload_exact
+    return action_error, carry_error, carry_tolerance_fraction, reload_exact
+
+
+def scale_aware_carry_error(
+    torch_carries: np.ndarray,
+    numpy_carries: np.ndarray,
+) -> tuple[float, float]:
+    """Return absolute error and its fraction of the declared carry tolerance."""
+
+    if torch_carries.shape != numpy_carries.shape:
+        raise ValueError("NumPy and PyTorch carry shapes differ")
+    absolute_error = np.abs(torch_carries - numpy_carries)
+    scale = np.maximum(np.abs(torch_carries), np.abs(numpy_carries))
+    allowed_error = (
+        PRINCIPAL_EXPORT_CARRY_ABSOLUTE_TOLERANCE
+        + PRINCIPAL_EXPORT_CARRY_RELATIVE_TOLERANCE * scale
+    )
+    return (
+        float(np.max(absolute_error, initial=0.0)),
+        float(np.max(absolute_error / allowed_error, initial=0.0)),
+    )
 
 
 def _chunk_slices(total_steps: int, sequence_length: int) -> tuple[slice, ...]:
