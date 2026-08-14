@@ -11,7 +11,7 @@ readonly SOURCE_V2_ID="principal-sweep-v1-2026-08-13-v2"
 readonly SOURCE_V2_HOST="${EXPERIMENT_HOST}/${SOURCE_V2_ID}"
 readonly SOURCE_V3_ID="principal-sweep-v1-2026-08-14-v3"
 readonly SOURCE_V3_HOST="${EXPERIMENT_HOST}/${SOURCE_V3_ID}"
-readonly RUN_ID="${PRINCIPAL_V4_RUN_ID:-principal-sweep-v1-2026-08-15-v4}"
+readonly RUN_ID="${PRINCIPAL_V4_RUN_ID:-principal-sweep-v1-2026-08-15-v4-attempt2}"
 readonly RUN_HOST="${EXPERIMENT_HOST}/${RUN_ID}"
 readonly RUN="/experiments/${RUN_ID}"
 readonly IMAGE="marvin/drl-air-hockey:2025-a41081c4c386-blackwell-rebuilt"
@@ -114,6 +114,22 @@ os.replace(temporary, path)
 PY
 }
 
+freeze_path() {
+  local relative="$1"
+  docker run --rm -v "${RUN_HOST}:/run-output" "${IMAGE}" \
+    chmod -R a-w "/run-output/${relative}"
+}
+
+completed=0
+record_failed_exit() {
+  local exit_code=$?
+  if [[ ${exit_code} -ne 0 && ${completed} -eq 0 && -w "${CONTROL_HOST}" ]]; then
+    write_status "failed" "runner_exit" \
+      "runner exited ${exit_code}; preserve this attempt and do not auto-retry"
+  fi
+}
+trap record_failed_exit EXIT
+
 measurement_container() {
   local cpu="$1"
   shift
@@ -174,7 +190,8 @@ python3 "${OPTIMISATION_REPO}/scripts/build_structured_native_kernel.py" \
   --manifest "${RUN_HOST}/native/build.json" \
   --code-commit "${OPTIMISATION_CODE_COMMIT}" \
   >"${CONTROL_HOST}/logs/native-build.log" 2>&1
-chmod -R a-w "${RUN_HOST}/native" "${CONTROL_HOST}/logs/native-build.log"
+freeze_path "native"
+chmod a-w "${CONTROL_HOST}/logs/native-build.log"
 
 write_status "running" "bit_exact_verification" \
   "checking the native kernel and all 20 frozen structured checkpoints"
@@ -196,8 +213,8 @@ for family in "${STRUCTURED_FAMILIES[@]}"; do
 done
 measurement_container 0 "${verification_arguments[@]}" \
   >"${CONTROL_HOST}/logs/native-verification.log" 2>&1
-chmod a-w "${RUN_HOST}/verification/native-kernel.json" \
-  "${CONTROL_HOST}/logs/native-verification.log"
+freeze_path "verification/native-kernel.json"
+chmod a-w "${CONTROL_HOST}/logs/native-verification.log"
 
 run_validation_job() {
   local cpu="$1"
@@ -218,14 +235,15 @@ run_validation_job() {
   local exit_code=$?
   set -e
   if [[ ${exit_code} -ne 0 ]] || [[ ! -f "${output_host}" ]]; then
-    [[ ! -e "${output_host}" ]] || chmod a-w "${output_host}"
+    [[ ! -e "${output_host}" ]] || freeze_path "validation/${family}-${seed}.json"
     chmod a-w "${log}"
     write_job_status "${CONTROL_HOST}/jobs" "structured_paired_validation" \
       "${family}" "${seed}" "failed" "no automatic retry" "${exit_code}"
     chmod a-w "${status}"
     return 1
   fi
-  chmod a-w "${output_host}" "${log}"
+  freeze_path "validation/${family}-${seed}.json"
+  chmod a-w "${log}"
   write_job_status "${CONTROL_HOST}/jobs" "structured_paired_validation" \
     "${family}" "${seed}" "completed" "native result frozen" 0
   chmod a-w "${status}"
@@ -272,14 +290,15 @@ run_latency_job() {
   local exit_code=$?
   set -e
   if [[ ${exit_code} -ne 0 ]] || [[ ! -f "${output_host}" ]]; then
-    [[ ! -e "${output_host}" ]] || chmod a-w "${output_host}"
+    [[ ! -e "${output_host}" ]] || freeze_path "latency/${family}-${seed}.json"
     chmod a-w "${log}"
     write_job_status "${CONTROL_HOST}/latency_jobs" "isolated_cpu_latency" \
       "${family}" "${seed}" "failed" "no automatic retry" "${exit_code}"
     chmod a-w "${status}"
     return 1
   fi
-  chmod a-w "${output_host}" "${log}"
+  freeze_path "latency/${family}-${seed}.json"
+  chmod a-w "${log}"
   write_job_status "${CONTROL_HOST}/latency_jobs" "isolated_cpu_latency" \
     "${family}" "${seed}" "completed" "isolated result frozen" 0
   chmod a-w "${status}"
@@ -313,7 +332,8 @@ control_container python scripts/verify_structured_optimisation_evidence.py \
   --source-v3-measurement-manifest-sha256 "${SOURCE_V3_MEASUREMENT_MANIFEST_SHA256}" \
   --output "${RUN}/manifest.json" \
   >"${CONTROL_HOST}/logs/evidence-freeze.log" 2>&1
-chmod a-w "${RUN_HOST}/manifest.json" "${CONTROL_HOST}/logs/evidence-freeze.log"
+freeze_path "manifest.json"
+chmod a-w "${CONTROL_HOST}/logs/evidence-freeze.log"
 
 if [[ "$(jq -r .decision "${RUN_HOST}/manifest.json")" != "GO" ]] ||
   [[ "$(sha256sum "${SOURCE_V2_HOST}/orchestrator/seal_manifest.sha256" | cut -d' ' -f1)" != \
@@ -334,4 +354,6 @@ write_status "completed" "optimisation_complete" \
 (cd "${RUN_HOST}" && find . -type f ! -path './orchestrator/seal_manifest.sha256' \
   -print0 | sort -z | xargs -0 sha256sum) \
   >"${CONTROL_HOST}/seal_manifest.sha256"
-chmod -R a-w "${RUN_HOST}"
+completed=1
+trap - EXIT
+freeze_path "."
