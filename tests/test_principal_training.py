@@ -88,14 +88,7 @@ def test_all_seven_families_share_training_export_and_reload_path(
     checkpoint = tmp_path / f"{family_id}.npz"
     save_principal_checkpoint(family_id, checkpoint, parameters, metadata)
     restored = load_principal_policy(family_id, checkpoint)
-    (
-        action_error,
-        carry_error,
-        carry_tolerance_fraction,
-        one_step_action_error,
-        one_step_carry_error,
-        exact,
-    ) = verify_principal_export(
+    verification = verify_principal_export(
         module,
         exported,
         restored,
@@ -107,12 +100,20 @@ def test_all_seven_families_share_training_export_and_reload_path(
     assert np.isfinite(metrics["equal_episode_action_mse"])
     assert module.parameter_count == expected[family_id]
     assert exported.parameter_count == expected[family_id]
-    assert action_error <= 2e-6
-    assert carry_error <= 2e-6
-    assert carry_tolerance_fraction <= 1.0
-    assert one_step_action_error <= 2e-6
-    assert one_step_carry_error <= 2e-6
-    assert exact
+    assert verification.action_maximum_absolute_error <= 2e-6
+    assert verification.action_worst_case is not None
+    assert verification.carry_maximum_absolute_error <= 2e-6
+    assert verification.carry_maximum_tolerance_fraction <= 1.0
+    if exported.carry_float32_values:
+        assert verification.carry_absolute_worst_case is not None
+        assert verification.carry_tolerance_worst_case is not None
+    else:
+        assert verification.carry_absolute_worst_case is None
+        assert verification.carry_tolerance_worst_case is None
+    assert verification.one_step_action_maximum_absolute_error <= 2e-6
+    assert verification.one_step_carry_maximum_absolute_error <= 2e-6
+    assert verification.one_step_worst_case is not None
+    assert verification.checkpoint_reload_exact
 
 
 def test_carry_export_gate_uses_absolute_and_relative_scale():
@@ -158,7 +159,7 @@ def test_same_state_one_step_gate_catches_large_state_disagreement():
         np.asarray([[100.00003]], dtype=np.float32),
         numpy_carry,
     )
-    action_error, carry_error = same_state_one_step_errors(
+    action_error, carry_error, worst_case = same_state_one_step_errors(
         DisagreeingModule(),
         np.zeros((1, 19), dtype=np.float32),
         np.zeros((1, 2), dtype=np.float32),
@@ -169,6 +170,19 @@ def test_same_state_one_step_gate_catches_large_state_disagreement():
     assert scale_aware_fraction <= 1.0
     assert action_error == 0.0
     assert carry_error > PRINCIPAL_EXPORT_ONE_STEP_ABSOLUTE_TOLERANCE
+    assert worst_case == {
+        "quantity": "carry",
+        "absolute_error": carry_error,
+        "allowed_error": PRINCIPAL_EXPORT_ONE_STEP_ABSOLUTE_TOLERANCE,
+        "state_magnitude": 0.0,
+        "output_magnitude": pytest.approx(100.00003),
+        "verification_episode_offset": 0,
+        "episode_index": 0,
+        "timestep": 0,
+        "dimension": 0,
+        "torch_value": pytest.approx(100.00003),
+        "numpy_value": 100.0,
+    }
 
 
 def test_training_objective_weights_complete_episodes_equally():

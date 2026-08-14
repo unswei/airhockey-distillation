@@ -265,14 +265,7 @@ def run_family(
     save_principal_checkpoint(family_id, checkpoint, parameters, metadata)
     exported = principal_policy_from_parameters(family_id, parameters, metadata)
     restored = load_principal_policy(family_id, checkpoint)
-    (
-        action_error,
-        carry_error,
-        carry_tolerance_fraction,
-        one_step_action_error,
-        one_step_carry_error,
-        reload_exact,
-    ) = verify_principal_export(
+    verification = verify_principal_export(
         module,
         exported,
         restored,
@@ -299,11 +292,17 @@ def run_family(
             maximum_mse=overfit_mse,
             minimum_fractional_reduction=minimum_loss_reduction,
         ),
-        "exact_checkpoint_reload": bool(reload_exact),
+        "exact_checkpoint_reload": bool(
+            verification.checkpoint_reload_exact
+        ),
         "numpy_pytorch_agreement": (
-            action_error <= action_agreement_tolerance
-            and carry_tolerance_fraction <= 1.0
-            and max(one_step_action_error, one_step_carry_error)
+            verification.action_maximum_absolute_error
+            <= action_agreement_tolerance
+            and verification.carry_maximum_tolerance_fraction <= 1.0
+            and max(
+                verification.one_step_action_maximum_absolute_error,
+                verification.one_step_carry_maximum_absolute_error,
+            )
             <= action_agreement_tolerance
         ),
         "short_validation_rollout": len(validation["episodes"])
@@ -337,18 +336,32 @@ def run_family(
         "checkpoint": str(checkpoint),
         "checkpoint_sha256": sha256_file(checkpoint),
         "parameter_count": restored.parameter_count,
-        "numpy_pytorch_action_maximum_absolute_error": action_error,
-        "numpy_pytorch_carry_maximum_absolute_error": carry_error,
+        "numpy_pytorch_action_maximum_absolute_error": (
+            verification.action_maximum_absolute_error
+        ),
+        "numpy_pytorch_action_worst_case": verification.action_worst_case,
+        "numpy_pytorch_carry_maximum_absolute_error": (
+            verification.carry_maximum_absolute_error
+        ),
+        "numpy_pytorch_carry_maximum_absolute_error_worst_case": (
+            verification.carry_absolute_worst_case
+        ),
         "numpy_pytorch_carry_maximum_tolerance_fraction": (
-            carry_tolerance_fraction
+            verification.carry_maximum_tolerance_fraction
+        ),
+        "numpy_pytorch_carry_maximum_tolerance_fraction_worst_case": (
+            verification.carry_tolerance_worst_case
         ),
         "numpy_pytorch_same_state_one_step_action_maximum_absolute_error": (
-            one_step_action_error
+            verification.one_step_action_maximum_absolute_error
         ),
         "numpy_pytorch_same_state_one_step_carry_maximum_absolute_error": (
-            one_step_carry_error
+            verification.one_step_carry_maximum_absolute_error
         ),
-        "checkpoint_reload_exact": reload_exact,
+        "numpy_pytorch_same_state_one_step_worst_case": (
+            verification.one_step_worst_case
+        ),
+        "checkpoint_reload_exact": verification.checkpoint_reload_exact,
         "validation": validation,
         "latency": latency,
         "duration_seconds": perf_counter() - started,

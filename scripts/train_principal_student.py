@@ -9,6 +9,7 @@ import os
 import platform
 import sys
 from copy import deepcopy
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from time import perf_counter
@@ -36,6 +37,22 @@ PRINCIPAL_EXPORT_ACTION_ABSOLUTE_TOLERANCE = 2e-5
 PRINCIPAL_EXPORT_CARRY_ABSOLUTE_TOLERANCE = 2e-5
 PRINCIPAL_EXPORT_CARRY_RELATIVE_TOLERANCE = 1e-6
 PRINCIPAL_EXPORT_ONE_STEP_ABSOLUTE_TOLERANCE = 2e-5
+
+
+@dataclass(frozen=True)
+class PrincipalExportVerification:
+    """Complete cross-framework diagnostics for one exported checkpoint."""
+
+    action_maximum_absolute_error: float
+    action_worst_case: dict[str, Any] | None
+    carry_maximum_absolute_error: float
+    carry_absolute_worst_case: dict[str, Any] | None
+    carry_maximum_tolerance_fraction: float
+    carry_tolerance_worst_case: dict[str, Any] | None
+    one_step_action_maximum_absolute_error: float
+    one_step_carry_maximum_absolute_error: float
+    one_step_worst_case: dict[str, Any] | None
+    checkpoint_reload_exact: bool
 
 
 def parse_args() -> argparse.Namespace:
@@ -213,14 +230,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         checkpoint_metadata,
     )
     restored = load_principal_policy(args.family, checkpoint_path)
-    (
-        action_error,
-        carry_error,
-        carry_tolerance_fraction,
-        one_step_action_error,
-        one_step_carry_error,
-        reload_exact,
-    ) = verify_principal_export(
+    verification = verify_principal_export(
         module,
         exported,
         restored,
@@ -230,18 +240,19 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     action_tolerance = float(training["export"]["maximum_absolute_error"])
     if action_tolerance != PRINCIPAL_EXPORT_ACTION_ABSOLUTE_TOLERANCE:
         raise ValueError("principal action export tolerance changed unexpectedly")
-    if action_error > action_tolerance:
+    if verification.action_maximum_absolute_error > action_tolerance:
         raise RuntimeError("exported NumPy policy action does not match PyTorch")
-    if carry_tolerance_fraction > 1.0:
+    if verification.carry_maximum_tolerance_fraction > 1.0:
         raise RuntimeError("exported NumPy policy carry does not match PyTorch")
-    if max(one_step_action_error, one_step_carry_error) > (
-        PRINCIPAL_EXPORT_ONE_STEP_ABSOLUTE_TOLERANCE
-    ):
+    if max(
+        verification.one_step_action_maximum_absolute_error,
+        verification.one_step_carry_maximum_absolute_error,
+    ) > PRINCIPAL_EXPORT_ONE_STEP_ABSOLUTE_TOLERANCE:
         raise RuntimeError(
             "same-state one-step NumPy policy does not match PyTorch"
         )
     if bool(training["export"]["require_exact_checkpoint_reload"]) and not (
-        reload_exact
+        verification.checkpoint_reload_exact
     ):
         raise RuntimeError("principal checkpoint reload is not exact")
 
@@ -273,26 +284,42 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "selected_metrics": selected_metrics,
         "checkpoint": str(checkpoint_path),
         "checkpoint_sha256": sha256_file(checkpoint_path),
-        "export_action_maximum_absolute_error": action_error,
+        "export_action_maximum_absolute_error": (
+            verification.action_maximum_absolute_error
+        ),
         "export_action_absolute_tolerance": action_tolerance,
-        "export_carry_maximum_absolute_error": carry_error,
+        "export_action_worst_case": verification.action_worst_case,
+        "export_carry_maximum_absolute_error": (
+            verification.carry_maximum_absolute_error
+        ),
         "export_carry_absolute_tolerance": (
             PRINCIPAL_EXPORT_CARRY_ABSOLUTE_TOLERANCE
         ),
         "export_carry_relative_tolerance": (
             PRINCIPAL_EXPORT_CARRY_RELATIVE_TOLERANCE
         ),
-        "export_carry_maximum_tolerance_fraction": carry_tolerance_fraction,
+        "export_carry_maximum_absolute_error_worst_case": (
+            verification.carry_absolute_worst_case
+        ),
+        "export_carry_maximum_tolerance_fraction": (
+            verification.carry_maximum_tolerance_fraction
+        ),
+        "export_carry_maximum_tolerance_fraction_worst_case": (
+            verification.carry_tolerance_worst_case
+        ),
         "export_same_state_one_step_action_maximum_absolute_error": (
-            one_step_action_error
+            verification.one_step_action_maximum_absolute_error
         ),
         "export_same_state_one_step_carry_maximum_absolute_error": (
-            one_step_carry_error
+            verification.one_step_carry_maximum_absolute_error
         ),
         "export_same_state_one_step_absolute_tolerance": (
             PRINCIPAL_EXPORT_ONE_STEP_ABSOLUTE_TOLERANCE
         ),
-        "checkpoint_reload_exact": reload_exact,
+        "export_same_state_one_step_worst_case": (
+            verification.one_step_worst_case
+        ),
+        "checkpoint_reload_exact": verification.checkpoint_reload_exact,
         "parameter_count": exported.parameter_count,
         "core_parameter_count": exported.core_parameter_count,
         "carry_float32_values": exported.carry_float32_values,
@@ -435,14 +462,18 @@ def verify_principal_export(
     split: PrincipalEpisodeSplit,
     *,
     episode_count: int,
-) -> tuple[float, float, float, float, float, bool]:
+) -> PrincipalExportVerification:
     import torch
 
     action_error = 0.0
+    action_worst_case = None
     carry_error = 0.0
+    carry_absolute_worst_case = None
     carry_tolerance_fraction = 0.0
+    carry_tolerance_worst_case = None
     one_step_action_error = 0.0
     one_step_carry_error = 0.0
+    one_step_worst_case = None
     reload_exact = True
     module.eval()
     for index in range(min(episode_count, split.episode_count)):
@@ -462,29 +493,131 @@ def verify_principal_export(
             observations,
             previous_actions,
         )
-        action_error = max(
-            action_error,
-            float(np.max(np.abs(torch_actions.numpy()[0] - exported_actions))),
+        torch_action_values = torch_actions.numpy()[0]
+        torch_carry_values = torch_carries.numpy()[0]
+        action_errors = np.abs(torch_action_values - exported_actions)
+        action_location = tuple(
+            int(value)
+            for value in np.unravel_index(
+                np.argmax(action_errors),
+                action_errors.shape,
+            )
         )
-        if exported_carries.shape[1]:
-            episode_carry_error, episode_tolerance_fraction = (
-                scale_aware_carry_error(
-                    torch_carries.numpy()[0],
+        episode_action_error = float(action_errors[action_location])
+        if action_worst_case is None or episode_action_error > action_error:
+            timestep, dimension = action_location
+            action_error = episode_action_error
+            action_worst_case = {
+                "absolute_error": episode_action_error,
+                "state_magnitude": _carry_state_magnitude(
+                    torch_carry_values,
                     exported_carries,
+                    timestep,
+                ),
+                "verification_episode_offset": index,
+                "episode_index": int(split.episode_indices[index]),
+                "timestep": timestep,
+                "dimension": dimension,
+                "torch_value": float(torch_action_values[action_location]),
+                "numpy_value": float(exported_actions[action_location]),
+            }
+        if exported_carries.shape[1]:
+            absolute_errors = np.abs(torch_carry_values - exported_carries)
+            state_magnitudes = np.maximum(
+                np.abs(torch_carry_values),
+                np.abs(exported_carries),
+            )
+            allowed_errors = (
+                PRINCIPAL_EXPORT_CARRY_ABSOLUTE_TOLERANCE
+                + PRINCIPAL_EXPORT_CARRY_RELATIVE_TOLERANCE
+                * state_magnitudes
+            )
+            tolerance_fractions = absolute_errors / allowed_errors
+            absolute_location = tuple(
+                int(value)
+                for value in np.unravel_index(
+                    np.argmax(absolute_errors),
+                    absolute_errors.shape,
                 )
             )
+            episode_carry_error = float(absolute_errors[absolute_location])
+            if (
+                carry_absolute_worst_case is None
+                or episode_carry_error > carry_error
+            ):
+                timestep, dimension = absolute_location
+                carry_absolute_worst_case = {
+                    "absolute_error": episode_carry_error,
+                    "allowed_error": float(allowed_errors[absolute_location]),
+                    "tolerance_fraction": float(
+                        tolerance_fractions[absolute_location]
+                    ),
+                    "state_magnitude": float(
+                        state_magnitudes[absolute_location]
+                    ),
+                    "verification_episode_offset": index,
+                    "episode_index": int(split.episode_indices[index]),
+                    "timestep": timestep,
+                    "dimension": dimension,
+                    "torch_value": float(
+                        torch_carry_values[absolute_location]
+                    ),
+                    "numpy_value": float(exported_carries[absolute_location]),
+                }
             carry_error = max(carry_error, episode_carry_error)
-            carry_tolerance_fraction = max(
-                carry_tolerance_fraction,
-                episode_tolerance_fraction,
+            tolerance_location = tuple(
+                int(value)
+                for value in np.unravel_index(
+                    np.argmax(tolerance_fractions),
+                    tolerance_fractions.shape,
+                )
             )
-        episode_one_step_action_error, episode_one_step_carry_error = (
+            episode_tolerance_fraction = float(
+                tolerance_fractions[tolerance_location]
+            )
+            if (
+                carry_tolerance_worst_case is None
+                or episode_tolerance_fraction > carry_tolerance_fraction
+            ):
+                timestep, dimension = tolerance_location
+                carry_tolerance_fraction = episode_tolerance_fraction
+                carry_tolerance_worst_case = {
+                    "absolute_error": float(
+                        absolute_errors[tolerance_location]
+                    ),
+                    "allowed_error": float(
+                        allowed_errors[tolerance_location]
+                    ),
+                    "tolerance_fraction": float(
+                        tolerance_fractions[tolerance_location]
+                    ),
+                    "state_magnitude": float(
+                        state_magnitudes[tolerance_location]
+                    ),
+                    "verification_episode_offset": index,
+                    "episode_index": int(split.episode_indices[index]),
+                    "timestep": timestep,
+                    "dimension": dimension,
+                    "torch_value": float(
+                        torch_carry_values[tolerance_location]
+                    ),
+                    "numpy_value": float(
+                        exported_carries[tolerance_location]
+                    ),
+                }
+        (
+            episode_one_step_action_error,
+            episode_one_step_carry_error,
+            episode_one_step_worst_case,
+        ) = (
             same_state_one_step_errors(
                 module,
                 observations,
                 previous_actions,
                 exported_actions,
                 exported_carries,
+                verification_episode_offset=index,
+                episode_index=int(split.episode_indices[index]),
             )
         )
         one_step_action_error = max(
@@ -495,16 +628,26 @@ def verify_principal_export(
             one_step_carry_error,
             episode_one_step_carry_error,
         )
+        if episode_one_step_worst_case is not None and (
+            one_step_worst_case is None
+            or episode_one_step_worst_case["absolute_error"]
+            > one_step_worst_case["absolute_error"]
+        ):
+            one_step_worst_case = episode_one_step_worst_case
         reload_exact = reload_exact and np.array_equal(
             restored_actions, exported_actions
         ) and np.array_equal(restored_carries, exported_carries)
-    return (
-        action_error,
-        carry_error,
-        carry_tolerance_fraction,
-        one_step_action_error,
-        one_step_carry_error,
-        reload_exact,
+    return PrincipalExportVerification(
+        action_maximum_absolute_error=action_error,
+        action_worst_case=action_worst_case,
+        carry_maximum_absolute_error=carry_error,
+        carry_absolute_worst_case=carry_absolute_worst_case,
+        carry_maximum_tolerance_fraction=carry_tolerance_fraction,
+        carry_tolerance_worst_case=carry_tolerance_worst_case,
+        one_step_action_maximum_absolute_error=one_step_action_error,
+        one_step_carry_maximum_absolute_error=one_step_carry_error,
+        one_step_worst_case=one_step_worst_case,
+        checkpoint_reload_exact=reload_exact,
     )
 
 
@@ -514,16 +657,25 @@ def same_state_one_step_errors(
     previous_actions: np.ndarray,
     numpy_actions: np.ndarray,
     numpy_carries: np.ndarray,
-) -> tuple[float, float]:
+    *,
+    verification_episode_offset: int = 0,
+    episode_index: int = 0,
+) -> tuple[float, float, dict[str, Any] | None]:
     """Compare one step at a time from the same NumPy-exported carry."""
 
     import torch
 
     action_error = 0.0
     carry_error = 0.0
+    worst_case = None
     shared_carry = None
     with torch.no_grad():
         for time_index in range(len(observations)):
+            input_state_magnitude = (
+                0.0
+                if shared_carry is None or not shared_carry.numel()
+                else float(torch.max(torch.abs(shared_carry)).item())
+            )
             torch_actions, torch_carries = module.forward_sequence(
                 torch.from_numpy(observations[None, time_index : time_index + 1]),
                 torch.from_numpy(
@@ -531,33 +683,85 @@ def same_state_one_step_errors(
                 ),
                 shared_carry,
             )
-            action_error = max(
-                action_error,
-                float(
-                    np.max(
-                        np.abs(
-                            torch_actions.numpy()[0, 0]
-                            - numpy_actions[time_index]
-                        )
-                    )
-                ),
-            )
-            if numpy_carries.shape[1]:
-                carry_error = max(
-                    carry_error,
-                    float(
-                        np.max(
-                            np.abs(
-                                torch_carries.numpy()[0, 0]
-                                - numpy_carries[time_index]
-                            )
-                        )
+            torch_action = torch_actions.numpy()[0, 0]
+            action_errors = np.abs(torch_action - numpy_actions[time_index])
+            action_dimension = int(np.argmax(action_errors))
+            step_action_error = float(action_errors[action_dimension])
+            action_error = max(action_error, step_action_error)
+            if worst_case is None or step_action_error > worst_case[
+                "absolute_error"
+            ]:
+                worst_case = {
+                    "quantity": "action",
+                    "absolute_error": step_action_error,
+                    "allowed_error": (
+                        PRINCIPAL_EXPORT_ONE_STEP_ABSOLUTE_TOLERANCE
                     ),
+                    "state_magnitude": input_state_magnitude,
+                    "verification_episode_offset": verification_episode_offset,
+                    "episode_index": episode_index,
+                    "timestep": time_index,
+                    "dimension": action_dimension,
+                    "torch_value": float(torch_action[action_dimension]),
+                    "numpy_value": float(
+                        numpy_actions[time_index, action_dimension]
+                    ),
+                }
+            if numpy_carries.shape[1]:
+                torch_carry = torch_carries.numpy()[0, 0]
+                carry_errors = np.abs(
+                    torch_carry - numpy_carries[time_index]
                 )
+                carry_dimension = int(np.argmax(carry_errors))
+                step_carry_error = float(carry_errors[carry_dimension])
+                carry_error = max(carry_error, step_carry_error)
+                if step_carry_error > worst_case["absolute_error"]:
+                    worst_case = {
+                        "quantity": "carry",
+                        "absolute_error": step_carry_error,
+                        "allowed_error": (
+                            PRINCIPAL_EXPORT_ONE_STEP_ABSOLUTE_TOLERANCE
+                        ),
+                        "state_magnitude": input_state_magnitude,
+                        "output_magnitude": max(
+                            abs(float(torch_carry[carry_dimension])),
+                            abs(
+                                float(
+                                    numpy_carries[
+                                        time_index,
+                                        carry_dimension,
+                                    ]
+                                )
+                            ),
+                        ),
+                        "verification_episode_offset": (
+                            verification_episode_offset
+                        ),
+                        "episode_index": episode_index,
+                        "timestep": time_index,
+                        "dimension": carry_dimension,
+                        "torch_value": float(torch_carry[carry_dimension]),
+                        "numpy_value": float(
+                            numpy_carries[time_index, carry_dimension]
+                        ),
+                    }
                 shared_carry = torch.from_numpy(
                     numpy_carries[None, time_index].copy()
                 )
-    return action_error, carry_error
+    return action_error, carry_error, worst_case
+
+
+def _carry_state_magnitude(
+    torch_carries: np.ndarray,
+    numpy_carries: np.ndarray,
+    timestep: int,
+) -> float:
+    if not numpy_carries.shape[1]:
+        return 0.0
+    return max(
+        float(np.max(np.abs(torch_carries[timestep]))),
+        float(np.max(np.abs(numpy_carries[timestep]))),
+    )
 
 
 def scale_aware_carry_error(

@@ -28,6 +28,12 @@ cannot hide a local implementation disagreement. The resulting action and carry
 must each agree within an absolute `2e-5`. This check is independent of the
 scale-aware free-running carry check.
 
+Every export result records the worst action case, maximum-absolute-error carry
+case, maximum-tolerance-fraction carry case and worst same-state one-step case.
+Each record includes the absolute error, state magnitude, validation episode
+identity, timestep, dimension and compared values. Both carry records also
+include the allowed error and tolerance fraction.
+
 The execution protocol file and its hash are unchanged. This correction changes
 only post-training cross-framework export verification. It does not change the
 models, training data, loss, seeds, checkpoint selection, NumPy deployment
