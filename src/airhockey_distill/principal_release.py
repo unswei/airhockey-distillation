@@ -587,7 +587,6 @@ def _check_validation(
     identity: tuple[str, int],
     value: Any,
     checkpoint_hash: str | None,
-    checkpoint_path: Path | None,
     failures: list[str],
 ) -> None:
     family_id, seed = identity
@@ -628,6 +627,7 @@ def _check_efficiency(
     identity: tuple[str, int],
     value: Any,
     checkpoint_hash: str | None,
+    checkpoint_path: Path | None,
     failures: list[str],
 ) -> None:
     family_id, seed = identity

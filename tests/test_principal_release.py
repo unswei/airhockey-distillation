@@ -5,6 +5,8 @@ from types import SimpleNamespace
 import pytest
 
 from airhockey_distill.principal_release import (
+    _check_efficiency,
+    _check_validation,
     evaluate_test_release,
     principal_test_schedule,
     validate_go_release_report,
@@ -39,6 +41,24 @@ def test_release_gate_is_no_go_for_the_unfilled_template():
     assert result["decision"] == "NO_GO"
     assert any("status must be frozen" in value for value in result["failures"])
     assert any("35" in value for value in result["failures"])
+
+
+def test_release_evidence_helpers_accept_the_manifest_call_contract(tmp_path):
+    failures = []
+
+    _check_validation({}, tmp_path, ("feed_forward", 14303), None, None, failures)
+    _check_efficiency(
+        {},
+        tmp_path,
+        "accounting_results",
+        ("feed_forward", 14303),
+        None,
+        None,
+        tmp_path / "checkpoint.npz",
+        failures,
+    )
+
+    assert len(failures) == 2
 
 
 def test_principal_test_schedule_is_not_the_validation_schedule():
