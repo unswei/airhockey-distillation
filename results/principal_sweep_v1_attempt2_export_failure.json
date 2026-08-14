@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "status": "sealed_failed_before_release",
+  "attempt": "principal-sweep-v1-2026-08-13-v2",
+  "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+  "failed_stage": "final_training_export_gate",
+  "family_id": "structured_k0",
+  "training_seed": 14306,
+  "completed_stage_counts": {
+    "collector_models": 35,
+    "shadow_partitions": 35,
+    "shadow_episodes": 140000,
+    "family_budget_audits": 7,
+    "family_datasets": 7,
+    "final_models": 13,
+    "paired_validations": 0,
+    "accounting_results": 0,
+    "latency_results": 0
+  },
+  "incomplete_checkpoint": {
+    "relative_path": "final/structured_k0/14306/checkpoint.npz",
+    "sha256": "b9c10fbcb2e1b10b237683fef7f0dc9beb6a1de86e4390df044f2aaa6ace361d"
+  },
+  "failed_stage_log": {
+    "relative_path": "orchestrator/logs/final-structured_k0-14306.log",
+    "sha256": "d2d9cef867f944543cf7563be18ac47a0f88205733fb732dba8d5e0407b6306d"
+  },
+  "export_gate": {
+    "maximum_absolute_error": 0.00002,
+    "observed_action_maximum_absolute_error": 0.000004559755325317383,
+    "observed_carry_maximum_absolute_error": 0.00002288818359375,
+    "worst_carry_relative_error": 0.0000007464343525498407,
+    "worst_carry_value_torch": -30.663333892822266,
+    "worst_carry_value_numpy": -30.66335678100586,
+    "verification_episode_index": 5,
+    "verification_timestep": 33,
+    "verification_carry_dimension": 48,
+    "decision": "NO_GO"
+  },
+  "cause": "The pure absolute carry bound was not scale-aware. Accumulated cross-library float32 activation rounding exceeded 2e-5 in an unbounded latent carry while action agreement remained comfortably inside the declared limit.",
+  "release_gate_created": false,
+  "principal_test_constructed_or_evaluated": false,
+  "seal": {
+    "sealed_at": "2026-08-14T06:46:52.349199+00:00",
+    "host": "marvin",
+    "manifest_relative_path": "orchestrator/seal_manifest.sha256",
+    "manifest_entries": 662,
+    "manifest_sha256": "94ea1e57d7959f1ef368a681945d2ff29e5ed60769a1513e6af212f1c4933be3",
+    "writable_paths_after_seal": 0
+  },
+  "disposition": "Preserved as failed engineering evidence. Never modify or resume this attempt."
+}
