@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import platform
 import sys
@@ -240,21 +241,17 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     action_tolerance = float(training["export"]["maximum_absolute_error"])
     if action_tolerance != PRINCIPAL_EXPORT_ACTION_ABSOLUTE_TOLERANCE:
         raise ValueError("principal action export tolerance changed unexpectedly")
-    if verification.action_maximum_absolute_error > action_tolerance:
-        raise RuntimeError("exported NumPy policy action does not match PyTorch")
-    if verification.carry_maximum_tolerance_fraction > 1.0:
-        raise RuntimeError("exported NumPy policy carry does not match PyTorch")
-    if max(
-        verification.one_step_action_maximum_absolute_error,
-        verification.one_step_carry_maximum_absolute_error,
-    ) > PRINCIPAL_EXPORT_ONE_STEP_ABSOLUTE_TOLERANCE:
+    gate_failures = principal_export_gate_failures(
+        verification,
+        action_tolerance=action_tolerance,
+        require_exact_checkpoint_reload=bool(
+            training["export"]["require_exact_checkpoint_reload"]
+        ),
+    )
+    if gate_failures:
         raise RuntimeError(
-            "same-state one-step NumPy policy does not match PyTorch"
+            "principal export gate failed: " + ", ".join(gate_failures)
         )
-    if bool(training["export"]["require_exact_checkpoint_reload"]) and not (
-        verification.checkpoint_reload_exact
-    ):
-        raise RuntimeError("principal checkpoint reload is not exact")
 
     result = {
         "schema_version": 1,
@@ -649,6 +646,41 @@ def verify_principal_export(
         one_step_worst_case=one_step_worst_case,
         checkpoint_reload_exact=reload_exact,
     )
+
+
+def principal_export_gate_failures(
+    verification: PrincipalExportVerification,
+    *,
+    action_tolerance: float = PRINCIPAL_EXPORT_ACTION_ABSOLUTE_TOLERANCE,
+    require_exact_checkpoint_reload: bool = True,
+) -> tuple[str, ...]:
+    """Return every fail-closed export-gate predicate that was violated."""
+
+    failures = []
+    action_error = verification.action_maximum_absolute_error
+    carry_fraction = verification.carry_maximum_tolerance_fraction
+    one_step_action_error = (
+        verification.one_step_action_maximum_absolute_error
+    )
+    one_step_carry_error = verification.one_step_carry_maximum_absolute_error
+    if not math.isfinite(action_error) or action_error > action_tolerance:
+        failures.append("action_absolute_error")
+    if not math.isfinite(carry_fraction) or carry_fraction > 1.0:
+        failures.append("carry_scale_aware_error")
+    if not math.isfinite(one_step_action_error) or one_step_action_error > (
+        PRINCIPAL_EXPORT_ONE_STEP_ABSOLUTE_TOLERANCE
+    ):
+        failures.append("same_state_one_step_action_absolute_error")
+    if not math.isfinite(one_step_carry_error) or one_step_carry_error > (
+        PRINCIPAL_EXPORT_ONE_STEP_ABSOLUTE_TOLERANCE
+    ):
+        failures.append("same_state_one_step_carry_absolute_error")
+    if (
+        require_exact_checkpoint_reload
+        and not verification.checkpoint_reload_exact
+    ):
+        failures.append("checkpoint_reload_not_exact")
+    return tuple(failures)
 
 
 def same_state_one_step_errors(

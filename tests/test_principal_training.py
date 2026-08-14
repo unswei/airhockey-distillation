@@ -21,6 +21,7 @@ from scripts.train_principal_student import (
     PRINCIPAL_EXPORT_CARRY_RELATIVE_TOLERANCE,
     PRINCIPAL_EXPORT_ONE_STEP_ABSOLUTE_TOLERANCE,
     evaluate_principal_split,
+    principal_export_gate_failures,
     same_state_one_step_errors,
     scale_aware_carry_error,
     train_principal_epoch,
@@ -183,6 +184,56 @@ def test_same_state_one_step_gate_catches_large_state_disagreement():
         "torch_value": pytest.approx(100.00003),
         "numpy_value": 100.0,
     }
+
+
+def test_export_gate_reports_every_violated_fail_closed_predicate():
+    from scripts.train_principal_student import PrincipalExportVerification
+
+    verification = PrincipalExportVerification(
+        action_maximum_absolute_error=0.1,
+        action_worst_case=None,
+        carry_maximum_absolute_error=0.1,
+        carry_absolute_worst_case=None,
+        carry_maximum_tolerance_fraction=1.1,
+        carry_tolerance_worst_case=None,
+        one_step_action_maximum_absolute_error=0.2,
+        one_step_carry_maximum_absolute_error=0.3,
+        one_step_worst_case=None,
+        checkpoint_reload_exact=False,
+    )
+
+    assert principal_export_gate_failures(verification) == (
+        "action_absolute_error",
+        "carry_scale_aware_error",
+        "same_state_one_step_action_absolute_error",
+        "same_state_one_step_carry_absolute_error",
+        "checkpoint_reload_not_exact",
+    )
+
+
+@pytest.mark.parametrize("non_finite", [np.nan, np.inf, -np.inf])
+def test_export_gate_fails_closed_on_non_finite_diagnostics(non_finite):
+    from scripts.train_principal_student import PrincipalExportVerification
+
+    verification = PrincipalExportVerification(
+        action_maximum_absolute_error=non_finite,
+        action_worst_case=None,
+        carry_maximum_absolute_error=non_finite,
+        carry_absolute_worst_case=None,
+        carry_maximum_tolerance_fraction=non_finite,
+        carry_tolerance_worst_case=None,
+        one_step_action_maximum_absolute_error=non_finite,
+        one_step_carry_maximum_absolute_error=non_finite,
+        one_step_worst_case=None,
+        checkpoint_reload_exact=True,
+    )
+
+    assert principal_export_gate_failures(verification) == (
+        "action_absolute_error",
+        "carry_scale_aware_error",
+        "same_state_one_step_action_absolute_error",
+        "same_state_one_step_carry_absolute_error",
+    )
 
 
 def test_training_objective_weights_complete_episodes_equally():
