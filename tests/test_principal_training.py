@@ -19,7 +19,9 @@ from airhockey_distill.students.principal_torch import PrincipalStudentModule
 from scripts.train_principal_student import (
     PRINCIPAL_EXPORT_CARRY_ABSOLUTE_TOLERANCE,
     PRINCIPAL_EXPORT_CARRY_RELATIVE_TOLERANCE,
+    PRINCIPAL_EXPORT_ONE_STEP_ABSOLUTE_TOLERANCE,
     evaluate_principal_split,
+    same_state_one_step_errors,
     scale_aware_carry_error,
     train_principal_epoch,
     verify_principal_export,
@@ -86,14 +88,19 @@ def test_all_seven_families_share_training_export_and_reload_path(
     checkpoint = tmp_path / f"{family_id}.npz"
     save_principal_checkpoint(family_id, checkpoint, parameters, metadata)
     restored = load_principal_policy(family_id, checkpoint)
-    action_error, carry_error, carry_tolerance_fraction, exact = (
-        verify_principal_export(
-            module,
-            exported,
-            restored,
-            split,
-            episode_count=2,
-        )
+    (
+        action_error,
+        carry_error,
+        carry_tolerance_fraction,
+        one_step_action_error,
+        one_step_carry_error,
+        exact,
+    ) = verify_principal_export(
+        module,
+        exported,
+        restored,
+        split,
+        episode_count=2,
     )
 
     assert np.isfinite(training_mse)
@@ -103,6 +110,8 @@ def test_all_seven_families_share_training_export_and_reload_path(
     assert action_error <= 2e-6
     assert carry_error <= 2e-6
     assert carry_tolerance_fraction <= 1.0
+    assert one_step_action_error <= 2e-6
+    assert one_step_carry_error <= 2e-6
     assert exact
 
 
@@ -132,6 +141,34 @@ def test_carry_export_gate_rejects_excess_error_near_zero():
     )
 
     assert maximum_tolerance_fraction > 1.0
+
+
+def test_same_state_one_step_gate_catches_large_state_disagreement():
+    class DisagreeingModule:
+        def forward_sequence(
+            self, observations, previous_actions, initial_carry=None
+        ):
+            del previous_actions, initial_carry
+            actions = torch.zeros((*observations.shape[:2], 2))
+            carries = torch.full((*observations.shape[:2], 1), 100.00003)
+            return actions, carries
+
+    numpy_carry = np.asarray([[100.0]], dtype=np.float32)
+    _, scale_aware_fraction = scale_aware_carry_error(
+        np.asarray([[100.00003]], dtype=np.float32),
+        numpy_carry,
+    )
+    action_error, carry_error = same_state_one_step_errors(
+        DisagreeingModule(),
+        np.zeros((1, 19), dtype=np.float32),
+        np.zeros((1, 2), dtype=np.float32),
+        np.zeros((1, 2), dtype=np.float32),
+        numpy_carry,
+    )
+
+    assert scale_aware_fraction <= 1.0
+    assert action_error == 0.0
+    assert carry_error > PRINCIPAL_EXPORT_ONE_STEP_ABSOLUTE_TOLERANCE
 
 
 def test_training_objective_weights_complete_episodes_equally():

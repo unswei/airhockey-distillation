@@ -22,6 +22,12 @@ Exact checkpoint reload is still required. Results retain the maximum absolute
 carry error and also record the maximum fraction of the allowed scale-aware
 tolerance. A fraction above one fails closed.
 
+The verifier also performs a same-state, one-step comparison. At each timestep,
+PyTorch receives the exact previous carry produced by NumPy, so recurrent drift
+cannot hide a local implementation disagreement. The resulting action and carry
+must each agree within an absolute `2e-5`. This check is independent of the
+scale-aware free-running carry check.
+
 The execution protocol file and its hash are unchanged. This correction changes
 only post-training cross-framework export verification. It does not change the
 models, training data, loss, seeds, checkpoint selection, NumPy deployment

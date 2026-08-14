@@ -265,10 +265,19 @@ def run_family(
     save_principal_checkpoint(family_id, checkpoint, parameters, metadata)
     exported = principal_policy_from_parameters(family_id, parameters, metadata)
     restored = load_principal_policy(family_id, checkpoint)
-    action_error, carry_error, carry_tolerance_fraction, reload_exact = (
-        verify_principal_export(
-            module, exported, restored, split, episode_count=1
-        )
+    (
+        action_error,
+        carry_error,
+        carry_tolerance_fraction,
+        one_step_action_error,
+        one_step_carry_error,
+        reload_exact,
+    ) = verify_principal_export(
+        module,
+        exported,
+        restored,
+        split,
+        episode_count=1,
     )
     validation = run_short_validation(
         protocol, restored, validation_schedule
@@ -294,6 +303,8 @@ def run_family(
         "numpy_pytorch_agreement": (
             action_error <= action_agreement_tolerance
             and carry_tolerance_fraction <= 1.0
+            and max(one_step_action_error, one_step_carry_error)
+            <= action_agreement_tolerance
         ),
         "short_validation_rollout": len(validation["episodes"])
         == len(validation_schedule)
@@ -330,6 +341,12 @@ def run_family(
         "numpy_pytorch_carry_maximum_absolute_error": carry_error,
         "numpy_pytorch_carry_maximum_tolerance_fraction": (
             carry_tolerance_fraction
+        ),
+        "numpy_pytorch_same_state_one_step_action_maximum_absolute_error": (
+            one_step_action_error
+        ),
+        "numpy_pytorch_same_state_one_step_carry_maximum_absolute_error": (
+            one_step_carry_error
         ),
         "checkpoint_reload_exact": reload_exact,
         "validation": validation,
