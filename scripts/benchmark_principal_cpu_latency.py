@@ -67,6 +67,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
             "include": specification["include"],
             "exclude": specification["exclude"],
             "container_digest": args.container_digest,
+            "inference_implementation": policy.inference_implementation,
         },
         "runtime": runtime,
         "measurements": measurements,

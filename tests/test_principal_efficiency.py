@@ -89,6 +89,14 @@ def test_latency_benchmark_measures_complete_calls_and_repetition_means():
     )
 
 
+def test_principal_policy_reports_concrete_inference_implementation():
+    assert _policy("feed_forward").inference_implementation == "numpy_float32_v1"
+    assert (
+        _policy("structured_k2").inference_implementation
+        == "numpy_pairwise_float32_v1"
+    )
+
+
 def test_latency_runtime_fails_closed_off_marvin(monkeypatch):
     specification = {
         "host": "marvin",

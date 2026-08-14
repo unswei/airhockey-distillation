@@ -112,6 +112,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "hostname": platform.node(),
             "python": sys.version,
             "mujoco": mujoco.__version__,
+            "inference_implementation": policy.inference_implementation,
         },
         "summary": summarise(
             episodes,

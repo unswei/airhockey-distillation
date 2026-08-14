@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import json
+import os
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,34 @@ SUPPORTED_INFERENCE_ARITHMETICS = (
     LEGACY_FLOAT32_ARITHMETIC,
     CANONICAL_FLOAT32_ARITHMETIC,
 )
+NUMPY_PAIRWISE_FLOAT32_IMPLEMENTATION = "numpy_pairwise_float32_v1"
+NATIVE_PAIRWISE_FLOAT32_IMPLEMENTATION = "native_pairwise_float32_v1"
+_PAIRWISE_BACKEND_ENVIRONMENT_VARIABLE = (
+    "AIRHOCKEY_STRUCTURED_PAIRWISE_BACKEND"
+)
+
+
+def _load_native_pairwise_module() -> Any | None:
+    requested = os.environ.get(
+        _PAIRWISE_BACKEND_ENVIRONMENT_VARIABLE,
+        "numpy",
+    )
+    if requested not in ("numpy", "native"):
+        raise ValueError(
+            f"{_PAIRWISE_BACKEND_ENVIRONMENT_VARIABLE} must be numpy or native"
+        )
+    if requested == "numpy":
+        return None
+    try:
+        import _airhockey_pairwise_float32 as native_pairwise
+    except ImportError as error:
+        raise RuntimeError(
+            "the required structured native pairwise kernel is unavailable"
+        ) from error
+    return native_pairwise
+
+
+_NATIVE_PAIRWISE_MODULE = _load_native_pairwise_module()
 
 
 def _validate_innovation_rank(value: Any) -> int:
@@ -131,6 +160,16 @@ class StructuredRecurrentPolicy:
     parameters: Mapping[str, NDArray[np.float32]]
     metadata: Mapping[str, Any]
     innovation_rank: int | None = None
+    _batch_one_workspace: _PairwiseFloat32Workspace = field(
+        init=False,
+        repr=False,
+        compare=False,
+    )
+    _canonical_diagonal_dynamics: NDArray[np.float32] = field(
+        init=False,
+        repr=False,
+        compare=False,
+    )
 
     def __post_init__(self) -> None:
         rank = infer_structured_innovation_rank(
@@ -159,6 +198,12 @@ class StructuredRecurrentPolicy:
                     f"checkpoint metadata {key} must be {expected!r}, "
                     f"got {self.metadata[key]!r}"
                 )
+        object.__setattr__(self, "_batch_one_workspace", _PairwiseFloat32Workspace())
+        object.__setattr__(
+            self,
+            "_canonical_diagonal_dynamics",
+            _canonical_tanh_float32(self.parameters["recurrence_alpha"]),
+        )
 
     @classmethod
     def load(cls, path: str | Path) -> StructuredRecurrentPolicy:
@@ -199,6 +244,12 @@ class StructuredRecurrentPolicy:
             if principal_student.startswith("structured_k")
             else LEGACY_FLOAT32_ARITHMETIC
         )
+
+    @property
+    def batch_one_inference_implementation(self) -> str:
+        """Name the implementation used by canonical batch-one inference."""
+
+        return self._batch_one_workspace.implementation
 
     @property
     def parameter_count(self) -> int:
@@ -243,15 +294,110 @@ class StructuredRecurrentPolicy:
     ) -> tuple[NDArray[np.float32], StructuredPolicyCarry]:
         """Advance a closed-loop carry and return the deterministic action mean."""
 
-        action, memory = self.step(
-            observation,
-            carry.previous_action,
-            carry.memory,
-        )
+        observation_array = np.asarray(observation, dtype=np.float32)
+        if (
+            self.inference_arithmetic == CANONICAL_FLOAT32_ARITHMETIC
+            and observation_array.ndim == 1
+            and np.asarray(carry.previous_action).ndim == 1
+            and np.asarray(carry.memory).ndim == 1
+        ):
+            action, memory = self._step_canonical_float32_batch_one(
+                _single_feature(
+                    "observation",
+                    observation_array,
+                    PUBLIC_OBSERVATION_DIM,
+                ),
+                _single_feature(
+                    "previous action",
+                    carry.previous_action,
+                    PUBLIC_ACTION_DIM,
+                ),
+                _single_feature(
+                    "previous state",
+                    carry.memory,
+                    STATE_DIM,
+                ),
+            )
+        else:
+            action, memory = self.step(
+                observation,
+                carry.previous_action,
+                carry.memory,
+            )
         return action, StructuredPolicyCarry(
             memory=np.asarray(memory, dtype=np.float32),
             previous_action=np.asarray(action, dtype=np.float32),
         )
+
+    def _step_canonical_float32_batch_one(
+        self,
+        observation: NDArray[np.float32],
+        previous_action: NDArray[np.float32],
+        previous_state: NDArray[np.float32],
+    ) -> tuple[NDArray[np.float32], NDArray[np.float32]]:
+        """Run the canonical tree with reusable batch-one scratch buffers."""
+
+        parameters = self.parameters
+        linear = self._batch_one_workspace.linear
+        hidden = _canonical_silu_float32(
+            linear(
+                observation,
+                parameters["encoder_0_weight"],
+                parameters["encoder_0_bias"],
+            )
+        )
+        encoded = _canonical_silu_float32(
+            linear(
+                hidden,
+                parameters["encoder_1_weight"],
+                parameters["encoder_1_bias"],
+            )
+        )
+        state = previous_state * self._canonical_diagonal_dynamics
+        state = state + linear(
+            encoded,
+            parameters["recurrence_input_weight"],
+            parameters["recurrence_bias"],
+        )
+        state = state + linear(
+            previous_action,
+            parameters["recurrence_action_weight"],
+        )
+        if self.innovation_rank:
+            innovation_preactivation = linear(
+                previous_state,
+                parameters["innovation_state_weight"],
+                parameters["innovation_bias"],
+            ).copy()
+            innovation_preactivation = innovation_preactivation + linear(
+                encoded,
+                parameters["innovation_input_weight"],
+            )
+            innovation_preactivation = innovation_preactivation + linear(
+                previous_action,
+                parameters["innovation_action_weight"],
+            )
+            innovation = _canonical_tanh_float32(innovation_preactivation)
+            state = state + linear(
+                innovation,
+                parameters["innovation_output_weight"],
+            )
+        action_input = np.concatenate((state, encoded))
+        action_hidden = _canonical_silu_float32(
+            linear(
+                action_input,
+                parameters["action_hidden_weight"],
+                parameters["action_hidden_bias"],
+            )
+        )
+        action = _canonical_tanh_float32(
+            linear(
+                action_hidden,
+                parameters["action_output_weight"],
+                parameters["action_output_bias"],
+            )
+        ).astype(np.float32)
+        return action, state.astype(np.float32)
 
     def step(
         self,
@@ -713,6 +859,57 @@ def _single_feature(name: str, value: ArrayLike, width: int) -> NDArray[np.float
 def _silu(value: NDArray[np.float32]) -> NDArray[np.float32]:
     exponent = np.clip(-value, -60.0, 60.0)
     return value / (1.0 + np.exp(exponent))
+
+
+class _PairwiseFloat32Workspace:
+    """Native when available, with an exact reusable NumPy fallback."""
+
+    def __init__(self) -> None:
+        self._left = np.empty((64, 96), dtype=np.float32)
+        self._right = np.empty((64, 96), dtype=np.float32)
+        self._outputs: dict[int, NDArray[np.float32]] = {}
+
+    @property
+    def implementation(self) -> str:
+        if _NATIVE_PAIRWISE_MODULE is None:
+            return NUMPY_PAIRWISE_FLOAT32_IMPLEMENTATION
+        return NATIVE_PAIRWISE_FLOAT32_IMPLEMENTATION
+
+    def linear(
+        self,
+        value: NDArray[np.float32],
+        weight: NDArray[np.float32],
+        bias: NDArray[np.float32] | None = None,
+    ) -> NDArray[np.float32]:
+        output_width, input_width = weight.shape
+        if _NATIVE_PAIRWISE_MODULE is not None:
+            output = self._outputs.setdefault(
+                output_width,
+                np.empty(output_width, dtype=np.float32),
+            )
+            _NATIVE_PAIRWISE_MODULE.linear_into(value, weight, bias, output)
+            return output
+        left = self._left[:output_width, :input_width]
+        right = self._right[:output_width, :input_width]
+        np.multiply(weight, value[None, :], out=left)
+        source = left
+        destination = right
+        active_width = input_width
+        while active_width > 1:
+            pair_count = active_width // 2
+            np.add(
+                source[:, : 2 * pair_count : 2],
+                source[:, 1 : 2 * pair_count : 2],
+                out=destination[:, :pair_count],
+            )
+            if active_width % 2:
+                destination[:, pair_count] = source[:, active_width - 1]
+            active_width = pair_count + active_width % 2
+            source, destination = destination, source
+        result = source[:, 0]
+        if bias is not None:
+            np.add(result, bias, out=result)
+        return result
 
 
 def _pairwise_linear_float32(

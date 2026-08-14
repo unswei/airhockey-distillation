@@ -77,6 +77,18 @@ class PrincipalPolicy:
             return 30
         return 66
 
+    @property
+    def inference_implementation(self) -> str:
+        """Return the concrete batch-one inference implementation."""
+
+        return str(
+            getattr(
+                self.policy,
+                "batch_one_inference_implementation",
+                "numpy_float32_v1",
+            )
+        )
+
     def initial_carry(self, batch_size: int | None = None) -> Any:
         if self.family_id == "feed_forward":
             if batch_size is not None and batch_size <= 0:

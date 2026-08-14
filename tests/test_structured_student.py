@@ -14,6 +14,9 @@ from airhockey_distill.students import (
     initialise_structured_parameters,
     structured_parameter_shapes,
 )
+from airhockey_distill.students.structured import (
+    NUMPY_PAIRWISE_FLOAT32_IMPLEMENTATION,
+)
 
 
 def test_structured_student_has_fixed_n64_k2_architecture():
@@ -25,6 +28,10 @@ def test_structured_student_has_fixed_n64_k2_architecture():
     assert STRUCTURED_PARAMETER_SHAPES["innovation_state_weight"] == (2, 64)
     assert policy.parameter_count == 12328
     assert policy.recurrent_parameter_count == 2630
+    assert (
+        policy.batch_one_inference_implementation
+        == NUMPY_PAIRWISE_FLOAT32_IMPLEMENTATION
+    )
 
 
 @pytest.mark.parametrize(
@@ -205,6 +212,55 @@ def test_batched_step_matches_individual_steps():
         )
         np.testing.assert_allclose(action, batch_actions[index], atol=2e-7, rtol=1e-6)
         np.testing.assert_allclose(state, batch_states[index], atol=2e-7, rtol=1e-6)
+
+
+@pytest.mark.parametrize("rank", (0, 1, 2, 4))
+def test_canonical_batch_one_act_is_bit_exact_with_general_step(rank):
+    rng = np.random.default_rng(801 + rank)
+    policy = StructuredRecurrentPolicy(
+        initialise_structured_parameters(91 + rank, innovation_rank=rank),
+        {"student_id": f"structured_k{rank}"},
+        innovation_rank=rank,
+    )
+    carry = policy.initial_carry()
+    reference_state = carry.memory
+    reference_previous_action = carry.previous_action
+
+    for _ in range(200):
+        observation = rng.normal(size=19).astype(np.float32)
+        expected_action, expected_state = policy.step(
+            observation,
+            reference_previous_action,
+            reference_state,
+        )
+        action, carry = policy.act(observation, carry)
+
+        np.testing.assert_array_equal(action, expected_action)
+        np.testing.assert_array_equal(carry.memory, expected_state)
+        np.testing.assert_array_equal(carry.previous_action, expected_action)
+        reference_state = expected_state
+        reference_previous_action = expected_action
+
+
+def test_canonical_batched_act_keeps_the_general_batch_contract():
+    rng = np.random.default_rng(811)
+    policy = StructuredRecurrentPolicy(
+        initialise_structured_parameters(92, innovation_rank=2),
+        {"student_id": "structured_k2"},
+        innovation_rank=2,
+    )
+    observations = rng.normal(size=(3, 19)).astype(np.float32)
+    carry = policy.initial_carry(batch_size=3)
+
+    expected_action, expected_state = policy.step(
+        observations,
+        carry.previous_action,
+        carry.memory,
+    )
+    action, next_carry = policy.act(observations, carry)
+
+    np.testing.assert_array_equal(action, expected_action)
+    np.testing.assert_array_equal(next_carry.memory, expected_state)
 
 
 def test_structured_student_rejects_invalid_shapes_and_values():
