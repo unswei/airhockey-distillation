@@ -1,0 +1,1800 @@
+{
+  "attempt": "/experiments/principal-sweep-v1-2026-08-13-v2",
+  "attempt_code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+  "code_commit": "099602c8b12fe804eb8a4da684b7afd2a667572a",
+  "created_at": "2026-08-14T07:31:20.884836+00:00",
+  "families": [
+    {
+      "checkpoints": [
+        {
+          "checkpoint": "/experiments/principal-sweep-v1-2026-08-13-v2/final/feed_forward/14303/checkpoint.npz",
+          "checkpoint_metadata": {
+            "action_dimension": 2,
+            "action_output": "tanh_mean",
+            "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+            "dataset_id": "principal_feed_forward_teacher_plus_shadow_v1",
+            "dataset_manifest_sha256": "f725ebe7a16e7e874b479ddfd226fd3518d55b2d979efadc9d66a948c6779943",
+            "include_previous_action": false,
+            "loss_weighting": "equal_total_weight_per_complete_episode",
+            "observation_dimension": 19,
+            "policy": "feed_forward",
+            "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+            "schema_version": 1,
+            "selected_epoch": 99,
+            "student_id": "feed_forward",
+            "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+            "training_arithmetic": "pytorch_float32",
+            "training_seed": 14303,
+            "training_stage": "final",
+            "validation_equal_episode_action_mse": 0.18435375320911407
+          },
+          "checkpoint_sha256": "035c8dfe317ab6d2511aec5ea1ea3713d8a4dc8b15ea8946b4359d2c1d9c3139",
+          "family_id": "feed_forward",
+          "historical_result_sha256": "7282eadba0bfe91f86256ed7a2fd5e813e8b0f5b579142d37f9e2214bc2782e1",
+          "historical_status": "successful",
+          "training_seed": 14303,
+          "verification": {
+            "action_maximum_absolute_error": 4.4852495193481445e-06,
+            "action_worst_case": {
+              "absolute_error": 4.4852495193481445e-06,
+              "dimension": 0,
+              "episode_index": 88,
+              "numpy_value": 0.10384298115968704,
+              "state_magnitude": 0.0,
+              "timestep": 16,
+              "torch_value": 0.10384746640920639,
+              "verification_episode_offset": 8
+            },
+            "carry_absolute_worst_case": null,
+            "carry_maximum_absolute_error": 0.0,
+            "carry_maximum_tolerance_fraction": 0.0,
+            "carry_tolerance_worst_case": null,
+            "checkpoint_reload_exact": true,
+            "decision": "GO",
+            "gate_failures": [],
+            "one_step_action_maximum_absolute_error": 4.16487455368042e-06,
+            "one_step_carry_maximum_absolute_error": 0.0,
+            "one_step_worst_case": {
+              "absolute_error": 4.16487455368042e-06,
+              "allowed_error": 2e-05,
+              "dimension": 1,
+              "episode_index": 268,
+              "numpy_value": -0.040382109582424164,
+              "quantity": "action",
+              "state_magnitude": 0.0,
+              "timestep": 19,
+              "torch_value": -0.040386274456977844,
+              "verification_episode_offset": 26
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        },
+        {
+          "checkpoint": "/experiments/principal-sweep-v1-2026-08-13-v2/final/feed_forward/14304/checkpoint.npz",
+          "checkpoint_metadata": {
+            "action_dimension": 2,
+            "action_output": "tanh_mean",
+            "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+            "dataset_id": "principal_feed_forward_teacher_plus_shadow_v1",
+            "dataset_manifest_sha256": "f725ebe7a16e7e874b479ddfd226fd3518d55b2d979efadc9d66a948c6779943",
+            "include_previous_action": false,
+            "loss_weighting": "equal_total_weight_per_complete_episode",
+            "observation_dimension": 19,
+            "policy": "feed_forward",
+            "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+            "schema_version": 1,
+            "selected_epoch": 100,
+            "student_id": "feed_forward",
+            "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+            "training_arithmetic": "pytorch_float32",
+            "training_seed": 14304,
+            "training_stage": "final",
+            "validation_equal_episode_action_mse": 0.1872027212381363
+          },
+          "checkpoint_sha256": "ba23961cb315b11328f4a83caf1c7f718bb0fe4582c098133ea7a9891c9e31d7",
+          "family_id": "feed_forward",
+          "historical_result_sha256": "f52486102ad12be4c2f1bb412ed232674b4ba10be247b719620cfb924d7a2e5c",
+          "historical_status": "successful",
+          "training_seed": 14304,
+          "verification": {
+            "action_maximum_absolute_error": 2.555549144744873e-06,
+            "action_worst_case": {
+              "absolute_error": 2.555549144744873e-06,
+              "dimension": 0,
+              "episode_index": 128,
+              "numpy_value": 0.06855536997318268,
+              "state_magnitude": 0.0,
+              "timestep": 1,
+              "torch_value": 0.06855281442403793,
+              "verification_episode_offset": 12
+            },
+            "carry_absolute_worst_case": null,
+            "carry_maximum_absolute_error": 0.0,
+            "carry_maximum_tolerance_fraction": 0.0,
+            "carry_tolerance_worst_case": null,
+            "checkpoint_reload_exact": true,
+            "decision": "GO",
+            "gate_failures": [],
+            "one_step_action_maximum_absolute_error": 3.680586814880371e-06,
+            "one_step_carry_maximum_absolute_error": 0.0,
+            "one_step_worst_case": {
+              "absolute_error": 3.680586814880371e-06,
+              "allowed_error": 2e-05,
+              "dimension": 1,
+              "episode_index": 308,
+              "numpy_value": 0.18998819589614868,
+              "quantity": "action",
+              "state_magnitude": 0.0,
+              "timestep": 16,
+              "torch_value": 0.1899845153093338,
+              "verification_episode_offset": 30
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        },
+        {
+          "checkpoint": "/experiments/principal-sweep-v1-2026-08-13-v2/final/feed_forward/14305/checkpoint.npz",
+          "checkpoint_metadata": {
+            "action_dimension": 2,
+            "action_output": "tanh_mean",
+            "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+            "dataset_id": "principal_feed_forward_teacher_plus_shadow_v1",
+            "dataset_manifest_sha256": "f725ebe7a16e7e874b479ddfd226fd3518d55b2d979efadc9d66a948c6779943",
+            "include_previous_action": false,
+            "loss_weighting": "equal_total_weight_per_complete_episode",
+            "observation_dimension": 19,
+            "policy": "feed_forward",
+            "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+            "schema_version": 1,
+            "selected_epoch": 100,
+            "student_id": "feed_forward",
+            "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+            "training_arithmetic": "pytorch_float32",
+            "training_seed": 14305,
+            "training_stage": "final",
+            "validation_equal_episode_action_mse": 0.18869470608234407
+          },
+          "checkpoint_sha256": "c5ff5f35287ce555810cf36c426cc43b4fafc8cc021a543cb72d1c29b0052d6f",
+          "family_id": "feed_forward",
+          "historical_result_sha256": "c7a7e039b08e03481d473a3b7c6bc3a10d70b825872f5064be128889ecb1f41c",
+          "historical_status": "successful",
+          "training_seed": 14305,
+          "verification": {
+            "action_maximum_absolute_error": 4.634261131286621e-06,
+            "action_worst_case": {
+              "absolute_error": 4.634261131286621e-06,
+              "dimension": 1,
+              "episode_index": 218,
+              "numpy_value": -0.16135208308696747,
+              "state_magnitude": 0.0,
+              "timestep": 0,
+              "torch_value": -0.16135671734809875,
+              "verification_episode_offset": 21
+            },
+            "carry_absolute_worst_case": null,
+            "carry_maximum_absolute_error": 0.0,
+            "carry_maximum_tolerance_fraction": 0.0,
+            "carry_tolerance_worst_case": null,
+            "checkpoint_reload_exact": true,
+            "decision": "GO",
+            "gate_failures": [],
+            "one_step_action_maximum_absolute_error": 5.9604644775390625e-06,
+            "one_step_carry_maximum_absolute_error": 0.0,
+            "one_step_worst_case": {
+              "absolute_error": 5.9604644775390625e-06,
+              "allowed_error": 2e-05,
+              "dimension": 1,
+              "episode_index": 158,
+              "numpy_value": -0.3521943986415863,
+              "quantity": "action",
+              "state_magnitude": 0.0,
+              "timestep": 4,
+              "torch_value": -0.35220035910606384,
+              "verification_episode_offset": 15
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        },
+        {
+          "checkpoint": "/experiments/principal-sweep-v1-2026-08-13-v2/final/feed_forward/14306/checkpoint.npz",
+          "checkpoint_metadata": {
+            "action_dimension": 2,
+            "action_output": "tanh_mean",
+            "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+            "dataset_id": "principal_feed_forward_teacher_plus_shadow_v1",
+            "dataset_manifest_sha256": "f725ebe7a16e7e874b479ddfd226fd3518d55b2d979efadc9d66a948c6779943",
+            "include_previous_action": false,
+            "loss_weighting": "equal_total_weight_per_complete_episode",
+            "observation_dimension": 19,
+            "policy": "feed_forward",
+            "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+            "schema_version": 1,
+            "selected_epoch": 100,
+            "student_id": "feed_forward",
+            "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+            "training_arithmetic": "pytorch_float32",
+            "training_seed": 14306,
+            "training_stage": "final",
+            "validation_equal_episode_action_mse": 0.1861346673965454
+          },
+          "checkpoint_sha256": "1eeea8c4c121df75a4e89ac7befffb55d5f8b43dcc33329d7b7ab5bf616d5a7e",
+          "family_id": "feed_forward",
+          "historical_result_sha256": "05de5750a27f7b35df27d43710be0601135817b2e655b14bc9951922f43e527e",
+          "historical_status": "successful",
+          "training_seed": 14306,
+          "verification": {
+            "action_maximum_absolute_error": 2.9206275939941406e-06,
+            "action_worst_case": {
+              "absolute_error": 2.9206275939941406e-06,
+              "dimension": 1,
+              "episode_index": 128,
+              "numpy_value": -0.36315709352493286,
+              "state_magnitude": 0.0,
+              "timestep": 15,
+              "torch_value": -0.36315417289733887,
+              "verification_episode_offset": 12
+            },
+            "carry_absolute_worst_case": null,
+            "carry_maximum_absolute_error": 0.0,
+            "carry_maximum_tolerance_fraction": 0.0,
+            "carry_tolerance_worst_case": null,
+            "checkpoint_reload_exact": true,
+            "decision": "GO",
+            "gate_failures": [],
+            "one_step_action_maximum_absolute_error": 4.380941390991211e-06,
+            "one_step_carry_maximum_absolute_error": 0.0,
+            "one_step_worst_case": {
+              "absolute_error": 4.380941390991211e-06,
+              "allowed_error": 2e-05,
+              "dimension": 1,
+              "episode_index": 18,
+              "numpy_value": -0.2865521013736725,
+              "quantity": "action",
+              "state_magnitude": 0.0,
+              "timestep": 3,
+              "torch_value": -0.2865564823150635,
+              "verification_episode_offset": 1
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        },
+        {
+          "checkpoint": "/experiments/principal-sweep-v1-2026-08-13-v2/final/feed_forward/14307/checkpoint.npz",
+          "checkpoint_metadata": {
+            "action_dimension": 2,
+            "action_output": "tanh_mean",
+            "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+            "dataset_id": "principal_feed_forward_teacher_plus_shadow_v1",
+            "dataset_manifest_sha256": "f725ebe7a16e7e874b479ddfd226fd3518d55b2d979efadc9d66a948c6779943",
+            "include_previous_action": false,
+            "loss_weighting": "equal_total_weight_per_complete_episode",
+            "observation_dimension": 19,
+            "policy": "feed_forward",
+            "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+            "schema_version": 1,
+            "selected_epoch": 99,
+            "student_id": "feed_forward",
+            "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+            "training_arithmetic": "pytorch_float32",
+            "training_seed": 14307,
+            "training_stage": "final",
+            "validation_equal_episode_action_mse": 0.1922650855779648
+          },
+          "checkpoint_sha256": "951a533d801db8a6f3904f7c5aa7c15e93f7a37712cb4471bcdf0e267def84e5",
+          "family_id": "feed_forward",
+          "historical_result_sha256": "ea0b08889bc5e9bd856d36aa6655927792968916d34a4790bcbe95fa581c55c6",
+          "historical_status": "successful",
+          "training_seed": 14307,
+          "verification": {
+            "action_maximum_absolute_error": 4.708766937255859e-06,
+            "action_worst_case": {
+              "absolute_error": 4.708766937255859e-06,
+              "dimension": 1,
+              "episode_index": 238,
+              "numpy_value": -0.11370770633220673,
+              "state_magnitude": 0.0,
+              "timestep": 18,
+              "torch_value": -0.11371241509914398,
+              "verification_episode_offset": 23
+            },
+            "carry_absolute_worst_case": null,
+            "carry_maximum_absolute_error": 0.0,
+            "carry_maximum_tolerance_fraction": 0.0,
+            "carry_tolerance_worst_case": null,
+            "checkpoint_reload_exact": true,
+            "decision": "GO",
+            "gate_failures": [],
+            "one_step_action_maximum_absolute_error": 7.618218660354614e-06,
+            "one_step_carry_maximum_absolute_error": 0.0,
+            "one_step_worst_case": {
+              "absolute_error": 7.618218660354614e-06,
+              "allowed_error": 2e-05,
+              "dimension": 1,
+              "episode_index": 308,
+              "numpy_value": 0.03448685631155968,
+              "quantity": "action",
+              "state_magnitude": 0.0,
+              "timestep": 16,
+              "torch_value": 0.03447923809289932,
+              "verification_episode_offset": 30
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        }
+      ],
+      "corruptions": [
+        {
+          "case_id": "action_parameter_disagreement",
+          "corrupt_checkpoint": {
+            "mutation": {
+              "actual_delta": 0.049999999813735485,
+              "flat_index": 0,
+              "key": "action_output_bias",
+              "new": 0.013956076465547085,
+              "old": -0.0360439233481884,
+              "requested_delta": 0.05
+            },
+            "path": "/validation/principal-export-gate-v2-validation-2026-08-14-v1/corruptions/feed_forward/action_output_bias_plus_0p05.npz",
+            "sha256": "47846f6f5283883c50f60db0b747e9ec70a66fb4cf2d441b47b8f670566ffca7"
+          },
+          "expected_gate_failure": "action_absolute_error",
+          "fail_closed": true,
+          "family_id": "feed_forward",
+          "source_checkpoint_sha256": "035c8dfe317ab6d2511aec5ea1ea3713d8a4dc8b15ea8946b4359d2c1d9c3139",
+          "verification": {
+            "action_maximum_absolute_error": 0.049989622086286545,
+            "action_worst_case": {
+              "absolute_error": 0.049989622086286545,
+              "dimension": 0,
+              "episode_index": 118,
+              "numpy_value": 0.02100129798054695,
+              "state_magnitude": 0.0,
+              "timestep": 14,
+              "torch_value": -0.028988324105739594,
+              "verification_episode_offset": 11
+            },
+            "carry_absolute_worst_case": null,
+            "carry_maximum_absolute_error": 0.0,
+            "carry_maximum_tolerance_fraction": 0.0,
+            "carry_tolerance_worst_case": null,
+            "checkpoint_reload_exact": true,
+            "decision": "NO_GO",
+            "gate_failures": [
+              "action_absolute_error",
+              "same_state_one_step_action_absolute_error"
+            ],
+            "one_step_action_maximum_absolute_error": 0.04998944699764252,
+            "one_step_carry_maximum_absolute_error": 0.0,
+            "one_step_worst_case": {
+              "absolute_error": 0.04998944699764252,
+              "allowed_error": 2e-05,
+              "dimension": 0,
+              "episode_index": 118,
+              "numpy_value": 0.02100129798054695,
+              "quantity": "action",
+              "state_magnitude": 0.0,
+              "timestep": 14,
+              "torch_value": -0.028988147154450417,
+              "verification_episode_offset": 11
+            },
+            "predicates": {
+              "action_absolute": false,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": false,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        },
+        {
+          "case_id": "non_exact_checkpoint_reload",
+          "corrupt_checkpoint": {
+            "mutation": {
+              "actual_delta": 0.049999999813735485,
+              "flat_index": 0,
+              "key": "action_output_bias",
+              "new": 0.013956076465547085,
+              "old": -0.0360439233481884,
+              "requested_delta": 0.05
+            },
+            "path": "/validation/principal-export-gate-v2-validation-2026-08-14-v1/corruptions/feed_forward/action_output_bias_plus_0p05.npz",
+            "sha256": "47846f6f5283883c50f60db0b747e9ec70a66fb4cf2d441b47b8f670566ffca7"
+          },
+          "expected_gate_failure": "checkpoint_reload_not_exact",
+          "fail_closed": true,
+          "family_id": "feed_forward",
+          "source_checkpoint_sha256": "035c8dfe317ab6d2511aec5ea1ea3713d8a4dc8b15ea8946b4359d2c1d9c3139",
+          "verification": {
+            "action_maximum_absolute_error": 4.4852495193481445e-06,
+            "action_worst_case": {
+              "absolute_error": 4.4852495193481445e-06,
+              "dimension": 0,
+              "episode_index": 88,
+              "numpy_value": 0.10384298115968704,
+              "state_magnitude": 0.0,
+              "timestep": 16,
+              "torch_value": 0.10384746640920639,
+              "verification_episode_offset": 8
+            },
+            "carry_absolute_worst_case": null,
+            "carry_maximum_absolute_error": 0.0,
+            "carry_maximum_tolerance_fraction": 0.0,
+            "carry_tolerance_worst_case": null,
+            "checkpoint_reload_exact": false,
+            "decision": "NO_GO",
+            "gate_failures": [
+              "checkpoint_reload_not_exact"
+            ],
+            "one_step_action_maximum_absolute_error": 4.16487455368042e-06,
+            "one_step_carry_maximum_absolute_error": 0.0,
+            "one_step_worst_case": {
+              "absolute_error": 4.16487455368042e-06,
+              "allowed_error": 2e-05,
+              "dimension": 1,
+              "episode_index": 268,
+              "numpy_value": -0.040382109582424164,
+              "quantity": "action",
+              "state_magnitude": 0.0,
+              "timestep": 19,
+              "torch_value": -0.040386274456977844,
+              "verification_episode_offset": 26
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": false,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        }
+      ],
+      "cpu_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "dataset_episode_count": 40000,
+      "dataset_manifest_sha256": "f725ebe7a16e7e874b479ddfd226fd3518d55b2d979efadc9d66a948c6779943",
+      "dataset_transition_count": 2279481,
+      "family_id": "feed_forward",
+      "torch_threads": 8,
+      "validation_episode_count": 4000,
+      "validation_episode_index_sha256": "0ad1fef54e1b0be8254e72a07b313fc7be00b5d7b6d603f693fa68b5ef52697c",
+      "worker_pid": 15
+    },
+    {
+      "checkpoints": [
+        {
+          "checkpoint": "/experiments/principal-sweep-v1-2026-08-13-v2/final/finite_stack_10/14303/checkpoint.npz",
+          "checkpoint_metadata": {
+            "action_dimension": 2,
+            "action_output": "tanh_mean",
+            "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+            "current_proprioception_dimension": 16,
+            "dataset_id": "principal_finite_stack_10_teacher_plus_shadow_v1",
+            "dataset_manifest_sha256": "cbbc7a1925fd68d894e46a28fbf5755841441cb38dc74e9bc64e0335ee130e6c",
+            "episode_start_padding": "zero_position_and_zero_visibility",
+            "history_dimension": 30,
+            "history_order": "oldest_to_newest",
+            "include_previous_action": false,
+            "loss_weighting": "equal_total_weight_per_complete_episode",
+            "network_input_dimension": 46,
+            "observation_dimension": 19,
+            "policy": "finite_stack_10",
+            "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+            "puck_feature_dimension": 3,
+            "puck_history_steps": 10,
+            "schema_version": 1,
+            "selected_epoch": 98,
+            "student_id": "finite_stack_10",
+            "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+            "training_arithmetic": "pytorch_float32",
+            "training_seed": 14303,
+            "training_stage": "final",
+            "validation_equal_episode_action_mse": 0.1203710263967514
+          },
+          "checkpoint_sha256": "cf467de14fbc3bf3d08937105569f797d515774e13e091506ebb2dd92a4cf84d",
+          "family_id": "finite_stack_10",
+          "historical_result_sha256": "bd16940ac9230deb34c3a5c7befb1a64c2267165cdb071f7cbf310e935755a24",
+          "historical_status": "successful",
+          "training_seed": 14303,
+          "verification": {
+            "action_maximum_absolute_error": 5.5283308029174805e-06,
+            "action_worst_case": {
+              "absolute_error": 5.5283308029174805e-06,
+              "dimension": 1,
+              "episode_index": 228,
+              "numpy_value": -0.13573619723320007,
+              "state_magnitude": 1.0,
+              "timestep": 8,
+              "torch_value": -0.135741725564003,
+              "verification_episode_offset": 22
+            },
+            "carry_absolute_worst_case": {
+              "absolute_error": 0.0,
+              "allowed_error": 1.9999999494757503e-05,
+              "dimension": 0,
+              "episode_index": 8,
+              "numpy_value": 0.0,
+              "state_magnitude": 0.0,
+              "timestep": 0,
+              "tolerance_fraction": 0.0,
+              "torch_value": 0.0,
+              "verification_episode_offset": 0
+            },
+            "carry_maximum_absolute_error": 0.0,
+            "carry_maximum_tolerance_fraction": 0.0,
+            "carry_tolerance_worst_case": {
+              "absolute_error": 0.0,
+              "allowed_error": 1.9999999494757503e-05,
+              "dimension": 0,
+              "episode_index": 8,
+              "numpy_value": 0.0,
+              "state_magnitude": 0.0,
+              "timestep": 0,
+              "tolerance_fraction": 0.0,
+              "torch_value": 0.0,
+              "verification_episode_offset": 0
+            },
+            "checkpoint_reload_exact": true,
+            "decision": "GO",
+            "gate_failures": [],
+            "one_step_action_maximum_absolute_error": 5.5283308029174805e-06,
+            "one_step_carry_maximum_absolute_error": 0.0,
+            "one_step_worst_case": {
+              "absolute_error": 5.5283308029174805e-06,
+              "allowed_error": 2e-05,
+              "dimension": 1,
+              "episode_index": 228,
+              "numpy_value": -0.13573619723320007,
+              "quantity": "action",
+              "state_magnitude": 1.0,
+              "timestep": 8,
+              "torch_value": -0.135741725564003,
+              "verification_episode_offset": 22
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        },
+        {
+          "checkpoint": "/experiments/principal-sweep-v1-2026-08-13-v2/final/finite_stack_10/14304/checkpoint.npz",
+          "checkpoint_metadata": {
+            "action_dimension": 2,
+            "action_output": "tanh_mean",
+            "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+            "current_proprioception_dimension": 16,
+            "dataset_id": "principal_finite_stack_10_teacher_plus_shadow_v1",
+            "dataset_manifest_sha256": "cbbc7a1925fd68d894e46a28fbf5755841441cb38dc74e9bc64e0335ee130e6c",
+            "episode_start_padding": "zero_position_and_zero_visibility",
+            "history_dimension": 30,
+            "history_order": "oldest_to_newest",
+            "include_previous_action": false,
+            "loss_weighting": "equal_total_weight_per_complete_episode",
+            "network_input_dimension": 46,
+            "observation_dimension": 19,
+            "policy": "finite_stack_10",
+            "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+            "puck_feature_dimension": 3,
+            "puck_history_steps": 10,
+            "schema_version": 1,
+            "selected_epoch": 97,
+            "student_id": "finite_stack_10",
+            "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+            "training_arithmetic": "pytorch_float32",
+            "training_seed": 14304,
+            "training_stage": "final",
+            "validation_equal_episode_action_mse": 0.12033048307895661
+          },
+          "checkpoint_sha256": "179c518c3ac3aa1b7098252a605a4c35a2f92147bd3af77b86bbf601c360a7c8",
+          "family_id": "finite_stack_10",
+          "historical_result_sha256": "7b8539fa9cbe663767786498897c382645ac42e53a522c299ff6105ca18ced84",
+          "historical_status": "successful",
+          "training_seed": 14304,
+          "verification": {
+            "action_maximum_absolute_error": 5.364418029785156e-06,
+            "action_worst_case": {
+              "absolute_error": 5.364418029785156e-06,
+              "dimension": 1,
+              "episode_index": 228,
+              "numpy_value": 0.17635375261306763,
+              "state_magnitude": 1.0,
+              "timestep": 6,
+              "torch_value": 0.1763591170310974,
+              "verification_episode_offset": 22
+            },
+            "carry_absolute_worst_case": {
+              "absolute_error": 0.0,
+              "allowed_error": 1.9999999494757503e-05,
+              "dimension": 0,
+              "episode_index": 8,
+              "numpy_value": 0.0,
+              "state_magnitude": 0.0,
+              "timestep": 0,
+              "tolerance_fraction": 0.0,
+              "torch_value": 0.0,
+              "verification_episode_offset": 0
+            },
+            "carry_maximum_absolute_error": 0.0,
+            "carry_maximum_tolerance_fraction": 0.0,
+            "carry_tolerance_worst_case": {
+              "absolute_error": 0.0,
+              "allowed_error": 1.9999999494757503e-05,
+              "dimension": 0,
+              "episode_index": 8,
+              "numpy_value": 0.0,
+              "state_magnitude": 0.0,
+              "timestep": 0,
+              "tolerance_fraction": 0.0,
+              "torch_value": 0.0,
+              "verification_episode_offset": 0
+            },
+            "checkpoint_reload_exact": true,
+            "decision": "GO",
+            "gate_failures": [],
+            "one_step_action_maximum_absolute_error": 5.364418029785156e-06,
+            "one_step_carry_maximum_absolute_error": 0.0,
+            "one_step_worst_case": {
+              "absolute_error": 5.364418029785156e-06,
+              "allowed_error": 2e-05,
+              "dimension": 1,
+              "episode_index": 228,
+              "numpy_value": 0.17635375261306763,
+              "quantity": "action",
+              "state_magnitude": 1.0,
+              "timestep": 6,
+              "torch_value": 0.1763591170310974,
+              "verification_episode_offset": 22
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        },
+        {
+          "checkpoint": "/experiments/principal-sweep-v1-2026-08-13-v2/final/finite_stack_10/14305/checkpoint.npz",
+          "checkpoint_metadata": {
+            "action_dimension": 2,
+            "action_output": "tanh_mean",
+            "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+            "current_proprioception_dimension": 16,
+            "dataset_id": "principal_finite_stack_10_teacher_plus_shadow_v1",
+            "dataset_manifest_sha256": "cbbc7a1925fd68d894e46a28fbf5755841441cb38dc74e9bc64e0335ee130e6c",
+            "episode_start_padding": "zero_position_and_zero_visibility",
+            "history_dimension": 30,
+            "history_order": "oldest_to_newest",
+            "include_previous_action": false,
+            "loss_weighting": "equal_total_weight_per_complete_episode",
+            "network_input_dimension": 46,
+            "observation_dimension": 19,
+            "policy": "finite_stack_10",
+            "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+            "puck_feature_dimension": 3,
+            "puck_history_steps": 10,
+            "schema_version": 1,
+            "selected_epoch": 98,
+            "student_id": "finite_stack_10",
+            "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+            "training_arithmetic": "pytorch_float32",
+            "training_seed": 14305,
+            "training_stage": "final",
+            "validation_equal_episode_action_mse": 0.11693260502815246
+          },
+          "checkpoint_sha256": "c6929695e81b4b0646895c5104bede7b4166e4a7eee4f62c603aef92ed762d71",
+          "family_id": "finite_stack_10",
+          "historical_result_sha256": "8f2de3e8051d21b9689f3abe22c7f11c34dff131dffd9bfe1c70124a36e60171",
+          "historical_status": "successful",
+          "training_seed": 14305,
+          "verification": {
+            "action_maximum_absolute_error": 4.976987838745117e-06,
+            "action_worst_case": {
+              "absolute_error": 4.976987838745117e-06,
+              "dimension": 1,
+              "episode_index": 188,
+              "numpy_value": 0.3105236291885376,
+              "state_magnitude": 1.0,
+              "timestep": 6,
+              "torch_value": 0.31051865220069885,
+              "verification_episode_offset": 18
+            },
+            "carry_absolute_worst_case": {
+              "absolute_error": 0.0,
+              "allowed_error": 1.9999999494757503e-05,
+              "dimension": 0,
+              "episode_index": 8,
+              "numpy_value": 0.0,
+              "state_magnitude": 0.0,
+              "timestep": 0,
+              "tolerance_fraction": 0.0,
+              "torch_value": 0.0,
+              "verification_episode_offset": 0
+            },
+            "carry_maximum_absolute_error": 0.0,
+            "carry_maximum_tolerance_fraction": 0.0,
+            "carry_tolerance_worst_case": {
+              "absolute_error": 0.0,
+              "allowed_error": 1.9999999494757503e-05,
+              "dimension": 0,
+              "episode_index": 8,
+              "numpy_value": 0.0,
+              "state_magnitude": 0.0,
+              "timestep": 0,
+              "tolerance_fraction": 0.0,
+              "torch_value": 0.0,
+              "verification_episode_offset": 0
+            },
+            "checkpoint_reload_exact": true,
+            "decision": "GO",
+            "gate_failures": [],
+            "one_step_action_maximum_absolute_error": 4.976987838745117e-06,
+            "one_step_carry_maximum_absolute_error": 0.0,
+            "one_step_worst_case": {
+              "absolute_error": 4.976987838745117e-06,
+              "allowed_error": 2e-05,
+              "dimension": 1,
+              "episode_index": 188,
+              "numpy_value": 0.3105236291885376,
+              "quantity": "action",
+              "state_magnitude": 1.0,
+              "timestep": 6,
+              "torch_value": 0.31051865220069885,
+              "verification_episode_offset": 18
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        },
+        {
+          "checkpoint": "/experiments/principal-sweep-v1-2026-08-13-v2/final/finite_stack_10/14306/checkpoint.npz",
+          "checkpoint_metadata": {
+            "action_dimension": 2,
+            "action_output": "tanh_mean",
+            "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+            "current_proprioception_dimension": 16,
+            "dataset_id": "principal_finite_stack_10_teacher_plus_shadow_v1",
+            "dataset_manifest_sha256": "cbbc7a1925fd68d894e46a28fbf5755841441cb38dc74e9bc64e0335ee130e6c",
+            "episode_start_padding": "zero_position_and_zero_visibility",
+            "history_dimension": 30,
+            "history_order": "oldest_to_newest",
+            "include_previous_action": false,
+            "loss_weighting": "equal_total_weight_per_complete_episode",
+            "network_input_dimension": 46,
+            "observation_dimension": 19,
+            "policy": "finite_stack_10",
+            "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+            "puck_feature_dimension": 3,
+            "puck_history_steps": 10,
+            "schema_version": 1,
+            "selected_epoch": 100,
+            "student_id": "finite_stack_10",
+            "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+            "training_arithmetic": "pytorch_float32",
+            "training_seed": 14306,
+            "training_stage": "final",
+            "validation_equal_episode_action_mse": 0.12317517614364625
+          },
+          "checkpoint_sha256": "847846fe6e4b51e1cfe66e4f3fdf5ce43aa160f4764ec569cb9dbb79a05589f8",
+          "family_id": "finite_stack_10",
+          "historical_result_sha256": "2e2500c25df5adc0cf3365e51d1389c45bf52263865cc329831ca9e9d776c0ca",
+          "historical_status": "successful",
+          "training_seed": 14306,
+          "verification": {
+            "action_maximum_absolute_error": 6.817281246185303e-06,
+            "action_worst_case": {
+              "absolute_error": 6.817281246185303e-06,
+              "dimension": 1,
+              "episode_index": 78,
+              "numpy_value": -0.11958850175142288,
+              "state_magnitude": 1.0,
+              "timestep": 10,
+              "torch_value": -0.11959531903266907,
+              "verification_episode_offset": 7
+            },
+            "carry_absolute_worst_case": {
+              "absolute_error": 0.0,
+              "allowed_error": 1.9999999494757503e-05,
+              "dimension": 0,
+              "episode_index": 8,
+              "numpy_value": 0.0,
+              "state_magnitude": 0.0,
+              "timestep": 0,
+              "tolerance_fraction": 0.0,
+              "torch_value": 0.0,
+              "verification_episode_offset": 0
+            },
+            "carry_maximum_absolute_error": 0.0,
+            "carry_maximum_tolerance_fraction": 0.0,
+            "carry_tolerance_worst_case": {
+              "absolute_error": 0.0,
+              "allowed_error": 1.9999999494757503e-05,
+              "dimension": 0,
+              "episode_index": 8,
+              "numpy_value": 0.0,
+              "state_magnitude": 0.0,
+              "timestep": 0,
+              "tolerance_fraction": 0.0,
+              "torch_value": 0.0,
+              "verification_episode_offset": 0
+            },
+            "checkpoint_reload_exact": true,
+            "decision": "GO",
+            "gate_failures": [],
+            "one_step_action_maximum_absolute_error": 6.817281246185303e-06,
+            "one_step_carry_maximum_absolute_error": 0.0,
+            "one_step_worst_case": {
+              "absolute_error": 6.817281246185303e-06,
+              "allowed_error": 2e-05,
+              "dimension": 1,
+              "episode_index": 78,
+              "numpy_value": -0.11958850175142288,
+              "quantity": "action",
+              "state_magnitude": 1.0,
+              "timestep": 10,
+              "torch_value": -0.11959531903266907,
+              "verification_episode_offset": 7
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        },
+        {
+          "checkpoint": "/experiments/principal-sweep-v1-2026-08-13-v2/final/finite_stack_10/14307/checkpoint.npz",
+          "checkpoint_metadata": {
+            "action_dimension": 2,
+            "action_output": "tanh_mean",
+            "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+            "current_proprioception_dimension": 16,
+            "dataset_id": "principal_finite_stack_10_teacher_plus_shadow_v1",
+            "dataset_manifest_sha256": "cbbc7a1925fd68d894e46a28fbf5755841441cb38dc74e9bc64e0335ee130e6c",
+            "episode_start_padding": "zero_position_and_zero_visibility",
+            "history_dimension": 30,
+            "history_order": "oldest_to_newest",
+            "include_previous_action": false,
+            "loss_weighting": "equal_total_weight_per_complete_episode",
+            "network_input_dimension": 46,
+            "observation_dimension": 19,
+            "policy": "finite_stack_10",
+            "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+            "puck_feature_dimension": 3,
+            "puck_history_steps": 10,
+            "schema_version": 1,
+            "selected_epoch": 98,
+            "student_id": "finite_stack_10",
+            "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+            "training_arithmetic": "pytorch_float32",
+            "training_seed": 14307,
+            "training_stage": "final",
+            "validation_equal_episode_action_mse": 0.1168300416469574
+          },
+          "checkpoint_sha256": "0e7622102f90a80db3c239b5059337a67b7da8c24e349a15a9d5f9681d9f5661",
+          "family_id": "finite_stack_10",
+          "historical_result_sha256": "2ec498c4235565bae51745d10c4ebad5b5617b90163ca63624daffae59d63685",
+          "historical_status": "successful",
+          "training_seed": 14307,
+          "verification": {
+            "action_maximum_absolute_error": 6.9122761487960815e-06,
+            "action_worst_case": {
+              "absolute_error": 6.9122761487960815e-06,
+              "dimension": 1,
+              "episode_index": 228,
+              "numpy_value": 0.016251340508461,
+              "state_magnitude": 1.0,
+              "timestep": 6,
+              "torch_value": 0.016258252784609795,
+              "verification_episode_offset": 22
+            },
+            "carry_absolute_worst_case": {
+              "absolute_error": 0.0,
+              "allowed_error": 1.9999999494757503e-05,
+              "dimension": 0,
+              "episode_index": 8,
+              "numpy_value": 0.0,
+              "state_magnitude": 0.0,
+              "timestep": 0,
+              "tolerance_fraction": 0.0,
+              "torch_value": 0.0,
+              "verification_episode_offset": 0
+            },
+            "carry_maximum_absolute_error": 0.0,
+            "carry_maximum_tolerance_fraction": 0.0,
+            "carry_tolerance_worst_case": {
+              "absolute_error": 0.0,
+              "allowed_error": 1.9999999494757503e-05,
+              "dimension": 0,
+              "episode_index": 8,
+              "numpy_value": 0.0,
+              "state_magnitude": 0.0,
+              "timestep": 0,
+              "tolerance_fraction": 0.0,
+              "torch_value": 0.0,
+              "verification_episode_offset": 0
+            },
+            "checkpoint_reload_exact": true,
+            "decision": "GO",
+            "gate_failures": [],
+            "one_step_action_maximum_absolute_error": 6.9122761487960815e-06,
+            "one_step_carry_maximum_absolute_error": 0.0,
+            "one_step_worst_case": {
+              "absolute_error": 6.9122761487960815e-06,
+              "allowed_error": 2e-05,
+              "dimension": 1,
+              "episode_index": 228,
+              "numpy_value": 0.016251340508461,
+              "quantity": "action",
+              "state_magnitude": 1.0,
+              "timestep": 6,
+              "torch_value": 0.016258252784609795,
+              "verification_episode_offset": 22
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        }
+      ],
+      "corruptions": [
+        {
+          "case_id": "missing_required_array",
+          "corrupt_checkpoint": {
+            "mutation": {
+              "removed_key": "action_output_weight",
+              "removed_shape": [
+                2,
+                64
+              ]
+            },
+            "path": "/validation/principal-export-gate-v2-validation-2026-08-14-v1/corruptions/finite_stack_10/missing_action_output_weight.npz",
+            "sha256": "babc2c8f21e7f9d82c8cf434481a136b976ddc3a079282acc8b08b6e0a7860e5"
+          },
+          "expected": "loader_rejection",
+          "fail_closed": true,
+          "family_id": "finite_stack_10",
+          "observed_exception": {
+            "message": "'action_output_weight is not a file in the archive'",
+            "type": "KeyError"
+          },
+          "source_checkpoint_sha256": "cf467de14fbc3bf3d08937105569f797d515774e13e091506ebb2dd92a4cf84d"
+        },
+        {
+          "case_id": "truncated_npz",
+          "corrupt_checkpoint": {
+            "mutation": {
+              "corrupt_bytes": 18010,
+              "operation": "truncate",
+              "source_bytes": 36020
+            },
+            "path": "/validation/principal-export-gate-v2-validation-2026-08-14-v1/corruptions/finite_stack_10/truncated_checkpoint.npz",
+            "sha256": "d82147c67633e64b564ebebbf0f75503047e27c5c3e572e537d2855030b02e05"
+          },
+          "expected": "loader_rejection",
+          "fail_closed": true,
+          "family_id": "finite_stack_10",
+          "observed_exception": {
+            "message": "File is not a zip file",
+            "type": "BadZipFile"
+          },
+          "source_checkpoint_sha256": "cf467de14fbc3bf3d08937105569f797d515774e13e091506ebb2dd92a4cf84d"
+        }
+      ],
+      "cpu_affinity": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "dataset_episode_count": 40000,
+      "dataset_manifest_sha256": "cbbc7a1925fd68d894e46a28fbf5755841441cb38dc74e9bc64e0335ee130e6c",
+      "dataset_transition_count": 1434773,
+      "family_id": "finite_stack_10",
+      "torch_threads": 8,
+      "validation_episode_count": 4000,
+      "validation_episode_index_sha256": "0ad1fef54e1b0be8254e72a07b313fc7be00b5d7b6d603f693fa68b5ef52697c",
+      "worker_pid": 16
+    },
+    {
+      "checkpoints": [
+        {
+          "checkpoint": "/experiments/principal-sweep-v1-2026-08-13-v2/final/structured_k0/14303/checkpoint.npz",
+          "checkpoint_metadata": {
+            "action_dimension": 2,
+            "action_output": "tanh_mean",
+            "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+            "dataset_id": "principal_structured_k0_teacher_plus_shadow_v1",
+            "dataset_manifest_sha256": "33a560be97f59b97a58524195fe19132652d99a53360476af1789ab6a0deb107",
+            "encoded_dimension": 32,
+            "include_previous_action": true,
+            "inference_arithmetic": "canonical_float32_v1",
+            "innovation_rank": 0,
+            "loss_weighting": "equal_total_weight_per_complete_episode",
+            "observation_dimension": 19,
+            "policy": "structured_recurrent_n64_k0",
+            "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+            "schema_version": 1,
+            "selected_epoch": 97,
+            "state_dimension": 64,
+            "student_id": "structured_k0",
+            "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+            "training_arithmetic": "pytorch_float32",
+            "training_seed": 14303,
+            "training_stage": "final",
+            "validation_equal_episode_action_mse": 0.07658056408166886
+          },
+          "checkpoint_sha256": "231f039b01d3991bb84ebf1fdc49f7af2db72a5b189b7eb73b9228ff1fa6d0c9",
+          "family_id": "structured_k0",
+          "historical_result_sha256": "1076c214cab1d88eb043016db97bef70bb9d7b0310e42ce9803f07d21b93a473",
+          "historical_status": "successful",
+          "training_seed": 14303,
+          "verification": {
+            "action_maximum_absolute_error": 3.7103891372680664e-06,
+            "action_worst_case": {
+              "absolute_error": 3.7103891372680664e-06,
+              "dimension": 1,
+              "episode_index": 118,
+              "numpy_value": -0.15555159747600555,
+              "state_magnitude": 24.15221405029297,
+              "timestep": 13,
+              "torch_value": -0.15555530786514282,
+              "verification_episode_offset": 11
+            },
+            "carry_absolute_worst_case": {
+              "absolute_error": 3.814697265625e-06,
+              "allowed_error": 3.70774905604776e-05,
+              "dimension": 50,
+              "episode_index": 38,
+              "numpy_value": -17.077491760253906,
+              "state_magnitude": 17.077491760253906,
+              "timestep": 10,
+              "tolerance_fraction": 0.1028844490647316,
+              "torch_value": -17.07748794555664,
+              "verification_episode_offset": 3
+            },
+            "carry_maximum_absolute_error": 3.814697265625e-06,
+            "carry_maximum_tolerance_fraction": 0.12033634632825851,
+            "carry_tolerance_worst_case": {
+              "absolute_error": 3.814697265625e-06,
+              "allowed_error": 3.170029231114313e-05,
+              "dimension": 59,
+              "episode_index": 218,
+              "numpy_value": 11.700289726257324,
+              "state_magnitude": 11.70029354095459,
+              "timestep": 36,
+              "tolerance_fraction": 0.12033634632825851,
+              "torch_value": 11.70029354095459,
+              "verification_episode_offset": 21
+            },
+            "checkpoint_reload_exact": true,
+            "decision": "GO",
+            "gate_failures": [],
+            "one_step_action_maximum_absolute_error": 3.7103891372680664e-06,
+            "one_step_carry_maximum_absolute_error": 3.814697265625e-06,
+            "one_step_worst_case": {
+              "absolute_error": 3.814697265625e-06,
+              "allowed_error": 2e-05,
+              "dimension": 53,
+              "episode_index": 58,
+              "numpy_value": -41.67939376831055,
+              "output_magnitude": 41.67939758300781,
+              "quantity": "carry",
+              "state_magnitude": 39.3655891418457,
+              "timestep": 28,
+              "torch_value": -41.67939758300781,
+              "verification_episode_offset": 5
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        },
+        {
+          "checkpoint": "/experiments/principal-sweep-v1-2026-08-13-v2/final/structured_k0/14304/checkpoint.npz",
+          "checkpoint_metadata": {
+            "action_dimension": 2,
+            "action_output": "tanh_mean",
+            "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+            "dataset_id": "principal_structured_k0_teacher_plus_shadow_v1",
+            "dataset_manifest_sha256": "33a560be97f59b97a58524195fe19132652d99a53360476af1789ab6a0deb107",
+            "encoded_dimension": 32,
+            "include_previous_action": true,
+            "inference_arithmetic": "canonical_float32_v1",
+            "innovation_rank": 0,
+            "loss_weighting": "equal_total_weight_per_complete_episode",
+            "observation_dimension": 19,
+            "policy": "structured_recurrent_n64_k0",
+            "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+            "schema_version": 1,
+            "selected_epoch": 100,
+            "state_dimension": 64,
+            "student_id": "structured_k0",
+            "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+            "training_arithmetic": "pytorch_float32",
+            "training_seed": 14304,
+            "training_stage": "final",
+            "validation_equal_episode_action_mse": 0.07956158816814422
+          },
+          "checkpoint_sha256": "4c8c7080ed807da08d1f82a8f6674b4e1f2e11558111a2ae019c8afed8260767",
+          "family_id": "structured_k0",
+          "historical_result_sha256": "f1a75f25d8f6955bc03471d76b58f7e14ffe7b67ae871b117b6371c4ae795325",
+          "historical_status": "successful",
+          "training_seed": 14304,
+          "verification": {
+            "action_maximum_absolute_error": 5.0961971282958984e-06,
+            "action_worst_case": {
+              "absolute_error": 5.0961971282958984e-06,
+              "dimension": 1,
+              "episode_index": 118,
+              "numpy_value": 0.33515340089797974,
+              "state_magnitude": 19.897594451904297,
+              "timestep": 16,
+              "torch_value": 0.33514830470085144,
+              "verification_episode_offset": 11
+            },
+            "carry_absolute_worst_case": {
+              "absolute_error": 3.814697265625e-06,
+              "allowed_error": 5.247819353826344e-05,
+              "dimension": 55,
+              "episode_index": 8,
+              "numpy_value": -32.47819519042969,
+              "state_magnitude": 32.47819519042969,
+              "timestep": 33,
+              "tolerance_fraction": 0.07269109040498734,
+              "torch_value": -32.47819137573242,
+              "verification_episode_offset": 0
+            },
+            "carry_maximum_absolute_error": 3.814697265625e-06,
+            "carry_maximum_tolerance_fraction": 0.10804367810487747,
+            "carry_tolerance_worst_case": {
+              "absolute_error": 3.814697265625e-06,
+              "allowed_error": 3.530699177645147e-05,
+              "dimension": 46,
+              "episode_index": 138,
+              "numpy_value": -15.306986808776855,
+              "state_magnitude": 15.306990623474121,
+              "timestep": 31,
+              "tolerance_fraction": 0.10804367810487747,
+              "torch_value": -15.306990623474121,
+              "verification_episode_offset": 13
+            },
+            "checkpoint_reload_exact": true,
+            "decision": "GO",
+            "gate_failures": [],
+            "one_step_action_maximum_absolute_error": 3.069639205932617e-06,
+            "one_step_carry_maximum_absolute_error": 3.814697265625e-06,
+            "one_step_worst_case": {
+              "absolute_error": 3.814697265625e-06,
+              "allowed_error": 2e-05,
+              "dimension": 60,
+              "episode_index": 58,
+              "numpy_value": -40.33500671386719,
+              "output_magnitude": 40.33500671386719,
+              "quantity": "carry",
+              "state_magnitude": 38.119232177734375,
+              "timestep": 33,
+              "torch_value": -40.33500289916992,
+              "verification_episode_offset": 5
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        },
+        {
+          "checkpoint": "/experiments/principal-sweep-v1-2026-08-13-v2/final/structured_k0/14305/checkpoint.npz",
+          "checkpoint_metadata": {
+            "action_dimension": 2,
+            "action_output": "tanh_mean",
+            "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+            "dataset_id": "principal_structured_k0_teacher_plus_shadow_v1",
+            "dataset_manifest_sha256": "33a560be97f59b97a58524195fe19132652d99a53360476af1789ab6a0deb107",
+            "encoded_dimension": 32,
+            "include_previous_action": true,
+            "inference_arithmetic": "canonical_float32_v1",
+            "innovation_rank": 0,
+            "loss_weighting": "equal_total_weight_per_complete_episode",
+            "observation_dimension": 19,
+            "policy": "structured_recurrent_n64_k0",
+            "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+            "schema_version": 1,
+            "selected_epoch": 100,
+            "state_dimension": 64,
+            "student_id": "structured_k0",
+            "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+            "training_arithmetic": "pytorch_float32",
+            "training_seed": 14305,
+            "training_stage": "final",
+            "validation_equal_episode_action_mse": 0.08031119012832641
+          },
+          "checkpoint_sha256": "791658d18b634093cae488e3d056e6b8f26add068e6b470875c0b5b33888aff0",
+          "family_id": "structured_k0",
+          "historical_result_sha256": "b6f4a3db70e76c7cd78e76f6b7d3a512b4f69c4ee92a11b76d0bc823c467918e",
+          "historical_status": "successful",
+          "training_seed": 14305,
+          "verification": {
+            "action_maximum_absolute_error": 5.7853758335113525e-06,
+            "action_worst_case": {
+              "absolute_error": 5.7853758335113525e-06,
+              "dimension": 1,
+              "episode_index": 118,
+              "numpy_value": -0.024545643478631973,
+              "state_magnitude": 14.480169296264648,
+              "timestep": 13,
+              "torch_value": -0.024551428854465485,
+              "verification_episode_offset": 11
+            },
+            "carry_absolute_worst_case": {
+              "absolute_error": 9.5367431640625e-06,
+              "allowed_error": 4.623532004188746e-05,
+              "dimension": 31,
+              "episode_index": 58,
+              "numpy_value": -26.235319137573242,
+              "state_magnitude": 26.235319137573242,
+              "timestep": 32,
+              "tolerance_fraction": 0.20626531541347504,
+              "torch_value": -26.235309600830078,
+              "verification_episode_offset": 5
+            },
+            "carry_maximum_absolute_error": 9.5367431640625e-06,
+            "carry_maximum_tolerance_fraction": 0.30287638306617737,
+            "carry_tolerance_worst_case": {
+              "absolute_error": 7.152557373046875e-06,
+              "allowed_error": 2.3615435566171072e-05,
+              "dimension": 31,
+              "episode_index": 118,
+              "numpy_value": 3.615435838699341,
+              "state_magnitude": 3.615435838699341,
+              "timestep": 31,
+              "tolerance_fraction": 0.30287638306617737,
+              "torch_value": 3.6154286861419678,
+              "verification_episode_offset": 11
+            },
+            "checkpoint_reload_exact": true,
+            "decision": "GO",
+            "gate_failures": [],
+            "one_step_action_maximum_absolute_error": 2.7567148208618164e-06,
+            "one_step_carry_maximum_absolute_error": 3.814697265625e-06,
+            "one_step_worst_case": {
+              "absolute_error": 3.814697265625e-06,
+              "allowed_error": 2e-05,
+              "dimension": 31,
+              "episode_index": 58,
+              "numpy_value": -24.129541397094727,
+              "output_magnitude": 24.129541397094727,
+              "quantity": "carry",
+              "state_magnitude": 61.12567138671875,
+              "timestep": 31,
+              "torch_value": -24.12953758239746,
+              "verification_episode_offset": 5
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        },
+        {
+          "checkpoint": "/experiments/principal-sweep-v1-2026-08-13-v2/final/structured_k0/14306/checkpoint.npz",
+          "checkpoint_metadata": {
+            "action_dimension": 2,
+            "action_output": "tanh_mean",
+            "code_commit": "f781ee1cbd85fce6e966bf65b43d017236946ca0",
+            "dataset_id": "principal_structured_k0_teacher_plus_shadow_v1",
+            "dataset_manifest_sha256": "33a560be97f59b97a58524195fe19132652d99a53360476af1789ab6a0deb107",
+            "encoded_dimension": 32,
+            "include_previous_action": true,
+            "inference_arithmetic": "canonical_float32_v1",
+            "innovation_rank": 0,
+            "loss_weighting": "equal_total_weight_per_complete_episode",
+            "observation_dimension": 19,
+            "policy": "structured_recurrent_n64_k0",
+            "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+            "schema_version": 1,
+            "selected_epoch": 97,
+            "state_dimension": 64,
+            "student_id": "structured_k0",
+            "teacher_action_semantics": "deterministic_actor_mean_after_public_adapter_clip",
+            "training_arithmetic": "pytorch_float32",
+            "training_seed": 14306,
+            "training_stage": "final",
+            "validation_equal_episode_action_mse": 0.0845809080004692
+          },
+          "checkpoint_sha256": "b9c10fbcb2e1b10b237683fef7f0dc9beb6a1de86e4390df044f2aaa6ace361d",
+          "family_id": "structured_k0",
+          "historical_result_sha256": null,
+          "historical_status": "failed_seed_14306",
+          "training_seed": 14306,
+          "verification": {
+            "action_maximum_absolute_error": 4.559755325317383e-06,
+            "action_worst_case": {
+              "absolute_error": 4.559755325317383e-06,
+              "dimension": 1,
+              "episode_index": 88,
+              "numpy_value": -0.26220840215682983,
+              "state_magnitude": 28.527389526367188,
+              "timestep": 27,
+              "torch_value": -0.2622038424015045,
+              "verification_episode_offset": 8
+            },
+            "carry_absolute_worst_case": {
+              "absolute_error": 2.288818359375e-05,
+              "allowed_error": 5.0663355068536475e-05,
+              "dimension": 48,
+              "episode_index": 58,
+              "numpy_value": -30.66335678100586,
+              "state_magnitude": 30.66335678100586,
+              "timestep": 33,
+              "tolerance_fraction": 0.45177000761032104,
+              "torch_value": -30.663333892822266,
+              "verification_episode_offset": 5
+            },
+            "carry_maximum_absolute_error": 2.288818359375e-05,
+            "carry_maximum_tolerance_fraction": 0.5576080083847046,
+            "carry_tolerance_worst_case": {
+              "absolute_error": 1.71661376953125e-05,
+              "allowed_error": 3.0785315175307915e-05,
+              "dimension": 48,
+              "episode_index": 28,
+              "numpy_value": -10.785316467285156,
+              "state_magnitude": 10.785316467285156,
+              "timestep": 35,
+              "tolerance_fraction": 0.5576080083847046,
+              "torch_value": -10.785299301147461,
+              "verification_episode_offset": 2
+            },
+            "checkpoint_reload_exact": true,
+            "decision": "GO",
+            "gate_failures": [],
+            "one_step_action_maximum_absolute_error": 2.8498470783233643e-06,
+            "one_step_carry_maximum_absolute_error": 3.814697265625e-06,
+            "one_step_worst_case": {
+              "absolute_error": 3.814697265625e-06,
+              "allowed_error": 2e-05,
+              "dimension": 49,
+              "episode_index": 28,
+              "numpy_value": -22.800064086914062,
+              "output_magnitude": 22.800064086914062,
+              "quantity": "carry",
+              "state_magnitude": 21.68208122253418,
+              "timestep": 31,
+              "torch_value": -22.800060272216797,
+              "verification_episode_offset": 2
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": true,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        }
+      ],
+      "corruptions": [
+        {
+          "case_id": "scale_aware_carry_disagreement",
+          "corrupt_checkpoint": {
+            "mutation": {
+              "actual_delta": 5.0067901611328125e-06,
+              "flat_index": 53,
+              "key": "recurrence_alpha",
+              "new": 2.359682321548462,
+              "old": 2.359677314758301,
+              "requested_delta": 5e-06
+            },
+            "path": "/validation/principal-export-gate-v2-validation-2026-08-14-v1/corruptions/structured_k0/recurrence_alpha_53_plus_5e-6.npz",
+            "sha256": "6b658402bf32271afac6710d8f0489664b65d39954cd9cfa20f6a21f216c9898"
+          },
+          "expected_gate_failure": "carry_scale_aware_error",
+          "fail_closed": true,
+          "family_id": "structured_k0",
+          "source_checkpoint_sha256": "231f039b01d3991bb84ebf1fdc49f7af2db72a5b189b7eb73b9228ff1fa6d0c9",
+          "verification": {
+            "action_maximum_absolute_error": 7.178634405136108e-06,
+            "action_worst_case": {
+              "absolute_error": 7.178634405136108e-06,
+              "dimension": 0,
+              "episode_index": 58,
+              "numpy_value": -0.0522167794406414,
+              "state_magnitude": 48.64508819580078,
+              "timestep": 31,
+              "torch_value": -0.05220960080623627,
+              "verification_episode_offset": 5
+            },
+            "carry_absolute_worst_case": {
+              "absolute_error": 0.00011444091796875,
+              "allowed_error": 7.331815868383273e-05,
+              "dimension": 53,
+              "episode_index": 58,
+              "numpy_value": -53.31816101074219,
+              "state_magnitude": 53.31816101074219,
+              "timestep": 33,
+              "tolerance_fraction": 1.5608810186386108,
+              "torch_value": -53.31804656982422,
+              "verification_episode_offset": 5
+            },
+            "carry_maximum_absolute_error": 0.00011444091796875,
+            "carry_maximum_tolerance_fraction": 1.6412723064422607,
+            "carry_tolerance_worst_case": {
+              "absolute_error": 9.1552734375e-05,
+              "allowed_error": 5.578156196861528e-05,
+              "dimension": 53,
+              "episode_index": 218,
+              "numpy_value": -35.78156280517578,
+              "state_magnitude": 35.78156280517578,
+              "timestep": 36,
+              "tolerance_fraction": 1.6412723064422607,
+              "torch_value": -35.781471252441406,
+              "verification_episode_offset": 21
+            },
+            "checkpoint_reload_exact": true,
+            "decision": "NO_GO",
+            "gate_failures": [
+              "carry_scale_aware_error"
+            ],
+            "one_step_action_maximum_absolute_error": 4.779547452926636e-06,
+            "one_step_carry_maximum_absolute_error": 1.1444091796875e-05,
+            "one_step_worst_case": {
+              "absolute_error": 1.1444091796875e-05,
+              "allowed_error": 2e-05,
+              "dimension": 53,
+              "episode_index": 58,
+              "numpy_value": -48.64508819580078,
+              "output_magnitude": 48.64508819580078,
+              "quantity": "carry",
+              "state_magnitude": 46.269073486328125,
+              "timestep": 31,
+              "torch_value": -48.645076751708984,
+              "verification_episode_offset": 5
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": false,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": true
+            }
+          }
+        },
+        {
+          "case_id": "same_state_one_step_carry_disagreement",
+          "corrupt_checkpoint": {
+            "mutation": {
+              "actual_delta": 5.0067901611328125e-06,
+              "flat_index": 35,
+              "key": "recurrence_alpha",
+              "new": 1.8793666362762451,
+              "old": 1.879361629486084,
+              "requested_delta": 5e-06
+            },
+            "path": "/validation/principal-export-gate-v2-validation-2026-08-14-v1/corruptions/structured_k0/recurrence_alpha_35_plus_5e-6.npz",
+            "sha256": "104711c40b56cad7d2310f382de054205becae1e79e434a4d1525983cf00ab5d"
+          },
+          "expected_gate_failure": "same_state_one_step_carry_absolute_error",
+          "fail_closed": true,
+          "family_id": "structured_k0",
+          "source_checkpoint_sha256": "231f039b01d3991bb84ebf1fdc49f7af2db72a5b189b7eb73b9228ff1fa6d0c9",
+          "verification": {
+            "action_maximum_absolute_error": 1.6689300537109375e-05,
+            "action_worst_case": {
+              "absolute_error": 1.6689300537109375e-05,
+              "dimension": 1,
+              "episode_index": 138,
+              "numpy_value": -0.1065649688243866,
+              "state_magnitude": 23.82080841064453,
+              "timestep": 29,
+              "torch_value": -0.10654827952384949,
+              "verification_episode_offset": 13
+            },
+            "carry_absolute_worst_case": {
+              "absolute_error": 0.000179290771484375,
+              "allowed_error": 6.460302392952144e-05,
+              "dimension": 35,
+              "episode_index": 58,
+              "numpy_value": 44.60301971435547,
+              "state_magnitude": 44.60301971435547,
+              "timestep": 33,
+              "tolerance_fraction": 2.775269031524658,
+              "torch_value": 44.602840423583984,
+              "verification_episode_offset": 5
+            },
+            "carry_maximum_absolute_error": 0.000179290771484375,
+            "carry_maximum_tolerance_fraction": 3.345813512802124,
+            "carry_tolerance_worst_case": {
+              "absolute_error": 0.000156402587890625,
+              "allowed_error": 4.6745757572352886e-05,
+              "dimension": 35,
+              "episode_index": 208,
+              "numpy_value": 26.745758056640625,
+              "state_magnitude": 26.745758056640625,
+              "timestep": 35,
+              "tolerance_fraction": 3.345813512802124,
+              "torch_value": 26.745601654052734,
+              "verification_episode_offset": 20
+            },
+            "checkpoint_reload_exact": true,
+            "decision": "NO_GO",
+            "gate_failures": [
+              "carry_scale_aware_error",
+              "same_state_one_step_carry_absolute_error"
+            ],
+            "one_step_action_maximum_absolute_error": 3.7550926208496094e-06,
+            "one_step_carry_maximum_absolute_error": 2.288818359375e-05,
+            "one_step_worst_case": {
+              "absolute_error": 2.288818359375e-05,
+              "allowed_error": 2e-05,
+              "dimension": 35,
+              "episode_index": 58,
+              "numpy_value": 44.60301971435547,
+              "output_magnitude": 44.60301971435547,
+              "quantity": "carry",
+              "state_magnitude": 51.062015533447266,
+              "timestep": 33,
+              "torch_value": 44.602996826171875,
+              "verification_episode_offset": 5
+            },
+            "predicates": {
+              "action_absolute": true,
+              "carry_scale_aware": false,
+              "checkpoint_reload_exact": true,
+              "same_state_one_step_action_absolute": true,
+              "same_state_one_step_carry_absolute": false
+            }
+          }
+        },
+        {
+          "case_id": "student_id_mismatch",
+          "corrupt_checkpoint": {
+            "mutation": {
+              "key": "metadata_json.student_id",
+              "new": "structured_k1",
+              "old": "structured_k0"
+            },
+            "path": "/validation/principal-export-gate-v2-validation-2026-08-14-v1/corruptions/structured_k0/student_id_mismatch.npz",
+            "sha256": "2d3e246d114d28a4ced78af39021d684926bebc3346ee97e27013583327babf3"
+          },
+          "expected": "loader_rejection",
+          "fail_closed": true,
+          "family_id": "structured_k0",
+          "observed_exception": {
+            "message": "checkpoint student_id does not match the family",
+            "type": "ValueError"
+          },
+          "source_checkpoint_sha256": "231f039b01d3991bb84ebf1fdc49f7af2db72a5b189b7eb73b9228ff1fa6d0c9"
+        },
+        {
+          "case_id": "unsupported_inference_arithmetic",
+          "corrupt_checkpoint": {
+            "mutation": {
+              "key": "metadata_json.inference_arithmetic",
+              "new": "corrupt_float32",
+              "old": "canonical_float32_v1"
+            },
+            "path": "/validation/principal-export-gate-v2-validation-2026-08-14-v1/corruptions/structured_k0/unsupported_inference_arithmetic.npz",
+            "sha256": "73ee1848753e142561b7b637c3db4dae9ca65a749d6499651fdc1e8786281c3a"
+          },
+          "expected": "loader_rejection",
+          "fail_closed": true,
+          "family_id": "structured_k0",
+          "observed_exception": {
+            "message": "inference_arithmetic must be legacy_float32 or canonical_float32_v1",
+            "type": "ValueError"
+          },
+          "source_checkpoint_sha256": "231f039b01d3991bb84ebf1fdc49f7af2db72a5b189b7eb73b9228ff1fa6d0c9"
+        },
+        {
+          "case_id": "wrong_parameter_shape",
+          "corrupt_checkpoint": {
+            "mutation": {
+              "key": "action_output_weight",
+              "new_shape": [
+                1,
+                64
+              ],
+              "old_shape": [
+                2,
+                64
+              ]
+            },
+            "path": "/validation/principal-export-gate-v2-validation-2026-08-14-v1/corruptions/structured_k0/wrong_action_output_shape.npz",
+            "sha256": "3d40b90c3121864f79ccfa9f6ef1b09e8965207f7bbb8fc54c80115464f87186"
+          },
+          "expected": "loader_rejection",
+          "fail_closed": true,
+          "family_id": "structured_k0",
+          "observed_exception": {
+            "message": "action_output_weight must have shape (2, 64), got (1, 64)",
+            "type": "ValueError"
+          },
+          "source_checkpoint_sha256": "231f039b01d3991bb84ebf1fdc49f7af2db72a5b189b7eb73b9228ff1fa6d0c9"
+        },
+        {
+          "case_id": "non_finite_parameter",
+          "corrupt_checkpoint": {
+            "mutation": {
+              "flat_index": 0,
+              "key": "recurrence_bias",
+              "new": "NaN",
+              "old": 0.013696451671421528
+            },
+            "path": "/validation/principal-export-gate-v2-validation-2026-08-14-v1/corruptions/structured_k0/nan_recurrence_bias.npz",
+            "sha256": "7d0e048a0a319c1f64bbd23457567c519113907c54bdee92b7fcc1c11c7935b8"
+          },
+          "expected": "loader_rejection",
+          "fail_closed": true,
+          "family_id": "structured_k0",
+          "observed_exception": {
+            "message": "recurrence_bias must contain finite float32 values",
+            "type": "ValueError"
+          },
+          "source_checkpoint_sha256": "231f039b01d3991bb84ebf1fdc49f7af2db72a5b189b7eb73b9228ff1fa6d0c9"
+        }
+      ],
+      "cpu_affinity": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "dataset_episode_count": 40000,
+      "dataset_manifest_sha256": "33a560be97f59b97a58524195fe19132652d99a53360476af1789ab6a0deb107",
+      "dataset_transition_count": 1769587,
+      "family_id": "structured_k0",
+      "torch_threads": 8,
+      "validation_episode_count": 4000,
+      "validation_episode_index_sha256": "0ad1fef54e1b0be8254e72a07b313fc7be00b5d7b6d603f693fa68b5ef52697c",
+      "worker_pid": 17
+    }
+  ],
+  "parallel_execution": {
+    "family_workers": {
+      "feed_forward": {
+        "cpu_affinity": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "pid": 15,
+        "torch_threads": 8
+      },
+      "finite_stack_10": {
+        "cpu_affinity": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "pid": 16,
+        "torch_threads": 8
+      },
+      "structured_k0": {
+        "cpu_affinity": [
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23
+        ],
+        "pid": 17,
+        "torch_threads": 8
+      }
+    },
+    "strategy": "one worker per family; checkpoints sequential within family",
+    "workers": 3
+  },
+  "principal_test_absent_after": true,
+  "principal_test_absent_before": true,
+  "protocol": "/workspace/configs/experiments/principal_sweep_execution_v1.yaml",
+  "protocol_sha256": "1f8ececf4492f68517938ccd2fd1e05bb459e0fdd7275851536f71d782bed448",
+  "runtime": {
+    "hostname": "6314c1a2b02d",
+    "python": "3.12.3"
+  },
+  "schema_version": 1,
+  "sealed_v2_manifest_sha256_after": "94ea1e57d7959f1ef368a681945d2ff29e5ed60769a1513e6af212f1c4933be3",
+  "sealed_v2_manifest_sha256_before": "94ea1e57d7959f1ef368a681945d2ff29e5ed60769a1513e6af212f1c4933be3",
+  "status": "completed",
+  "summary": {
+    "corruption_cases_failed_closed": 10,
+    "corruption_cases_total": 10,
+    "historical_failed_passed_corrected_gate": 1,
+    "historical_failed_total": 1,
+    "historical_successful_passed": 13,
+    "historical_successful_total": 13
+  },
+  "thresholds": {
+    "action_absolute": 2e-05,
+    "carry_absolute": 2e-05,
+    "carry_relative": 1e-06,
+    "require_exact_checkpoint_reload": true,
+    "same_state_one_step_absolute": 2e-05,
+    "verification_episodes": 32
+  }
+}
