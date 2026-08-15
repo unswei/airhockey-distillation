@@ -15,6 +15,26 @@ versions beneath `artifacts/paper/figure1/`, together with a manifest binding
 the outputs to their source hashes. The outputs remain ignored until a selected
 version is deliberately copied into the paper repository.
 
+Generate the three separate panels for the principal behavioural result with:
+
+```bash
+.venv/bin/python scripts/plot_paper_figure3.py
+```
+
+The script is hash-bound to the compact frozen principal-test statistics. It
+writes separate SVG, PDF and PNG panels beneath `artifacts/paper/figure3/` so
+that the paper repository can compose them at its final column widths.
+
+Generate the two separate performance--cost frontier panels with:
+
+```bash
+.venv/bin/python scripts/plot_paper_figure4.py
+```
+
+The script combines the frozen principal-test seed results with the frozen V4
+isolated CPU-latency and parameter evidence. It writes directly labelled SVG,
+PDF and PNG panels beneath `artifacts/paper/figure4/`.
+
 This directory contains small, non-interactive entry points for the Marvin
 workflow.
 

@@ -121,3 +121,11 @@ def test_figure1_alias_paths_continue_straight_through_blackout(tmp_path: Path) 
         dot_product = incoming[0] * outgoing[0] + incoming[1] * outgoing[1]
         assert abs(cross_product) < 1.0
         assert dot_product > 0.0
+
+    labels = {
+        "".join(element.itertext()): float(element.attrib["x"])
+        for element in root.iter()
+        if element.tag.endswith("text")
+        and "".join(element.itertext()) in {"dashed: hidden", "solid: visible"}
+    }
+    assert labels["dashed: hidden"] < labels["solid: visible"]

@@ -166,7 +166,7 @@ def draw_task_panel(canvas: SvgCanvas) -> None:
     canvas.text(
         68,
         64,
-        "Paired shots meet when tracking disappears, then require opposite defences.",
+        "Two visible histories produce the same first masked observation.",
         size=12.5,
         fill=PALETTE["muted"],
     )
@@ -282,10 +282,10 @@ def draw_task_panel(canvas: SvgCanvas) -> None:
     canvas.text(219, 394, "different hidden futures and mallet positions", size=12.5, weight=600, anchor="middle")
 
     # Compact redundant legend: colour and line pattern both distinguish paths.
-    canvas.line(86, 448, 126, 448, stroke=PALETTE["ink"], stroke_width=4)
-    canvas.text(136, 453, "visible puck history", size=12.5)
-    canvas.line(300, 448, 340, 448, stroke=PALETTE["ink"], stroke_width=4, dash="10 7")
-    canvas.text(350, 453, "hidden puck path", size=12.5)
+    canvas.line(86, 448, 126, 448, stroke=PALETTE["ink"], stroke_width=4, dash="10 7")
+    canvas.text(136, 453, "hidden puck path", size=12.5)
+    canvas.line(300, 448, 340, 448, stroke=PALETTE["ink"], stroke_width=4)
+    canvas.text(350, 453, "visible puck history", size=12.5)
     canvas.rect(520, 438, 25, 18, fill=PALETTE["light_grid"], stroke=PALETTE["grid"], stroke_width=0.8)
     canvas.text(555, 453, "masked interval", size=12.5)
 
@@ -488,10 +488,9 @@ def draw_task_panel_compact(canvas: SvgCanvas) -> None:
     canvas.circle(mallet_x, centre_y - 34, 17, fill=PALETTE["paper"], stroke=PALETTE["green"], stroke_width=2.5)
     canvas.circle(mallet_x, centre_y + 34, 17, fill=PALETTE["paper"], stroke=PALETTE["orange"], stroke_width=2.5)
     canvas.text(onset_x, centre_y + 76, "same masked input", size=23, weight=700, anchor="middle")
-    canvas.text(270, 447, "solid: visible", size=23, fill=PALETTE["ink"], weight=600, anchor="end")
-    canvas.text(290, 447, "·", size=21, fill=PALETTE["muted"], anchor="middle")
-    canvas.text(310, 447, "dashed: hidden", size=23, fill=PALETTE["muted"], weight=600)
-    canvas.text(280, 482, "opposite futures require opposite defences", size=23, weight=700, anchor="middle")
+    canvas.text(270, 464, "dashed: hidden", size=23, fill=PALETTE["muted"], weight=600, anchor="end")
+    canvas.text(290, 464, "·", size=21, fill=PALETTE["muted"], anchor="middle")
+    canvas.text(310, 464, "solid: visible", size=23, fill=PALETTE["ink"], weight=600)
 
 
 def draw_timeline_panel_compact(canvas: SvgCanvas, evidence: FigureEvidence) -> None:

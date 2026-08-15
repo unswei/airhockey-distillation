@@ -26,6 +26,7 @@ dist/
 /results/**
 !/results/README.md
 !/results/*.json
+!/results/principal_sweep_v1_efficiency_table.csv
 *.ckpt
 *.h5
 *.hdf5

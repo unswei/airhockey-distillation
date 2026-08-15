@@ -75,3 +75,19 @@ records the bit-exact V4 native kernel, identical structured validation rows,
 all 35 new isolated latency measurements and the hashes of the frozen external
 evidence. This is pre-release validation evidence; it does not itself open the
 principal test split.
+
+The compact frozen
+[`principal-test statistics`](principal_sweep_v1_statistics.json) contain the
+five-seed save-rate curves, paired hierarchical bootstrap intervals and
+predeclared 400-ms contrasts used for the principal paper figure. The tracked
+file is an exact copy of the validated Marvin analysis product and has SHA-256
+`55ad1f50399e54487728ade10e6605a993064369a80ec48c0674704f2f378902`.
+Together with the compact V4 structured-inference result, it also supplies the
+five-seed performance and isolated latency measurements used in the
+performance--cost frontier figure.
+
+The frozen analysis also emitted the complete seven-family
+[`efficiency table`](principal_sweep_v1_efficiency_table.csv) used for the paper's
+comparison table. It defines overall performance over the five predeclared
+0--400 ms conditions and has SHA-256
+`a6e8edc0ebb541c3922b9b589926527519045f370c46c370c78fc749392e9311`.
