@@ -10,10 +10,22 @@ also completed final training: 35 frozen models use five matched seeds and
 seven independently collected 40,000-episode family datasets. Paired
 validation and parameter, state-size and latency measurements are frozen.
 
-At 20 blackout steps, the five-seed mean validation save rates are 42.2% for
-feed-forward, 85.3% for the ten-step stack, 97.5%, 97.3%, 97.2% and 97.8% for
-structured `k=0,1,2,4`, and 97.1% for GRU-64. This is still validation-only:
-the release gate has not run and `principal_test` remains unopened.
+The independent evidence-release gate returned `GO` after reopening and
+validating all 35 collector checkpoints, 35 final checkpoints, seven family
+datasets, seven shadow-budget audits, 35 paired-validation files and 35 sets
+of accounting and CPU-latency measurements. The fresh 225-shot principal test
+was then opened exactly once. All 35 students and the frozen teacher were
+evaluated at blackout lengths 0, 5, 10, 15, 20 and 25, producing 48,600 frozen
+episode rows. The released schedule, opening record, results and final
+analysis all passed their post-run validation checks.
+
+At 20 blackout steps, the five-seed mean principal-test save rates are 44.4%
+for feed-forward, 86.0% for the ten-step stack, 98.3%, 97.9%, 98.8% and 98.1%
+for structured `k=0,1,2,4`, and 97.8% for GRU-64; the teacher saves 98.2%.
+Relative to `k=0`, the paired 95% intervals for `k=1,2,4` and GRU-64 all span
+zero. The supported result is therefore that a linear recurrent state update
+is sufficient within this task and blackout range; no measured benefit from a
+state-dependent nonlinear recurrent correction is observed.
 
 An implementation-only V4 optimisation is complete. It moves the canonical
 structured float32 pairwise reductions into a small compiled kernel while
@@ -26,9 +38,15 @@ In one new isolated 35-model Marvin latency session, the five-seed median
 latencies are 23.03 microseconds for structured `k=0` and 28.20--28.31
 microseconds for `k=1,2,4`, compared with 40.06 microseconds for GRU-64. The
 structured implementations are now 2.67--2.85 times faster than their
-canonical NumPy V3 measurements without changing behaviour. The next step is
-the predeclared release gate using the frozen V4 validation and efficiency
-evidence; only a `GO` may open `principal_test` once.
+canonical NumPy V3 measurements without changing behaviour. At equal 64-value
+recurrent-state size, `k=0` uses 58.5% fewer total parameters, 88.0% fewer
+recurrent-core parameters and 42.5% lower batch-one CPU latency than GRU-64.
+
+The project is now in the paper-production phase. The principal statistics,
+performance figure and efficiency table are frozen. A paper Figure 1 asset
+pipeline is in active local development. The manuscript contains the final
+evidence and one results table but remains largely instructional dot points
+rather than submission prose.
 
 ## Completed
 
@@ -283,12 +301,47 @@ evidence; only a `GO` may open `principal_test` once.
 - Generalised the principal training, shadow and validation pipeline across
   all seven families. The dry run covers every family, exact NumPy export and
   reload, equal complete-episode weighting, common split hashes and fail-closed
-  paired schedules; the principal test remains inaccessible.
+  paired schedules; at this engineering stage the principal test remained
+  inaccessible.
+- Completed the fair principal sweep across seven families and five matched
+  seeds. The run produced 35 base-only collectors, 140,000 family-specific
+  shadow episodes, seven independently aggregated 40,000-episode datasets and
+  35 final checkpoints trained from scratch.
+- Preserved both failed export attempts and fixed the framework-to-NumPy
+  parity gate without changing the frozen data, model families, seeds,
+  optimisation budgets or test protocol. All 35 corrected final checkpoints
+  pass exact reload and the scale-aware same-state export check.
+- Froze paired validation for every final checkpoint together with exact
+  parameter, recurrent-state, carry-size, multiply--add and isolated
+  single-thread CPU-latency measurements.
+- Implemented and froze the V4 structured inference optimisation. It is
+  bit-exact against the canonical float32 arithmetic, matches 2,000
+  closed-loop steps per structured checkpoint and reproduces every V3
+  validation episode row exactly.
+- Applied the independent principal-test release gate. Every predeclared
+  evidence requirement passed and the gate returned `GO`; the frozen test
+  schedule hash is `f73664bef2f49c3fb52cd3a8b3e0028ae640acc2814fce466b48fa0737d5177b`.
+- Opened the principal test exactly once and evaluated 35 student checkpoints
+  plus the teacher on 225 shots and six blackout lengths. The complete test
+  contains 48,600 frozen episode rows and passed its post-run validation.
+- Completed the predeclared paired hierarchical bootstrap analysis with
+  10,000 replicates. The final frozen products are `statistics.json`, the
+  principal save-rate figure and the efficiency table; their manifest passed
+  validation.
 
 ## Next actions
 
-- Freeze the pipeline commit, then run the five matched base-only collector
-  seeds for each family without opening `principal_test`.
+- Back up the frozen principal training, V4 measurement, release-gate,
+  one-time test and final-analysis evidence to the verified off-machine store.
+- Finish, test and commit the paper Figure 1 generator, then copy only the
+  generated paper assets and their provenance into the paper repository.
+- Convert the manuscript's instructional dot points into concise paper prose,
+  integrate the frozen principal figure and efficiency table, and complete the
+  related-work and citation audit.
+- Build and visually inspect a clean 6--10-page ACRA PDF, then verify every
+  manuscript number against the frozen analysis outputs.
+- Produce the matched-shot demonstration video and final reproduction command
+  after the paper-critical figures and prose are stable.
 - Retain direct launch as the core controlled task; a scripted physical strike
   remains a later secondary extension.
 
@@ -361,10 +414,21 @@ evidence; only a `GO` may open `principal_test` once.
 | 2026-08-13 | Implemented the ten-step finite-stack student | 46-value input, 7,330 parameters, 30-float history and matched NumPy/PyTorch export |
 | 2026-08-13 | Generalised the principal pipeline across all seven families | Common data loader, equal episode weighting, paired shadow/validation schedules and seven-family export dry run |
 | 2026-08-13 | Ran the canonical seven-family engineering dry run on Marvin | `GO` for all plumbing checks; explicitly non-principal and ineligible for test release |
+| 2026-08-14 | Completed principal collectors, shadow collection and family aggregation | 35 frozen collectors, 140,000 shadow episodes and seven independent 40,000-episode family datasets |
+| 2026-08-14 | Completed corrected final training for all principal families | 35 frozen final checkpoints; five matched seeds for each of seven families; exact export and reload gates pass |
+| 2026-08-15 | Froze V3 validation, accounting and efficiency measurements | 35 paired-validation files and 35 parameter/state/latency records completed and sealed |
+| 2026-08-15 | Validated the V4 structured inference optimisation | Bit-exact arithmetic and state, identical V3/V4 validation episode rows and isolated 35-model latency evidence |
+| 2026-08-15 | Applied the independent principal-test release gate | `GO`; every required pre-test artefact present and hash-validated; test schedule frozen |
+| 2026-08-15 | Opened and completed the principal test once | 35 students plus teacher; 225 shots, six blackout lengths and 48,600 frozen episode rows; post-run validation passed |
+| 2026-08-15 | Completed final principal analysis | Frozen 10,000-replicate paired bootstrap statistics, save-rate figure and efficiency table; analysis validation passed |
 
 ## Blockers
 
+- No active experimental blocker remains.
+- The principal evidence is frozen on the experiment host but does not yet
+  have the verified off-machine backup already used for the teacher and Stage
+  B evidence.
 - The Blackwell image deliberately overrides Dreamer's declared JAX 0.4.33 and
-  CUDA NVCC 12.2 bounds with JAX 0.5.3 and CUDA NVCC 12.9.86. Device discovery
-  and a 108-update training smoke test pass; `pip check` records the two
-  declared-version conflicts.
+  CUDA NVCC 12.2 bounds with JAX 0.5.3 and CUDA NVCC 12.9.86. Device discovery,
+  training and all principal evaluations pass; `pip check` still records the
+  two declared-version conflicts as a reproducibility caveat.
