@@ -44,6 +44,23 @@ Policies are compared on closed-loop save rate as tracking loss becomes
 longer, as well as parameter count, recurrent-state size, action agreement and
 single-step inference time.
 
+## Current status
+
+The seven-family, five-seed principal validation sweep is complete. At the
+longest 20-step blackout, structured `k=0,1,2,4` and GRU-64 all save about
+97% of shots, while the feed-forward and finite-stack policies save 42.2% and
+85.3%. The structured policies use roughly 12,000 parameters, compared with
+28,898 for GRU-64.
+
+The canonical structured batch-one implementation has also been optimised
+without changing its outputs. Its five-seed median Marvin latency is 23.03
+microseconds for `k=0` and 28.20--28.31 microseconds for `k=1,2,4`, versus
+40.06 microseconds for GRU-64. All 20 structured validation reruns reproduced
+the earlier episode rows exactly.
+
+These are validation results. The release gate has not yet been applied and
+the principal test split remains unopened.
+
 ## Experimental task
 
 Each episode contains one incoming shot and one defending KUKA iiwa robot. The

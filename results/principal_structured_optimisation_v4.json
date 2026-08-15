@@ -1,0 +1,86 @@
+{
+  "classification": "implementation-only pre-release evidence",
+  "completed_at": "2026-08-15T00:04:46.767912+00:00",
+  "decision": "GO",
+  "evidence": {
+    "manifest_sha256": "18b3c8d5034290b087c79a427bf1daf87654d1c57b31980d0ddd5b1222cb714a",
+    "native_binary_sha256": "90dbeefa6468bb6dd418819869ffbaac76ca0aab6bb0382dd046398c329b8c03",
+    "native_build_manifest_sha256": "20cac56669bfb4ce9d61147e5c181687943673534c481df4a9f1eb969ddef56a",
+    "native_verification_sha256": "0023a2fa48bdd9372fd6bfe39a5e7e335717a0a6ccd99b3d2a20997909e4bcd7",
+    "run": "principal-sweep-v1-2026-08-15-v4-attempt2",
+    "seal_manifest_sha256": "63715559c05f1331f349fb0bb103ff4770ef39f591053ad75554f4280519873d"
+  },
+  "implementation": {
+    "backend": "native_pairwise_float32_v1",
+    "code_commit": "6f54e18219e3b478d1b6e0c2bddf62375925cf7c",
+    "orchestration_commit": "30a7fe5c75724e58a25da4c44146b9f30071da5d"
+  },
+  "invariants": {
+    "action_or_carry_semantics_changed": false,
+    "checkpoint_weights_changed": false,
+    "native_linear_bit_exact": true,
+    "principal_test_constructed_or_evaluated": false,
+    "release_gate_created": false,
+    "structured_checkpoint_verifications": 20,
+    "structured_validation_episode_rows_identical_to_v3": true,
+    "structured_validation_reruns": 20
+  },
+  "latency": {
+    "definition": "median across the five per-seed median batch-one latencies on the predeclared isolated Marvin CPU runtime",
+    "families": {
+      "feed_forward": {
+        "implementation": "numpy_float32_v1",
+        "parameters": 5602,
+        "v4_microseconds": 12.97152555
+      },
+      "finite_stack_10": {
+        "implementation": "numpy_float32_v1",
+        "parameters": 7330,
+        "v4_microseconds": 17.8561246
+      },
+      "gru_n64": {
+        "implementation": "numpy_float32_v1",
+        "parameters": 28898,
+        "v4_microseconds": 40.05892
+      },
+      "structured_k0": {
+        "implementation": "native_pairwise_float32_v1",
+        "parameters": 12002,
+        "speedup_over_v3": 2.6676,
+        "v3_microseconds": 61.43650065,
+        "v4_microseconds": 23.03043345
+      },
+      "structured_k1": {
+        "implementation": "native_pairwise_float32_v1",
+        "parameters": 12165,
+        "speedup_over_v3": 2.7825,
+        "v3_microseconds": 78.46640995,
+        "v4_microseconds": 28.1995509
+      },
+      "structured_k2": {
+        "implementation": "native_pairwise_float32_v1",
+        "parameters": 12328,
+        "speedup_over_v3": 2.8292,
+        "v3_microseconds": 79.94063615,
+        "v4_microseconds": 28.25593635
+      },
+      "structured_k4": {
+        "implementation": "native_pairwise_float32_v1",
+        "parameters": 12654,
+        "speedup_over_v3": 2.8539,
+        "v3_microseconds": 80.7995352,
+        "v4_microseconds": 28.31224765
+      }
+    },
+    "new_isolated_results": 35
+  },
+  "reused_inputs": {
+    "source_v2_seal_sha256": "94ea1e57d7959f1ef368a681945d2ff29e5ed60769a1513e6af212f1c4933be3",
+    "source_v3_final_manifest_sha256": "74722c6add5234ed995d084ce21b24422880b16adaf3c4eb4bd937f9d08a4ada",
+    "source_v3_measurement_manifest_sha256": "d4e30d7864726099232f67692a689509b1e8bdf2bcdfb46c1fa38b1ee7da970d",
+    "v3_accounting_results": 35,
+    "v3_nonstructured_validation_results": 15
+  },
+  "schema_version": 1,
+  "status": "completed"
+}

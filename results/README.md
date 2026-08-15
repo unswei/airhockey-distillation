@@ -68,3 +68,10 @@ hash-binds the canonical Marvin run and its seven checkpoints. It is a
 non-principal plumbing `GO`: its tiny-data losses, four-rollout validation
 samples and reduced latency measurements are expressly ineligible for the
 principal release manifest.
+
+The compact
+[`structured inference optimisation result`](principal_structured_optimisation_v4.json)
+records the bit-exact V4 native kernel, identical structured validation rows,
+all 35 new isolated latency measurements and the hashes of the frozen external
+evidence. This is pre-release validation evidence; it does not itself open the
+principal test split.

@@ -1,52 +1,34 @@
 # Project status
 
-Last updated: 2026-08-13
+Last updated: 2026-08-15
 
 ## Current phase
 
-Phase 0 — source audit and reproduction complete. Phase 1 — minimal
-direct-launch set-piece slice complete. Phase 2 — v3 teacher complete and
-frozen. Stage B v3 returned a predeclared `GO`: a credible memoryless policy
-is close to the teacher without blackout and falls far behind under a 20-step
-blackout. The task is now demonstrably memory-dependent under the fixed gate.
-The causal teacher-state ablation also returned `GO`: erasing state at
-blackout onset causes a 45.8-point drop at 20 steps under deterministic
-inference. Phase 3 — distillation infrastructure — is authorised.
-The first `n=64`, `k=2` structured recurrent student is implemented and its
-corrected tiny-dataset overfit gate returns `GO`. Its 20,000-episode
-deterministic-mean collection, single-seed training and paired validation run
-are complete. The initial vertical slice was behaviourally weak and the
-all-valid-step correction remained below its no-blackout gate. The
-predeclared deterministic shadow-teacher correction then succeeded: the same
-architecture and seed now save 98.7% of no-blackout validation shots and
-98.4% across the subsequently opened paired blackout evaluation. The first
-full-data structured-student vertical slice is successful.
-The matched GRU-64 runtime and its tiny deterministic-mean overfit gate are
-also complete. NumPy and PyTorch agree, checkpoint reload is exact and the
-gate returns `GO`. One seed has completed the current 40,000-episode aggregate
-and passed its staged behavioural evaluation: 99.1% saves without blackout
-and 98.4% across the five paired conditions. Its offline metrics, export and
-closed-loop checks pass; the structured-policy shadow provenance still
-prevents a principal family claim.
-The fair principal sweep is now predeclared: seven student families, five
-matched seeds, equal family-specific shadow-episode budgets, paired validation,
-a fresh unopened principal test split, and fixed parameter, state-size and
-single-thread Marvin CPU-latency measurements.
-The structured runtime now implements all principal ranks `k=0,1,2,4` with
-matched non-innovation initialisation. Existing `k=2` checkpoints and outputs
-remain bit-exact; the other ranks are not yet trained.
-The ten-step finite-stack runtime is also implemented. It retains exactly ten
-masked puck-position/visibility triples, has a 30-float carry and exports a
-matched NumPy checkpoint from PyTorch. It is not yet trained.
-One principal pipeline now dispatches all seven families for training, shadow
-collection, aggregation and paired validation. It hash-binds the common base
-data, normalises loss per complete episode and verifies realised shadow and
-validation schedules. No principal checkpoint has been trained yet.
-The small non-principal pipeline dry run has passed for all seven families:
-tiny overfit, exact reload, NumPy/PyTorch agreement, paired shadow schedules,
-four real validation rollouts and reduced Marvin latency measurement all
-completed. This is an engineering `GO`; it neither opens the principal test
-split nor supplies principal evidence.
+Phase 0 source reproduction, the direct-launch task, the frozen v3 teacher and
+the causal memory gates are complete. The seven-family principal sweep has
+also completed final training: 35 frozen models use five matched seeds and
+seven independently collected 40,000-episode family datasets. Paired
+validation and parameter, state-size and latency measurements are frozen.
+
+At 20 blackout steps, the five-seed mean validation save rates are 42.2% for
+feed-forward, 85.3% for the ten-step stack, 97.5%, 97.3%, 97.2% and 97.8% for
+structured `k=0,1,2,4`, and 97.1% for GRU-64. This is still validation-only:
+the release gate has not run and `principal_test` remains unopened.
+
+An implementation-only V4 optimisation is complete. It moves the canonical
+structured float32 pairwise reductions into a small compiled kernel while
+leaving activations, state updates, weights and thresholds unchanged. The
+kernel is bit-exact on direct arithmetic tests and 2,000 closed-loop steps for
+each of all 20 structured checkpoints. Rerunning all 20 paired validations
+produced episode rows identical to V3.
+
+In one new isolated 35-model Marvin latency session, the five-seed median
+latencies are 23.03 microseconds for structured `k=0` and 28.20--28.31
+microseconds for `k=1,2,4`, compared with 40.06 microseconds for GRU-64. The
+structured implementations are now 2.67--2.85 times faster than their
+canonical NumPy V3 measurements without changing behaviour. The next step is
+the predeclared release gate using the frozen V4 validation and efficiency
+evidence; only a `GO` may open `principal_test` once.
 
 ## Completed
 

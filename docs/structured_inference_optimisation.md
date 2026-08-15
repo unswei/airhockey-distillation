@@ -34,3 +34,23 @@ as well as the exact flags and Python ABI. Run
 checkpoint before using the backend for validation or latency measurement.
 That verifier requires bitwise agreement with the canonical NumPy calculation
 for direct linear-map trials and closed-loop policy steps.
+
+## Frozen V4 evidence
+
+The implementation commit is
+`6f54e18219e3b478d1b6e0c2bddf62375925cf7c`. The successful Marvin evidence
+is frozen outside Git under
+`principal-sweep-v1-2026-08-15-v4-attempt2`. Its compact manifest SHA-256 is
+`18b3c8d5034290b087c79a427bf1daf87654d1c57b31980d0ddd5b1222cb714a`.
+
+The verifier covered 237,056 direct scalar results and 2,000 closed-loop steps
+for each of 20 structured checkpoints with zero bit disagreement. All 20
+paired validation reruns reproduced the V3 episode rows exactly. The new
+isolated latency session measured all 35 models. Relative to V3, structured
+latency fell by 62.5% for `k=0` and 64.1--65.0% for `k=1,2,4`.
+
+The first V4 orchestration attempt stopped before validation because a
+container-owned result could not be frozen by the host user. It is separately
+sealed as failed engineering evidence and was never resumed. Attempt 2 uses a
+container-scoped freeze operation. Neither attempt constructed or evaluated
+`principal_test`.
