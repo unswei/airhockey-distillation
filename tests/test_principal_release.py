@@ -6,6 +6,7 @@ import pytest
 
 from airhockey_distill.principal_release import (
     _check_efficiency,
+    _check_mixed_provenance,
     _check_validation,
     evaluate_test_release,
     principal_test_schedule,
@@ -39,7 +40,9 @@ def test_release_gate_is_no_go_for_the_unfilled_template():
     )
 
     assert result["decision"] == "NO_GO"
+    assert any("schema_version must be 2" in value for value in result["failures"])
     assert any("status must be frozen" in value for value in result["failures"])
+    assert any("provenance_manifests" in value for value in result["failures"])
     assert any("35" in value for value in result["failures"])
 
 
@@ -140,12 +143,17 @@ def test_complete_frozen_manifest_can_go_and_a_changed_hash_closes_it(
         for family_id in PRINCIPAL_FAMILY_IDS
     ]
     manifest = {
-        "schema_version": 1,
+        "schema_version": 2,
         "status": "frozen",
         "protocol_sha256": sha256_file(PROTOCOL),
         "aggregation_code_commit": "a" * 40,
         "principal_test_outcomes_inspected": False,
         "analysis_plan": file_entry(Path("docs/principal_sweep_v1.md").resolve()),
+        "provenance_manifests": {
+            "v3_final_training": file_entry(common),
+            "v3_measurements": file_entry(common),
+            "v4_structured_optimisation": file_entry(common),
+        },
         "collector_checkpoints": checkpoint_entries,
         "final_checkpoints": checkpoint_entries,
         "family_datasets": family_entries,
@@ -182,6 +190,10 @@ def test_complete_frozen_manifest_can_go_and_a_changed_hash_closes_it(
         lambda *args: None,
     )
     monkeypatch.setattr(
+        "airhockey_distill.principal_release._check_mixed_provenance",
+        lambda *args: None,
+    )
+    monkeypatch.setattr(
         "airhockey_distill.principal_release.load_principal_policy",
         lambda *args: SimpleNamespace(
             metadata={"dataset_manifest_sha256": dataset_hash}
@@ -200,6 +212,11 @@ def test_complete_frozen_manifest_can_go_and_a_changed_hash_closes_it(
         "family_datasets": 7,
         "shadow_budget_audits": 7,
     }
+    assert result["observed_provenance_manifests"] == [
+        "v3_final_training",
+        "v3_measurements",
+        "v4_structured_optimisation",
+    ]
     assert result["principal_test_schedule_sha256"]
 
     manifest["final_checkpoints"][0]["sha256"] = "0" * 64
@@ -238,3 +255,276 @@ def test_go_report_is_rechecked_against_its_manifest(monkeypatch, tmp_path):
 
     with pytest.raises(ValueError, match="no longer passes"):
         validate_go_release_report(PROTOCOL, report_path)
+
+
+def test_mixed_v3_v4_provenance_binds_selected_results_and_fails_closed(
+    monkeypatch, tmp_path
+):
+    identities = {("feed_forward", 14303), ("structured_k2", 14303)}
+    structured_identity = ("structured_k2", 14303)
+    training_commit = "a" * 40
+    measurement_commit = "b" * 40
+    optimisation_commit = "c" * 40
+    protocol_path = tmp_path / "protocol.yaml"
+    protocol_path.write_text("protocol\n")
+    protocol_hash = sha256_file(protocol_path)
+    source_v2_seal = "d" * 64
+    final_paths = {}
+    final_hashes = {}
+    for family_id, seed in identities:
+        checkpoint = tmp_path / f"{family_id}-{seed}.npz"
+        checkpoint.write_bytes(family_id.encode())
+        final_paths[(family_id, seed)] = checkpoint
+        final_hashes[(family_id, seed)] = sha256_file(checkpoint)
+
+    selected_hashes = {
+        category: {
+            identity: sha256_file(
+                _write_bytes(
+                    tmp_path / f"{category}-{identity[0]}.json",
+                    f"{category}-{identity[0]}".encode(),
+                )
+            )
+            for identity in identities
+        }
+        for category in (
+            "validation_episode_files",
+            "accounting_results",
+            "cpu_latency_results",
+        )
+    }
+    indexed = {
+        category: {
+            identity: (
+                {"sha256": selected_hashes[category][identity]},
+                tmp_path / f"{category}-{identity[0]}.json",
+                (
+                    {
+                        "code_commit": (
+                            optimisation_commit
+                            if category == "cpu_latency_results"
+                            or (
+                                category == "validation_episode_files"
+                                and identity == structured_identity
+                            )
+                            else measurement_commit
+                        ),
+                        **(
+                            {
+                                "runtime": {
+                                    "inference_implementation": (
+                                        "native_pairwise_float32_v1"
+                                        if identity == structured_identity
+                                        else "numpy_float32_v1"
+                                    )
+                                }
+                            }
+                            if category == "validation_episode_files"
+                            else {}
+                        ),
+                        **(
+                            {
+                                "runtime_contract": {
+                                    "inference_implementation": (
+                                        "native_pairwise_float32_v1"
+                                        if identity == structured_identity
+                                        else "numpy_float32_v1"
+                                    )
+                                }
+                            }
+                            if category == "cpu_latency_results"
+                            else {}
+                        ),
+                    }
+                ),
+            )
+            for identity in identities
+        }
+        for category in selected_hashes
+    }
+
+    final_manifest = {
+        "status": "completed",
+        "final_models": len(identities),
+        "principal_test_opened": False,
+        "training_code_commit": training_commit,
+        "models": [
+            {
+                "family_id": family_id,
+                "training_seed": seed,
+                "checkpoint_sha256": final_hashes[(family_id, seed)],
+            }
+            for family_id, seed in sorted(identities)
+        ],
+    }
+    final_manifest_path = _write_json(tmp_path / "final.json", final_manifest)
+    final_entry = {
+        "path": str(final_manifest_path),
+        "sha256": sha256_file(final_manifest_path),
+    }
+    v3_measurements = {
+        "status": "completed",
+        "decision": "GO",
+        "principal_test_opened": False,
+        "protocol_sha256": protocol_hash,
+        "validation_schedule_sha256": "validation-schedule",
+        "measurement_code_commit": measurement_commit,
+        "source_v2_seal_sha256": source_v2_seal,
+        "final_training_manifest_sha256": final_entry["sha256"],
+        "models": [
+            {
+                "family_id": family_id,
+                "training_seed": seed,
+                "checkpoint_sha256": final_hashes[(family_id, seed)],
+                "validation_sha256": selected_hashes[
+                    "validation_episode_files"
+                ][(family_id, seed)],
+                "accounting_sha256": selected_hashes["accounting_results"][
+                    (family_id, seed)
+                ],
+            }
+            for family_id, seed in sorted(identities)
+        ],
+    }
+    v3_path = _write_json(tmp_path / "v3.json", v3_measurements)
+    v3_entry = {"path": str(v3_path), "sha256": sha256_file(v3_path)}
+
+    v4_root = tmp_path / "v4"
+    native_directory = v4_root / "native"
+    verification_directory = v4_root / "verification"
+    native_directory.mkdir(parents=True)
+    verification_directory.mkdir()
+    binary = _write_bytes(
+        native_directory / "_airhockey_pairwise_float32.test.so",
+        b"native",
+    )
+    build = {
+        "implementation": "native_pairwise_float32_v1",
+        "code_commit": optimisation_commit,
+        "binary_sha256": sha256_file(binary),
+    }
+    build_path = _write_json(native_directory / "build.json", build)
+    native_verification = {
+        "decision": "GO",
+        "code_commit": optimisation_commit,
+        "loaded_binary_sha256": sha256_file(binary),
+        "linear_kernel": {"bit_exact": True},
+        "checkpoints": [
+            {
+                "family_id": structured_identity[0],
+                "training_seed": structured_identity[1],
+                "checkpoint_sha256": final_hashes[structured_identity],
+                "passed": True,
+                "action_bit_exact": True,
+                "carry_bit_exact": True,
+                "action_maximum_absolute_error": 0.0,
+                "carry_maximum_absolute_error": 0.0,
+            }
+        ],
+    }
+    verification_path = _write_json(
+        verification_directory / "native-kernel.json",
+        native_verification,
+    )
+    v4 = {
+        "status": "completed",
+        "decision": "GO",
+        "principal_test_opened": False,
+        "protocol_sha256": protocol_hash,
+        "validation_schedule_sha256": "validation-schedule",
+        "optimisation_code_commit": optimisation_commit,
+        "source_v2_seal_sha256": source_v2_seal,
+        "source_v3_final_manifest_sha256": final_entry["sha256"],
+        "source_v3_measurement_manifest_sha256": v3_entry["sha256"],
+        "native_build_manifest_sha256": sha256_file(build_path),
+        "native_binary_sha256": sha256_file(binary),
+        "native_verification_sha256": sha256_file(verification_path),
+        "native_linear_bit_exact": True,
+        "native_verified_structured_checkpoints": 1,
+        "structured_validation_reruns": 1,
+        "structured_validation_episode_rows_identical_to_v3": True,
+        "reused_v3_validation_results": 1,
+        "reused_v3_accounting_results": 2,
+        "new_isolated_cpu_latency_results": 2,
+        "models": [
+            {
+                "family_id": family_id,
+                "training_seed": seed,
+                "checkpoint_sha256": final_hashes[(family_id, seed)],
+                "validation_sha256": selected_hashes[
+                    "validation_episode_files"
+                ][(family_id, seed)],
+                "accounting_sha256": selected_hashes["accounting_results"][
+                    (family_id, seed)
+                ],
+                "cpu_latency_sha256": selected_hashes["cpu_latency_results"][
+                    (family_id, seed)
+                ],
+                "validation_source": (
+                    "V4 native rerun"
+                    if (family_id, seed) == structured_identity
+                    else "V3 unchanged family reuse"
+                ),
+                "inference_implementation": (
+                    "native_pairwise_float32_v1"
+                    if (family_id, seed) == structured_identity
+                    else "numpy_float32_v1"
+                ),
+            }
+            for family_id, seed in sorted(identities)
+        ],
+    }
+    v4_path = _write_json(v4_root / "manifest.json", v4)
+    provenance = {
+        "v3_final_training": (final_entry, final_manifest_path, final_manifest),
+        "v3_measurements": (v3_entry, v3_path, v3_measurements),
+        "v4_structured_optimisation": (
+            {"path": str(v4_path), "sha256": sha256_file(v4_path)},
+            v4_path,
+            v4,
+        ),
+    }
+    monkeypatch.setattr(
+        "airhockey_distill.principal_release.evaluation_schedule_sha256",
+        lambda protocol: "validation-schedule",
+    )
+    monkeypatch.setattr(
+        "airhockey_distill.principal_release.load_principal_policy",
+        lambda *args: SimpleNamespace(metadata={"code_commit": training_commit}),
+    )
+
+    failures = []
+    _check_mixed_provenance(
+        {},
+        protocol_path,
+        provenance,
+        indexed,
+        identities,
+        final_hashes,
+        final_paths,
+        failures,
+    )
+    assert failures == []
+
+    indexed["cpu_latency_results"][structured_identity][2]["code_commit"] = "e" * 40
+    _check_mixed_provenance(
+        {},
+        protocol_path,
+        provenance,
+        indexed,
+        identities,
+        final_hashes,
+        final_paths,
+        failures,
+    )
+    assert any("latency commit differs" in failure for failure in failures)
+
+
+def _write_bytes(path, value):
+    path.write_bytes(value)
+    return path
+
+
+def _write_json(path, value):
+    path.write_text(json.dumps(value, sort_keys=True) + "\n")
+    return path

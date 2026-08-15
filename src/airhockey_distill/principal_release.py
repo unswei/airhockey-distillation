@@ -21,6 +21,9 @@ from airhockey_distill.principal_sweep import (
 )
 from airhockey_distill.principal_efficiency import policy_accounting
 from airhockey_distill.students import PRINCIPAL_FAMILY_IDS, load_principal_policy
+from airhockey_distill.students.structured import (
+    NATIVE_PAIRWISE_FLOAT32_IMPLEMENTATION,
+)
 
 IDENTITY_EVIDENCE = (
     "collector_checkpoints",
@@ -30,6 +33,13 @@ IDENTITY_EVIDENCE = (
     "cpu_latency_results",
 )
 FAMILY_EVIDENCE = ("family_datasets", "shadow_budget_audits")
+PROVENANCE_MANIFEST_KEYS = frozenset(
+    {
+        "v3_final_training",
+        "v3_measurements",
+        "v4_structured_optimisation",
+    }
+)
 EVIDENCE_MANIFEST_KEYS = frozenset(
     {
         "schema_version",
@@ -38,6 +48,7 @@ EVIDENCE_MANIFEST_KEYS = frozenset(
         "aggregation_code_commit",
         "principal_test_outcomes_inspected",
         "analysis_plan",
+        "provenance_manifests",
         *IDENTITY_EVIDENCE,
         *FAMILY_EVIDENCE,
     }
@@ -115,6 +126,11 @@ def evaluate_test_release(
             else None
             for name in (*IDENTITY_EVIDENCE, *FAMILY_EVIDENCE)
         },
+        "observed_provenance_manifests": sorted(
+            manifest.get("provenance_manifests", {})
+        )
+        if isinstance(manifest.get("provenance_manifests"), dict)
+        else None,
         "failures": failures,
         "declaration_note": (
             "The no-prior-inspection declaration is required and hash-frozen, "
@@ -205,8 +221,8 @@ def _check_manifest_contract(
         for family_id in PRINCIPAL_FAMILY_IDS
         for seed in protocol["matched_seeds"]["training"]
     }
-    if int(manifest.get("schema_version", -1)) != 1:
-        failures.append("evidence manifest schema_version must be 1")
+    if int(manifest.get("schema_version", -1)) != 2:
+        failures.append("evidence manifest schema_version must be 2")
     unknown_keys = set(manifest) - EVIDENCE_MANIFEST_KEYS
     missing_keys = EVIDENCE_MANIFEST_KEYS - set(manifest)
     if unknown_keys:
@@ -259,6 +275,11 @@ def _check_manifest_contract(
             category,
             failures,
         )
+    provenance_manifests = _provenance_evidence(
+        manifest_path,
+        manifest.get("provenance_manifests"),
+        failures,
+    )
 
     for identity, (entry, path, _) in indexed["collector_checkpoints"].items():
         _check_checkpoint(
@@ -338,6 +359,16 @@ def _check_manifest_contract(
                 final_paths.get(identity),
                 failures,
             )
+    _check_mixed_provenance(
+        protocol,
+        protocol_path,
+        provenance_manifests,
+        indexed,
+        expected_identities,
+        final_hashes,
+        final_paths,
+        failures,
+    )
 
 
 def _indexed_evidence(
@@ -373,6 +404,339 @@ def _indexed_evidence(
     if extra:
         failures.append(f"{category} has {len(extra)} unexpected family/seed entries")
     return result
+
+
+def _provenance_evidence(
+    manifest_path: Path,
+    raw_entries: Any,
+    failures: list[str],
+) -> dict[str, tuple[dict[str, Any], Path, dict[str, Any]]]:
+    """Read the three manifests that bind V3 training to V4 measurement."""
+
+    if not isinstance(raw_entries, dict):
+        failures.append("provenance_manifests must be an object")
+        return {}
+    missing = PROVENANCE_MANIFEST_KEYS - set(raw_entries)
+    extra = set(raw_entries) - PROVENANCE_MANIFEST_KEYS
+    if missing:
+        failures.append(
+            "provenance_manifests is missing: " + ", ".join(sorted(missing))
+        )
+    if extra:
+        failures.append(
+            "provenance_manifests has undeclared fields: "
+            + ", ".join(sorted(extra))
+        )
+    result: dict[str, tuple[dict[str, Any], Path, dict[str, Any]]] = {}
+    for name in sorted(PROVENANCE_MANIFEST_KEYS & set(raw_entries)):
+        entry = raw_entries[name]
+        if not isinstance(entry, dict):
+            failures.append(f"provenance manifest {name} is not an object")
+            continue
+        checked = _read_frozen_file(
+            manifest_path,
+            entry,
+            f"provenance manifest {name}",
+            failures,
+        )
+        if checked is None:
+            continue
+        path, value = checked
+        if not isinstance(value, dict):
+            failures.append(f"provenance manifest {name} is not JSON")
+            continue
+        result[name] = (entry, path, value)
+    return result
+
+
+def _identity_records(
+    value: dict[str, Any],
+    label: str,
+    expected: set[tuple[str, int]],
+) -> dict[tuple[str, int], dict[str, Any]]:
+    records: dict[tuple[str, int], dict[str, Any]] = {}
+    raw_records = value.get("models")
+    if not isinstance(raw_records, list):
+        raise ValueError(f"{label} has no model records")
+    for record in raw_records:
+        if not isinstance(record, dict):
+            raise ValueError(f"{label} contains a non-object model record")
+        identity = (str(record["family_id"]), int(record["training_seed"]))
+        if identity in records:
+            raise ValueError(
+                f"{label} duplicates {identity[0]} seed {identity[1]}"
+            )
+        records[identity] = record
+    if set(records) != expected:
+        raise ValueError(f"{label} model identities differ from the protocol")
+    return records
+
+
+def _check_mixed_provenance(
+    protocol: dict[str, Any],
+    protocol_path: Path,
+    provenance: dict[str, tuple[dict[str, Any], Path, dict[str, Any]]],
+    indexed: dict[
+        str,
+        dict[tuple[str, int], tuple[dict[str, Any], Path, Any]],
+    ],
+    expected: set[tuple[str, int]],
+    final_hashes: dict[tuple[str, int], str],
+    final_paths: dict[tuple[str, int], Path],
+    failures: list[str],
+) -> None:
+    """Bind V3 final training to the selected V4 validation and efficiency."""
+
+    try:
+        final_entry, _, final_manifest = provenance["v3_final_training"]
+        v3_entry, _, v3_measurements = provenance["v3_measurements"]
+        v4_entry, v4_path, v4_optimisation = provenance[
+            "v4_structured_optimisation"
+        ]
+        protocol_hash = sha256_file(protocol_path)
+        if (
+            final_manifest.get("status") != "completed"
+            or int(final_manifest.get("final_models", -1)) != len(expected)
+            or final_manifest.get("principal_test_opened") is not False
+        ):
+            raise ValueError("V3 final-training manifest is not closed and complete")
+        if (
+            v3_measurements.get("status") != "completed"
+            or v3_measurements.get("decision") != "GO"
+            or v3_measurements.get("principal_test_opened") is not False
+            or v3_measurements.get("protocol_sha256") != protocol_hash
+            or v3_measurements.get("validation_schedule_sha256")
+            != evaluation_schedule_sha256(protocol)
+        ):
+            raise ValueError("V3 measurement manifest is not closed and complete")
+        if (
+            v4_optimisation.get("status") != "completed"
+            or v4_optimisation.get("decision") != "GO"
+            or v4_optimisation.get("principal_test_opened") is not False
+            or v4_optimisation.get("protocol_sha256") != protocol_hash
+            or v4_optimisation.get("validation_schedule_sha256")
+            != evaluation_schedule_sha256(protocol)
+        ):
+            raise ValueError("V4 optimisation manifest is not closed and complete")
+        if v3_measurements.get("final_training_manifest_sha256") != str(
+            final_entry["sha256"]
+        ):
+            raise ValueError("V3 measurements do not bind the V3 training manifest")
+        if v4_optimisation.get("source_v3_final_manifest_sha256") != str(
+            final_entry["sha256"]
+        ):
+            raise ValueError("V4 does not bind the V3 training manifest")
+        if v4_optimisation.get("source_v3_measurement_manifest_sha256") != str(
+            v3_entry["sha256"]
+        ):
+            raise ValueError("V4 does not bind the V3 measurement manifest")
+        if v4_optimisation.get("source_v2_seal_sha256") != v3_measurements.get(
+            "source_v2_seal_sha256"
+        ):
+            raise ValueError("V3 and V4 do not bind the same sealed V2 inputs")
+
+        training_commit = str(final_manifest.get("training_code_commit", ""))
+        v3_measurement_commit = str(
+            v3_measurements.get("measurement_code_commit", "")
+        )
+        optimisation_commit = str(
+            v4_optimisation.get("optimisation_code_commit", "")
+        )
+        for commit, label in (
+            (training_commit, "V3 training"),
+            (v3_measurement_commit, "V3 measurement"),
+            (optimisation_commit, "V4 optimisation"),
+        ):
+            if not re.fullmatch(r"[0-9a-f]{40}", commit):
+                raise ValueError(f"{label} commit is not frozen")
+        if optimisation_commit == training_commit:
+            raise ValueError("V4 must identify its post-training implementation commit")
+
+        final_records = _identity_records(
+            final_manifest,
+            "V3 final training",
+            expected,
+        )
+        v3_records = _identity_records(v3_measurements, "V3 measurements", expected)
+        v4_records = _identity_records(v4_optimisation, "V4 optimisation", expected)
+        structured = {
+            identity for identity in expected if identity[0].startswith("structured_k")
+        }
+        if (
+            int(v4_optimisation.get("native_verified_structured_checkpoints", -1))
+            != len(structured)
+            or int(v4_optimisation.get("structured_validation_reruns", -1))
+            != len(structured)
+            or v4_optimisation.get(
+                "structured_validation_episode_rows_identical_to_v3"
+            )
+            is not True
+            or v4_optimisation.get("native_linear_bit_exact") is not True
+            or int(v4_optimisation.get("reused_v3_validation_results", -1))
+            != len(expected - structured)
+            or int(v4_optimisation.get("reused_v3_accounting_results", -1))
+            != len(expected)
+            or int(v4_optimisation.get("new_isolated_cpu_latency_results", -1))
+            != len(expected)
+        ):
+            raise ValueError("V4 coverage or exact-behaviour declarations are incomplete")
+
+        def selected_hash(category: str, identity: tuple[str, int]) -> str:
+            return str(indexed[category][identity][0]["sha256"])
+
+        for identity in sorted(expected):
+            family_id, seed = identity
+            final_hash = final_hashes[identity]
+            if final_records[identity].get("checkpoint_sha256") != final_hash:
+                raise ValueError(
+                    f"V3 training checkpoint hash differs for {family_id}/{seed}"
+                )
+            if v3_records[identity].get("checkpoint_sha256") != final_hash:
+                raise ValueError(
+                    f"V3 measurement checkpoint hash differs for {family_id}/{seed}"
+                )
+            if v4_records[identity].get("checkpoint_sha256") != final_hash:
+                raise ValueError(
+                    f"V4 checkpoint hash differs for {family_id}/{seed}"
+                )
+            if load_principal_policy(family_id, final_paths[identity]).metadata.get(
+                "code_commit"
+            ) != training_commit:
+                raise ValueError(
+                    f"final checkpoint training commit differs for {family_id}/{seed}"
+                )
+
+            validation_hash = selected_hash("validation_episode_files", identity)
+            accounting_hash = selected_hash("accounting_results", identity)
+            latency_hash = selected_hash("cpu_latency_results", identity)
+            if v4_records[identity].get("validation_sha256") != validation_hash:
+                raise ValueError(
+                    f"selected validation is not V4-bound for {family_id}/{seed}"
+                )
+            if v4_records[identity].get("accounting_sha256") != accounting_hash:
+                raise ValueError(
+                    f"selected accounting is not V4-bound for {family_id}/{seed}"
+                )
+            if v4_records[identity].get("cpu_latency_sha256") != latency_hash:
+                raise ValueError(
+                    f"selected latency is not V4-bound for {family_id}/{seed}"
+                )
+            if v3_records[identity].get("accounting_sha256") != accounting_hash:
+                raise ValueError(
+                    f"accounting is not the frozen V3 result for {family_id}/{seed}"
+                )
+
+            validation = indexed["validation_episode_files"][identity][2]
+            accounting = indexed["accounting_results"][identity][2]
+            latency = indexed["cpu_latency_results"][identity][2]
+            if accounting.get("code_commit") != v3_measurement_commit:
+                raise ValueError(
+                    f"accounting commit differs for {family_id}/{seed}"
+                )
+            if latency.get("code_commit") != optimisation_commit:
+                raise ValueError(f"latency commit differs for {family_id}/{seed}")
+
+            if identity in structured:
+                if v4_records[identity].get("validation_source") != "V4 native rerun":
+                    raise ValueError(
+                        f"structured validation source differs for {family_id}/{seed}"
+                    )
+                if validation.get("code_commit") != optimisation_commit:
+                    raise ValueError(
+                        f"structured validation commit differs for {family_id}/{seed}"
+                    )
+                if validation.get("runtime", {}).get(
+                    "inference_implementation"
+                ) != NATIVE_PAIRWISE_FLOAT32_IMPLEMENTATION:
+                    raise ValueError(
+                        f"structured validation is not native for {family_id}/{seed}"
+                    )
+                expected_implementation = NATIVE_PAIRWISE_FLOAT32_IMPLEMENTATION
+            else:
+                if v3_records[identity].get("validation_sha256") != validation_hash:
+                    raise ValueError(
+                        f"nonstructured validation is not V3 for {family_id}/{seed}"
+                    )
+                if v4_records[identity].get("validation_source") != (
+                    "V3 unchanged family reuse"
+                ):
+                    raise ValueError(
+                        f"nonstructured validation source differs for {family_id}/{seed}"
+                    )
+                if validation.get("code_commit") != v3_measurement_commit:
+                    raise ValueError(
+                        f"nonstructured validation commit differs for {family_id}/{seed}"
+                    )
+                expected_implementation = "numpy_float32_v1"
+            if v4_records[identity].get(
+                "inference_implementation"
+            ) != expected_implementation or latency.get("runtime_contract", {}).get(
+                "inference_implementation"
+            ) != expected_implementation:
+                raise ValueError(
+                    f"latency implementation differs for {family_id}/{seed}"
+                )
+
+        v4_root = v4_path.parent
+        native_build_path = v4_root / "native/build.json"
+        native_verification_path = v4_root / "verification/native-kernel.json"
+        native_binaries = tuple(
+            (v4_root / "native").glob("_airhockey_pairwise_float32*.so")
+        )
+        if len(native_binaries) != 1:
+            raise ValueError("V4 does not contain exactly one native binary")
+        native_binary_path = native_binaries[0]
+        if (
+            sha256_file(native_build_path)
+            != v4_optimisation.get("native_build_manifest_sha256")
+            or sha256_file(native_verification_path)
+            != v4_optimisation.get("native_verification_sha256")
+            or sha256_file(native_binary_path)
+            != v4_optimisation.get("native_binary_sha256")
+        ):
+            raise ValueError("V4 native artefact hash changed")
+        native_build = json.loads(native_build_path.read_text())
+        native_verification = json.loads(native_verification_path.read_text())
+        if (
+            native_build.get("implementation")
+            != NATIVE_PAIRWISE_FLOAT32_IMPLEMENTATION
+            or native_build.get("code_commit") != optimisation_commit
+            or native_build.get("binary_sha256") != sha256_file(native_binary_path)
+            or native_verification.get("decision") != "GO"
+            or native_verification.get("code_commit") != optimisation_commit
+            or native_verification.get("loaded_binary_sha256")
+            != sha256_file(native_binary_path)
+            or native_verification.get("linear_kernel", {}).get("bit_exact") is not True
+        ):
+            raise ValueError("V4 native build or verification contract failed")
+        verified = {
+            (str(record["family_id"]), int(record["training_seed"])): record
+            for record in native_verification.get("checkpoints", [])
+        }
+        if set(verified) != structured:
+            raise ValueError("native verification checkpoint identities differ")
+        for identity, record in verified.items():
+            if (
+                record.get("passed") is not True
+                or record.get("action_bit_exact") is not True
+                or record.get("carry_bit_exact") is not True
+                or float(record.get("action_maximum_absolute_error", -1.0)) != 0.0
+                or float(record.get("carry_maximum_absolute_error", -1.0)) != 0.0
+                or record.get("checkpoint_sha256") != final_hashes[identity]
+            ):
+                raise ValueError(
+                    f"native verification failed for {identity[0]}/{identity[1]}"
+                )
+        if str(v4_entry["sha256"]) != sha256_file(v4_path):
+            raise ValueError("V4 provenance entry changed while checking")
+    except (
+        FileNotFoundError,
+        KeyError,
+        TypeError,
+        ValueError,
+        json.JSONDecodeError,
+    ) as error:
+        failures.append(f"mixed V3/V4 provenance: {error}")
 
 
 def _family_evidence(

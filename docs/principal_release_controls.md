@@ -79,17 +79,28 @@ means. Loading and simulation are outside the timed region.
 
 ## Freeze and release gate
 
-Keep all raw validation rows and release evidence outside Git. The supplied
-JSON template documents the schema, while the freezer builds paths and hashes
-from the actual files. Pass each repeated input once per artefact: 35 collector
-checkpoints, 35 final checkpoints, seven aggregate manifests, seven shadow
-audits, and 35 each of validation, accounting and latency results.
+Keep all raw validation rows and release evidence outside Git. The schema-v2
+JSON template documents the mixed provenance, while the freezer builds paths
+and hashes from the actual files. V2 supplies the collectors, family datasets,
+shadow audits and truthful aggregation commit. V3 supplies all 35 final
+checkpoints, the 15 unchanged nonstructured validation files and all 35
+accounting files. V4 supplies the 20 bit-exact structured validation reruns and
+all 35 new isolated latency files.
+
+The manifest also includes the frozen V3 final-training, V3 measurement and V4
+optimisation manifests. The independent gate cross-checks every selected file
+against those three sources, including the V4 native binary and bit-exact
+verification. A plausible file with the right family and seed is insufficient
+if it is not hash-bound by the correct source manifest.
 
 ```bash
 python scripts/freeze_principal_release_evidence.py \
   --protocol configs/experiments/principal_sweep_execution_v1.yaml \
   --analysis-plan docs/principal_sweep_v1.md \
-  --aggregation-code-commit FULL_40_CHARACTER_COMMIT \
+  --aggregation-code-commit V2_AGGREGATION_COMMIT \
+  --v3-final-training-manifest /experiments/v3/orchestrator/final_training_manifest.json \
+  --v3-measurement-manifest /experiments/v3/orchestrator/measurements/manifest.json \
+  --v4-optimisation-manifest /experiments/v4/manifest.json \
   --declare-principal-test-uninspected \
   ...all repeated evidence arguments... \
   --output /experiments/release/evidence.json
@@ -102,10 +113,12 @@ python scripts/gate_principal_test_release.py \
 
 The gate exits 2 and writes `NO_GO` if anything is missing, duplicated,
 changed or inconsistent. It reopens checkpoints, datasets, shadow shards and
-validation episode rows, and binds accounting and latency to each exact final
-checkpoint. The declaration that the test was never inspected is necessarily
-a frozen operator declaration; repository files cannot independently prove
-it.
+validation episode rows; binds accounting and latency to each exact final
+checkpoint; verifies the V3 training commit separately from the V4
+implementation commit; and requires native structured validation and latency
+where declared. The declaration that the test was never inspected is
+necessarily a frozen operator declaration; repository files cannot
+independently prove it.
 
 Only a `GO` report can be supplied to the evaluator:
 

@@ -18,6 +18,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--protocol", type=Path, required=True)
     parser.add_argument("--analysis-plan", type=Path, required=True)
     parser.add_argument("--aggregation-code-commit", required=True)
+    parser.add_argument("--v3-final-training-manifest", type=Path, required=True)
+    parser.add_argument("--v3-measurement-manifest", type=Path, required=True)
+    parser.add_argument("--v4-optimisation-manifest", type=Path, required=True)
     parser.add_argument("--collector-checkpoint", type=Path, action="append", default=[])
     parser.add_argument("--final-checkpoint", type=Path, action="append", default=[])
     parser.add_argument("--family-dataset-manifest", type=Path, action="append", default=[])
@@ -45,12 +48,23 @@ def freeze(args: argparse.Namespace) -> dict[str, Any]:
     if output.exists():
         raise FileExistsError(output)
     manifest = {
-        "schema_version": 1,
+        "schema_version": 2,
         "status": "frozen",
         "protocol_sha256": sha256_file(protocol_path),
         "aggregation_code_commit": args.aggregation_code_commit,
         "principal_test_outcomes_inspected": False,
         "analysis_plan": _file_entry(args.analysis_plan.resolve()),
+        "provenance_manifests": {
+            "v3_final_training": _file_entry(
+                args.v3_final_training_manifest.resolve()
+            ),
+            "v3_measurements": _file_entry(
+                args.v3_measurement_manifest.resolve()
+            ),
+            "v4_structured_optimisation": _file_entry(
+                args.v4_optimisation_manifest.resolve()
+            ),
+        },
         "collector_checkpoints": _checkpoint_entries(args.collector_checkpoint),
         "final_checkpoints": _checkpoint_entries(args.final_checkpoint),
         "family_datasets": _family_json_entries(args.family_dataset_manifest),
