@@ -1,5 +1,20 @@
 # Scripts
 
+## Paper figures
+
+Generate the separate panels and the paper-width single-row composition for
+Figure 1 with:
+
+```bash
+.venv/bin/python scripts/plot_paper_figure1.py
+```
+
+The script reads the tracked Stage B v3 and causal-ablation results rather than
+copying values into the artwork. It writes SVG, PDF and high-resolution PNG
+versions beneath `artifacts/paper/figure1/`, together with a manifest binding
+the outputs to their source hashes. The outputs remain ignored until a selected
+version is deliberately copied into the paper repository.
+
 This directory contains small, non-interactive entry points for the Marvin
 workflow.
 
