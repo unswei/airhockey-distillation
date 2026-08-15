@@ -72,3 +72,52 @@ def test_figure1_causal_panel_contains_the_reported_comparisons(tmp_path: Path) 
     assert "45.8 pp  95% interval [38.7, 52.9]" in causal
     assert "normal and reset conditions are identical (99.6%)" in causal
 
+
+def test_figure1_alias_paths_continue_straight_through_blackout(tmp_path: Path) -> None:
+    subprocess.run(
+        (
+            sys.executable,
+            str(SCRIPT),
+            "--output-dir",
+            str(tmp_path),
+            "--formats",
+            "svg",
+        ),
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    root = ET.parse(tmp_path / "figure1_combined.svg").getroot()
+    paths_by_colour: dict[str, list[ET.Element]] = {
+        "#E69F00": [],
+        "#009E73": [],
+    }
+    for element in root.iter():
+        if not element.tag.endswith("polyline"):
+            continue
+        colour = element.attrib.get("stroke")
+        if colour in paths_by_colour:
+            paths_by_colour[colour].append(element)
+
+    for paths in paths_by_colour.values():
+        assert len(paths) == 2
+        visible, hidden = paths
+        assert "stroke-dasharray" not in visible.attrib
+        assert hidden.attrib["stroke-dasharray"] == "10 7"
+        visible_points = [
+            tuple(float(value) for value in point.split(","))
+            for point in visible.attrib["points"].split()
+        ]
+        hidden_points = [
+            tuple(float(value) for value in point.split(","))
+            for point in hidden.attrib["points"].split()
+        ]
+        start, rendezvous = visible_points
+        assert rendezvous == hidden_points[0]
+        target = hidden_points[1]
+        incoming = (rendezvous[0] - start[0], rendezvous[1] - start[1])
+        outgoing = (target[0] - rendezvous[0], target[1] - rendezvous[1])
+        cross_product = incoming[0] * outgoing[1] - incoming[1] * outgoing[0]
+        dot_product = incoming[0] * outgoing[0] + incoming[1] * outgoing[1]
+        assert abs(cross_product) < 1.0
+        assert dot_product > 0.0

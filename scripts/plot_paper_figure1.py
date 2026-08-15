@@ -140,6 +140,19 @@ def _pp(value: float) -> str:
     return f"{100.0 * value:.1f} pp"
 
 
+def _launch_point_on_continuation(
+    launch_x: float,
+    rendezvous: tuple[float, float],
+    target: tuple[float, float],
+) -> tuple[float, float]:
+    """Extend the target--rendezvous line backwards to the launch side."""
+
+    rendezvous_x, rendezvous_y = rendezvous
+    target_x, target_y = target
+    scale = (launch_x - rendezvous_x) / (target_x - rendezvous_x)
+    return launch_x, rendezvous_y + scale * (target_y - rendezvous_y)
+
+
 def _panel_heading(canvas: SvgCanvas, label: str, title: str, width: float) -> None:
     canvas.text(28, 36, label, size=22, weight=700)
     canvas.text(68, 36, title, size=20, weight=700)
@@ -217,48 +230,51 @@ def draw_task_panel(canvas: SvgCanvas) -> None:
     canvas.text(72, centre_y + 72, "defending goal", size=12, weight=600)
 
     # Paired visible histories and the two hidden futures.
-    upper_start = (610.0, centre_y - 17.0)
-    lower_start = (610.0, centre_y + 17.0)
     rendezvous = (rendezvous_x, centre_y)
     upper_target = (goal_x + 17.0, centre_y - 34.0)
     lower_target = (goal_x + 17.0, centre_y + 34.0)
+    orange_start = _launch_point_on_continuation(610.0, rendezvous, lower_target)
+    green_start = _launch_point_on_continuation(610.0, rendezvous, upper_target)
     canvas.polyline(
-        (upper_start, (505, centre_y - 12), rendezvous),
-        stroke=PALETTE["blue"],
+        (orange_start, rendezvous),
+        stroke=PALETTE["orange"],
         stroke_width=4.0,
-        marker_end="arrow-blue",
+        marker_end="arrow-orange",
     )
     canvas.polyline(
-        (lower_start, (505, centre_y + 12), rendezvous),
+        (green_start, rendezvous),
         stroke=PALETTE["green"],
         stroke_width=4.0,
         marker_end="arrow-green",
     )
     canvas.polyline(
-        (rendezvous, (252, centre_y - 14), upper_target),
-        stroke=PALETTE["blue"],
+        (rendezvous, lower_target),
+        stroke=PALETTE["orange"],
         stroke_width=4.0,
         dash="10 7",
-        marker_end="arrow-blue",
+        marker_end="arrow-orange",
     )
     canvas.polyline(
-        (rendezvous, (252, centre_y + 14), lower_target),
+        (rendezvous, upper_target),
         stroke=PALETTE["green"],
         stroke_width=4.0,
-        dash="4 6",
+        dash="10 7",
         marker_end="arrow-green",
     )
-    for point, colour in ((upper_start, PALETTE["blue"]), (lower_start, PALETTE["green"])):
+    for point, colour in (
+        (orange_start, PALETTE["orange"]),
+        (green_start, PALETTE["green"]),
+    ):
         canvas.circle(*point, 8, fill=colour, stroke=PALETTE["paper"], stroke_width=2)
     canvas.circle(*rendezvous, 9, fill=PALETTE["ink"], stroke=PALETTE["paper"], stroke_width=2)
 
     # Mallet at the fixed centre and two required future positions.
     mallet_x = 150.0
-    canvas.circle(mallet_x, centre_y, 16, fill=PALETTE["sky"], stroke=PALETTE["blue"], stroke_width=2.5)
-    canvas.circle(mallet_x, centre_y - 34, 16, fill=PALETTE["paper"], stroke=PALETTE["blue"], stroke_width=2.5, opacity=0.9)
-    canvas.circle(mallet_x, centre_y + 34, 16, fill=PALETTE["paper"], stroke=PALETTE["green"], stroke_width=2.5, opacity=0.9)
-    canvas.line(mallet_x + 23, centre_y - 3, mallet_x + 23, centre_y - 27, stroke=PALETTE["blue"], stroke_width=1.8, marker_end="arrow-blue")
-    canvas.line(mallet_x - 23, centre_y + 3, mallet_x - 23, centre_y + 27, stroke=PALETTE["green"], stroke_width=1.8, marker_end="arrow-green")
+    canvas.circle(mallet_x, centre_y, 16, fill=PALETTE["light_grid"], stroke=PALETTE["ink"], stroke_width=2.5)
+    canvas.circle(mallet_x, centre_y - 34, 16, fill=PALETTE["paper"], stroke=PALETTE["green"], stroke_width=2.5, opacity=0.9)
+    canvas.circle(mallet_x, centre_y + 34, 16, fill=PALETTE["paper"], stroke=PALETTE["orange"], stroke_width=2.5, opacity=0.9)
+    canvas.line(mallet_x + 23, centre_y - 3, mallet_x + 23, centre_y - 27, stroke=PALETTE["green"], stroke_width=1.8, marker_end="arrow-green")
+    canvas.line(mallet_x - 23, centre_y + 3, mallet_x - 23, centre_y + 27, stroke=PALETTE["orange"], stroke_width=1.8, marker_end="arrow-orange")
 
     canvas.line(rendezvous_x, centre_y + 13, rendezvous_x, centre_y + 62, stroke=PALETTE["ink"], stroke_width=1.3)
     canvas.text(rendezvous_x, centre_y + 81, "same masked observation", size=12.5, weight=600, anchor="middle")
@@ -266,9 +282,9 @@ def draw_task_panel(canvas: SvgCanvas) -> None:
     canvas.text(219, 394, "different hidden futures and mallet positions", size=12.5, weight=600, anchor="middle")
 
     # Compact redundant legend: colour and line pattern both distinguish paths.
-    canvas.line(86, 448, 126, 448, stroke=PALETTE["blue"], stroke_width=4)
+    canvas.line(86, 448, 126, 448, stroke=PALETTE["ink"], stroke_width=4)
     canvas.text(136, 453, "visible puck history", size=12.5)
-    canvas.line(300, 448, 340, 448, stroke=PALETTE["blue"], stroke_width=4, dash="10 7")
+    canvas.line(300, 448, 340, 448, stroke=PALETTE["ink"], stroke_width=4, dash="10 7")
     canvas.text(350, 453, "hidden puck path", size=12.5)
     canvas.rect(520, 438, 25, 18, fill=PALETTE["light_grid"], stroke=PALETTE["grid"], stroke_width=0.8)
     canvas.text(555, 453, "masked interval", size=12.5)
@@ -454,23 +470,25 @@ def draw_task_panel_compact(canvas: SvgCanvas) -> None:
     canvas.circle(goal_x, centre_y + 42, 6, fill=PALETTE["ink"])
     canvas.text(44, centre_y + 71, "goal", size=23, weight=600)
 
-    upper_start = (500.0, centre_y - 17)
-    lower_start = (500.0, centre_y + 17)
     rendezvous = (onset_x, centre_y)
-    canvas.polyline((upper_start, (407, centre_y - 10), rendezvous), stroke=PALETTE["blue"], stroke_width=4, marker_end="arrow-blue")
-    canvas.polyline((lower_start, (407, centre_y + 10), rendezvous), stroke=PALETTE["green"], stroke_width=4, marker_end="arrow-green")
-    canvas.polyline((rendezvous, (190, centre_y - 18), (goal_x + 15, centre_y - 34)), stroke=PALETTE["blue"], stroke_width=4, dash="10 7", marker_end="arrow-blue")
-    canvas.polyline((rendezvous, (190, centre_y + 18), (goal_x + 15, centre_y + 34)), stroke=PALETTE["green"], stroke_width=4, dash="4 6", marker_end="arrow-green")
-    canvas.circle(*upper_start, 8, fill=PALETTE["blue"], stroke=PALETTE["paper"], stroke_width=2)
-    canvas.circle(*lower_start, 8, fill=PALETTE["green"], stroke=PALETTE["paper"], stroke_width=2)
+    upper_target = (goal_x + 15, centre_y - 34)
+    lower_target = (goal_x + 15, centre_y + 34)
+    orange_start = _launch_point_on_continuation(500.0, rendezvous, lower_target)
+    green_start = _launch_point_on_continuation(500.0, rendezvous, upper_target)
+    canvas.polyline((orange_start, rendezvous), stroke=PALETTE["orange"], stroke_width=4, marker_end="arrow-orange")
+    canvas.polyline((green_start, rendezvous), stroke=PALETTE["green"], stroke_width=4, marker_end="arrow-green")
+    canvas.polyline((rendezvous, lower_target), stroke=PALETTE["orange"], stroke_width=4, dash="10 7", marker_end="arrow-orange")
+    canvas.polyline((rendezvous, upper_target), stroke=PALETTE["green"], stroke_width=4, dash="10 7", marker_end="arrow-green")
+    canvas.circle(*orange_start, 8, fill=PALETTE["orange"], stroke=PALETTE["paper"], stroke_width=2)
+    canvas.circle(*green_start, 8, fill=PALETTE["green"], stroke=PALETTE["paper"], stroke_width=2)
     canvas.circle(*rendezvous, 9, fill=PALETTE["ink"], stroke=PALETTE["paper"], stroke_width=2)
 
     mallet_x = 100.0
-    canvas.circle(mallet_x, centre_y, 17, fill=PALETTE["sky"], stroke=PALETTE["blue"], stroke_width=2.5)
-    canvas.circle(mallet_x, centre_y - 34, 17, fill=PALETTE["paper"], stroke=PALETTE["blue"], stroke_width=2.5)
-    canvas.circle(mallet_x, centre_y + 34, 17, fill=PALETTE["paper"], stroke=PALETTE["green"], stroke_width=2.5)
+    canvas.circle(mallet_x, centre_y, 17, fill=PALETTE["light_grid"], stroke=PALETTE["ink"], stroke_width=2.5)
+    canvas.circle(mallet_x, centre_y - 34, 17, fill=PALETTE["paper"], stroke=PALETTE["green"], stroke_width=2.5)
+    canvas.circle(mallet_x, centre_y + 34, 17, fill=PALETTE["paper"], stroke=PALETTE["orange"], stroke_width=2.5)
     canvas.text(onset_x, centre_y + 76, "same masked input", size=23, weight=700, anchor="middle")
-    canvas.text(270, 447, "solid: visible", size=23, fill=PALETTE["blue"], weight=600, anchor="end")
+    canvas.text(270, 447, "solid: visible", size=23, fill=PALETTE["ink"], weight=600, anchor="end")
     canvas.text(290, 447, "·", size=21, fill=PALETTE["muted"], anchor="middle")
     canvas.text(310, 447, "dashed: hidden", size=23, fill=PALETTE["muted"], weight=600)
     canvas.text(280, 482, "opposite futures require opposite defences", size=23, weight=700, anchor="middle")
