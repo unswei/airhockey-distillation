@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "manuscriptCommit": "166a4a2154f0896c68497f0070fe9813e0ddf4a4",
+  "manuscriptInputs": {
+    "acra.sty": "af11259ca8b65a94c20bff5674cf203f39bafc68e0794a0ca4c6a38a2e6aaace",
+    "figures/figure1-task-memory.pdf": "d551774fe4a40cc362e8c27458c37350bd530bbbea9853c73a18d26e0eac0093",
+    "figures/figure2-structured-student.tex": "7fb9aa23acbb26cd7f7cbb4388d63e36ca32d9f5e0d4128a2ef76aea66e4f6b3",
+    "figures/figure2.tex": "7c26b8e4a6e48bffd43631e151b765410ae2abe17019181b766016da6c913262",
+    "figures/figure3a-memory-baselines.pdf": "b54d9186f30cf26163b77ed5b729e1df555b111264777b75f0a589cb588bd08a",
+    "figures/figure3b-recurrent-comparison.pdf": "d2816a914f1111a2f77d77b990f720abf28a41066dfde504f51f2745a106ca96",
+    "figures/figure3c-400ms-contrasts.pdf": "5c070887fe202b20c4b7b8d6328a2adf7807a841701b67968c23b2d33924846b",
+    "figures/figure4a-latency-frontier.pdf": "f64f67788738d0d03e3e26727fbf5824d28e99a0e97bfc0eb1596cb4f31bb945",
+    "figures/figure4b-parameter-frontier.pdf": "b68b131c6eeb0a1a6ec5a5a42f58ebad80157ebc8a9708e6030fe6b4243bdc4d",
+    "main.tex": "bedeb60018eac4b87ed601b588fbb4abfcc6902eb8a6e7ed1c61994ea01b4693",
+    "references.bib": "08cd0d15958aae2b3cc6dbfc035abf13c91a857658b8837d82efd88a42f83d3f"
+  },
+  "assets": {
+    "paper.pdf": "d9bff3a5e7d9e59e2a2396097509911ae72f75ee772424fbd7c7f60d15a8fd6f",
+    "references.bib": "08cd0d15958aae2b3cc6dbfc035abf13c91a857658b8837d82efd88a42f83d3f",
+    "SCIENTIFIC_FIDELITY.md": "96ddbb018086c2913daa30e9a56a6d9ea1d1385dc04b045b7a6d5b1330a8acaa",
+    "kuka-setup.jpg": "8514f02ea385aa7f4ba7f49f87751dc18733b974031a7ea42bb975fea384827e"
+  },
+  "setupImage": {
+    "source": "docs/assets/upstream-self-play-2023-poster.jpg",
+    "run": "upstream-demo-2023-rendered-v2",
+    "sha256": "8514f02ea385aa7f4ba7f49f87751dc18733b974031a7ea42bb975fea384827e",
+    "role": "Environment context only; upstream two-robot self-play, not a tracking-loss result",
+    "presentation": "Unmodified source file; cropped in CSS, retaining both robots and the table"
+  },
+  "compiler": "TeX Live 2026 / latexmk; no source edits",
+  "snapshotDate": "2026-09-27"
+}
