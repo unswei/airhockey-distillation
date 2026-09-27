@@ -1,93 +1,54 @@
 # Interactive research article
 
-Svelte 5 + TypeScript + Vite, bespoke SVG/HTML figures and KaTeX. The build
-prerenders the complete article and hydrates three interactive explanations.
-No server, inference, analytics, external fonts or CDN is required at runtime.
-D3 is unnecessary for these small, fixed datasets.
+Web companion to the air-hockey memory-distillation paper, built with Svelte,
+TypeScript, Vite and KaTeX. The site is static and can be hosted on GitHub Pages.
 
-The article lives in the existing code repository. It does not modify Paper,
-the Python environment, frozen experiments or the test-release gate.
+## Local development
 
-## Build and preview
+Requires Node.js 22.18 or later; the deployment workflow uses Node 24.
 
-Use Node 24 LTS (minimum 22.18):
+```sh
+cd web
+npm ci
+npm run dev
+```
 
-    cd web
-    npm ci
-    npm run check
-    npm test
-    npm run build
-    npm run preview
+Open [the local article](http://127.0.0.1:5173/airhockey-distillation/).
 
-Open http://127.0.0.1:4173/airhockey-distillation/ .
-For development, npm run dev uses port 5173.
+## Build and test
 
-package-lock.json is separate from the experiment uv.lock. Output is web/dist/.
-The build fails if frozen source hashes, exported measurements, manuscript
-assets or the public fidelity copy change. A sibling Paper checkout and TeX
-installation are not needed for a normal build.
+```sh
+npm run check
+npm test
+npm run build
+npm run preview
+```
 
-## Browser verification
+The build writes to `web/dist/`. The production preview runs at
+[port 4173](http://127.0.0.1:4173/airhockey-distillation/).
 
-After building:
+To run browser tests after building:
 
-    npx playwright install chromium
-    npm run test:browser
+```sh
+npx playwright install chromium
+npm run test:browser
+```
 
-Playwright starts the production preview. For installed local Chrome, use
-PLAYWRIGHT_CHANNEL=chrome npm run test:browser. Tests cover interactions,
-all 35 seed readouts, fixed contrasts, keyboard controls, assets, no-JavaScript
-rendering and 1440/768/390/320 px layouts. Screenshots go to test-results/.
+## Deployment
 
-## GitHub Pages deployment
+In the repository’s **Settings → Pages**, select **GitHub Actions** as the
+source. Run **Publish interactive article** from the Actions tab on `main`.
+Deployment is manual; pushing a commit does not publish the site.
 
-The Vite base is /airhockey-distillation/. The prepared workflow
-.github/workflows/article-pages.yml is manual-only; a push does not publish.
+The site uses `/airhockey-distillation/` as its base path, configured in
+`vite.config.ts`.
 
-1. Review the draft PDF and exported assets as potentially public material.
-2. In repository Settings → Pages, select GitHub Actions. Check availability
-   for the current repository visibility and account plan. Do not change a
-   private repository to public merely to make deployment work.
-3. Run “Publish interactive article” from Actions on main.
-4. Checks, a production build and browser tests run before deploying only
-   web/dist through the github-pages environment.
+## Contents
 
-Intended URL: https://unswei.github.io/airhockey-distillation/ .
-This is a deployment target, not an assertion that the site is published.
-For another repository name or custom domain, change base in vite.config.ts
-and the browser-test base URL.
+- `src/App.svelte`: article text and references.
+- `src/lib/figures/`: interactive and static figures.
+- `public/data/`: frozen results and source hashes, verified during each build.
+- `public/paper.pdf`: manuscript PDF.
 
-## Source map
-
-- ../ARTICLE_PLAN.md: approved narrative and ranked interactions.
-- ../SCIENTIFIC_FIDELITY.md: evidence classes and interpretation boundaries.
-- src/App.svelte: narrative, references and links.
-- src/lib/figures/: reusable explanatory units.
-- src/lib/science.ts: masking, stack bookkeeping and parameter formulae.
-- src/lib/data.ts: typed access and family colours, labels and dashes.
-- scripts/export-data.mjs: hash-checked frozen-source export.
-- public/data/evidence.json: compact measurements and source hashes.
-- public/data/sources.json: manuscript and public-asset hashes.
-- public/paper.pdf and references.bib: manuscript snapshot.
-
-## Updating sources
-
-Never silently regenerate from newer results. Review the manuscript, update
-explicit pinned hashes/commit and the fidelity note, then npm run data:export.
-To update the manuscript snapshot, compile main.tex with latexmk into an
-output directory outside Paper. Deliberately update the expected commit and
-hashes in the snapshot script, then run:
-
-    node scripts/snapshot-paper.mjs /absolute/path/to/Paper /absolute/path/to/main.pdf
-
-This copies the PDF, bibliography and fidelity note and records their hashes.
-It never edits Paper. Rerun all checks and inspect screenshots. The website
-must never construct or reopen principal_test.
-
-## Accessibility and design
-
-Warm paper, self-hosted Source Serif 4 and Inter, restrained colour-blind-friendly
-colours with redundant labels/dashes. Keyboard/touch controls, no autoplay,
-reduced-motion support, independently scrolling tables, MathML equations and
-visible numerical information. Text and default figures remain static HTML
-without JavaScript; important quantities are never hidden only behind hover.
+See [Scientific fidelity](../SCIENTIFIC_FIDELITY.md) for data provenance and
+the distinction between measured results and illustrative examples.
