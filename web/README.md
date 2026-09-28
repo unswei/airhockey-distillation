@@ -53,6 +53,3 @@ The site uses `/airhockey-distillation/` as its base path, configured in
 
 The paper PDF is not published yet. The article shows “Paper (soon)”; builds
 reject PDFs in `public/` until publication is enabled deliberately.
-
-See [Scientific fidelity](../SCIENTIFIC_FIDELITY.md) for data provenance and
-the distinction between measured results and illustrative examples.

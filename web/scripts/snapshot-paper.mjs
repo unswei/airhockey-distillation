@@ -39,10 +39,6 @@ assert.equal(sha(await readFile(setupImage)), setupImageHash, 'Upstream setup po
 await mkdir(new URL('data/', publicDir), { recursive: true });
 await copyFile(setupImage, new URL('kuka-setup.jpg', publicDir));
 await copyFile(join(paper, 'references.bib'), new URL('references.bib', publicDir));
-await copyFile(
-  new URL('../../SCIENTIFIC_FIDELITY.md', import.meta.url),
-  new URL('SCIENTIFIC_FIDELITY.md', publicDir),
-);
 const sourceFiles = execFileSync('git', ['-C', paper, 'ls-files'], { encoding: 'utf8' })
   .trim()
   .split('\n')
@@ -54,7 +50,7 @@ const inputs = Object.fromEntries(
 );
 const assets = Object.fromEntries(
   await Promise.all(
-    ['references.bib', 'SCIENTIFIC_FIDELITY.md', 'kuka-setup.jpg'].map(async (path) => [
+    ['references.bib', 'kuka-setup.jpg'].map(async (path) => [
       path,
       sha(await readFile(new URL(path, publicDir))),
     ]),
@@ -82,5 +78,5 @@ await writeFile(
   ) + '\n',
 );
 console.log(
-  'Copied bibliography and fidelity note; recorded source and asset hashes. PDF publication is disabled.',
+  'Copied bibliography and setup image; recorded source and asset hashes. PDF publication is disabled.',
 );

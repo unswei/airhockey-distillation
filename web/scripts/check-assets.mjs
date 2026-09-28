@@ -17,9 +17,4 @@ for (const [path, hash] of Object.entries(manifest.assets)) {
     'Changed asset: ' + path,
   );
 }
-assert.equal(
-  await readFile(new URL('SCIENTIFIC_FIDELITY.md', root), 'utf8'),
-  await readFile(new URL('../../SCIENTIFIC_FIDELITY.md', import.meta.url), 'utf8'),
-  'Public fidelity note differs from source.',
-);
-console.log('Manuscript assets and scientific-fidelity copy verified.');
+console.log('Article assets verified.');

@@ -72,7 +72,8 @@ requires byte-for-byte equality, and runs before every build. No episode-level
 records are copied into Git or into the website.
 
 public/data/sources.json identifies the exact manuscript snapshot and hashes
-the published bibliography, setup image and scientific-fidelity note. The manuscript
+the published bibliography and setup image. This note is kept in the code repository,
+not published as part of the article. The manuscript
 PDF is not currently published; its sources remain in the separate Paper repository.
 No figure or result is cleaned up by altering data.
 

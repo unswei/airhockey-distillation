@@ -61,7 +61,6 @@ test('assets and internal links work at the project base path', async ({ page, r
   await page.goto('./');
   for (const path of [
     'references.bib',
-    'SCIENTIFIC_FIDELITY.md',
     'data/evidence.json',
     'data/sources.json',
     'favicon.svg',
@@ -76,6 +75,14 @@ test('assets and internal links work at the project base path', async ({ page, r
     .locator('a[href^="#"]')
     .evaluateAll((elements) => elements.map((a) => a.getAttribute('href')!.slice(1)));
   for (const id of anchors) await expect(page.locator('[id="' + id + '"]')).toHaveCount(1);
+});
+
+test('article header and references use plain language', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.locator('.lab-mark')).toHaveText('UNSW SYDNEY · ROBOT LEARNING');
+  await expect(page.locator('body')).not.toContainText('Reference details follow the manuscript');
+  await expect(page.locator('body')).not.toContainText('Scientific fidelity');
+  await expect(page.locator('a[href*="SCIENTIFIC_FIDELITY"]')).toHaveCount(0);
 });
 
 test('the paper is marked as forthcoming and its PDF is not served', async ({ page, request }) => {

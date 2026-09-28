@@ -69,7 +69,7 @@
 
 <a class="skip-link" href="#question">Skip to the article</a>
 <div class="topbar">
-  <a class="lab-mark" href="https://unswei.github.io/">UNSW · EVOLVING INTELLIGENCE</a>
+  <a class="lab-mark" href="https://unswei.github.io/">UNSW SYDNEY · ROBOT LEARNING</a>
   <nav aria-label="Article sections">
     <a href="#question">Question</a><a href="#mechanism">Mechanism</a><a href="#results">Evidence</a
     >
@@ -407,8 +407,6 @@
         <div class="resource-pending">Manuscript &amp; full methods <span>Soon</span></div>
         <a href={base + 'data/evidence.json'}
           >Frozen numbers &amp; source hashes <span>JSON ↗</span></a
-        ><a href={base + 'SCIENTIFIC_FIDELITY.md'}
-          >Scientific fidelity &amp; simplifications <span>MD ↗</span></a
         ><a href={repo}>Code &amp; experiment records <span>GitHub ↗</span></a><a
           href={base + 'references.bib'}>Complete bibliography <span>BibTeX ↗</span></a
         >
@@ -426,7 +424,7 @@
       </ol>
       <p class="margin-note">
         For the wider robotics context, see the Robot Air Hockey Challenge retrospective
-        <a href="#ref-liu">[3]</a>. Reference details follow the manuscript.
+        <a href="#ref-liu">[3]</a>.
       </p>
     </div>
   </section>
