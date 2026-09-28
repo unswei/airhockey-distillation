@@ -60,7 +60,6 @@ test('controls preserve scientific invariants', async ({ page }) => {
 test('assets and internal links work at the project base path', async ({ page, request }) => {
   await page.goto('./');
   for (const path of [
-    'paper.pdf',
     'references.bib',
     'SCIENTIFIC_FIDELITY.md',
     'data/evidence.json',
@@ -71,14 +70,23 @@ test('assets and internal links work at the project base path', async ({ page, r
     const response = await request.get(path);
     expect(response.status(), path).toBe(200);
     expect((await response.body()).length).toBeGreaterThan(30);
-    if (path.endsWith('.pdf'))
-      expect((await response.body()).subarray(0, 5).toString()).toBe('%PDF-');
     if (path.endsWith('.json')) expect(await response.json()).toHaveProperty('schema', 1);
   }
   const anchors = await page
     .locator('a[href^="#"]')
     .evaluateAll((elements) => elements.map((a) => a.getAttribute('href')!.slice(1)));
   for (const id of anchors) await expect(page.locator('[id="' + id + '"]')).toHaveCount(1);
+});
+
+test('the paper is marked as forthcoming and its PDF is not served', async ({ page, request }) => {
+  await page.goto('./');
+  await expect(page.locator('.paper-pending')).toHaveText('Paper (soon)');
+  await expect(page.locator('.resource-pending')).toContainText('Soon');
+  await expect(page.locator('a[href*="paper.pdf"]')).toHaveCount(0);
+  const response = await request.get('paper.pdf');
+  // Vite may serve the article fallback for a missing path; Pages returns 404.
+  expect(response.headers()['content-type']).not.toContain('application/pdf');
+  expect((await response.body()).subarray(0, 5).toString()).not.toBe('%PDF-');
 });
 
 test('complete article remains readable without JavaScript', async ({ browser }) => {
@@ -90,6 +98,8 @@ test('complete article remains readable without JavaScript', async ({ browser })
   await page.goto('http://127.0.0.1:4173/airhockey-distillation/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Linear Recurrent Memory');
   await expect(page.locator('.complete-table tbody tr')).toHaveCount(7);
+  await expect(page.locator('.paper-pending')).toHaveText('Paper (soon)');
+  await expect(page.locator('a[href*="paper.pdf"]')).toHaveCount(0);
   await expect(page.locator('.readout-heading h4')).toHaveText('400 ms blackout');
   await expect(page.locator('.setup-hero img')).toBeVisible();
   await expect(page.locator('.setup-hero figcaption')).toContainText('Two-robot self-play');

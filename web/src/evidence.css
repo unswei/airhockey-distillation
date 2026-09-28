@@ -585,7 +585,8 @@
   border-top: 1px solid var(--rule);
   margin: 30px 0;
 }
-.resource-links a {
+.resource-links a,
+.resource-pending {
   font: 13px var(--sans);
   text-decoration: none;
   display: flex;
@@ -594,7 +595,11 @@
   padding: 16px 0;
   border-bottom: 1px solid var(--rule);
 }
-.resource-links a span {
+.resource-pending {
+  color: var(--muted);
+}
+.resource-links a span,
+.resource-pending span {
   font-size: 11px;
   color: var(--muted);
   white-space: nowrap;
@@ -816,10 +821,12 @@
   .forest-zero {
     height: 42px;
   }
-  .resource-links a {
+  .resource-links a,
+  .resource-pending {
     font-size: 12px;
   }
-  .resource-links a span {
+  .resource-links a span,
+  .resource-pending span {
     font-size: 10px;
   }
   .table-scroll {

@@ -3,6 +3,8 @@
 Web companion to the air-hockey memory-distillation paper, built with Svelte,
 TypeScript, Vite and KaTeX. The site is static and can be hosted on GitHub Pages.
 
+[Read the interactive article](https://unswei.github.io/airhockey-distillation/).
+
 ## Local development
 
 Requires Node.js 22.18 or later; the deployment workflow uses Node 24.
@@ -48,7 +50,9 @@ The site uses `/airhockey-distillation/` as its base path, configured in
 - `src/App.svelte`: article text and references.
 - `src/lib/figures/`: interactive and static figures.
 - `public/data/`: frozen results and source hashes, verified during each build.
-- `public/paper.pdf`: manuscript PDF.
+
+The paper PDF is not published yet. The article shows “Paper (soon)”; builds
+reject PDFs in `public/` until publication is enabled deliberately.
 
 See [Scientific fidelity](../SCIENTIFIC_FIDELITY.md) for data provenance and
 the distinction between measured results and illustrative examples.

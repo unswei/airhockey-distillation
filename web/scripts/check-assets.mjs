@@ -1,7 +1,12 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 const root = new URL('../public/', import.meta.url);
+assert.deepEqual(
+  (await readdir(root, { recursive: true })).filter((path) => /\.pdf$/i.test(path)),
+  [],
+  'PDF publication is temporarily disabled. Keep manuscript PDFs in the Paper repository.',
+);
 const manifest = JSON.parse(await readFile(new URL('data/sources.json', root), 'utf8'));
 for (const [path, hash] of Object.entries(manifest.assets)) {
   assert.equal(

@@ -72,9 +72,9 @@ requires byte-for-byte equality, and runs before every build. No episode-level
 records are copied into Git or into the website.
 
 public/data/sources.json identifies the exact manuscript snapshot and hashes
-the included PDF, bibliography, setup image and scientific-fidelity note. The PDF is compiled
-from that manuscript, including its existing static figures. No figure or
-result is cleaned up by altering data.
+the published bibliography, setup image and scientific-fidelity note. The manuscript
+PDF is not currently published; its sources remain in the separate Paper repository.
+No figure or result is cleaned up by altering data.
 
 The article is prerendered so its text, default figures, equations and complete
 tables remain readable without JavaScript. Interactions are enhancements.

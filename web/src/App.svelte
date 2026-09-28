@@ -89,7 +89,7 @@
       Sydney
     </p>
     <div class="article-links">
-      <a href={base + 'paper.pdf'}>Read the paper ↗</a><a href={repo}>Code ↗</a><a
+      <span class="paper-pending">Paper (soon)</span><a href={repo}>Code ↗</a><a
         href={base + 'data/evidence.json'}>Frozen results ↗</a
       ><a href="#references">References ↓</a>
     </div>
@@ -398,13 +398,14 @@
       <span class="section-number">Sources / Reproducibility</span>
       <h2>Paper, code and data</h2>
       <p>
-        The paper contains the full methods. On this page, the shot paths are illustrative, the
-        architecture diagram follows the implemented update, and the result plots use frozen
-        measurements. The browser runs neither the trained policies nor the physics simulator.
+        The paper and full methods will be available here soon. On this page, the shot paths are
+        illustrative, the architecture diagram follows the implemented update, and the result plots
+        use frozen measurements. The browser runs neither the trained policies nor the physics
+        simulator.
       </p>
       <div class="resource-links">
-        <a href={base + 'paper.pdf'}>Manuscript &amp; full methods <span>PDF ↗</span></a><a
-          href={base + 'data/evidence.json'}
+        <div class="resource-pending">Manuscript &amp; full methods <span>Soon</span></div>
+        <a href={base + 'data/evidence.json'}
           >Frozen numbers &amp; source hashes <span>JSON ↗</span></a
         ><a href={base + 'SCIENTIFIC_FIDELITY.md'}
           >Scientific fidelity &amp; simplifications <span>MD ↗</span></a
@@ -412,10 +413,6 @@
           href={base + 'references.bib'}>Complete bibliography <span>BibTeX ↗</span></a
         >
       </div>
-      <p class="margin-note">
-        The PDF is the current manuscript draft. Code and experiment records are linked through
-        GitHub; access depends on the repository’s visibility and your permissions.
-      </p>
     </div>
   </section>
   <section class="article-section" id="references">

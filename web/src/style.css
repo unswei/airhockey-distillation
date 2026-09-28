@@ -278,6 +278,10 @@ button {
   border-bottom: 1px solid var(--rule);
   padding-bottom: 4px;
 }
+.article-links .paper-pending {
+  color: var(--muted);
+  padding-bottom: 4px;
+}
 .topbar {
   max-width: 1120px;
   margin: auto;

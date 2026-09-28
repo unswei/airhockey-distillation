@@ -4,3 +4,4 @@ dist/
 .paper-build/
 test-results/
 playwright-report/
+public/**/*.pdf
