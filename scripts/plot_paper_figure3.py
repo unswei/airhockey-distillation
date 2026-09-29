@@ -221,7 +221,7 @@ def _legend(
 ) -> None:
     rows = (len(series_ids) + columns - 1) // columns
     width = columns * column_width + 18
-    height = rows * 29 + 14
+    height = rows * 33 + 14
     canvas.rect(
         x,
         y,
@@ -237,7 +237,7 @@ def _legend(
         row = index // columns
         column = index % columns
         item_x = x + 12 + column * column_width
-        item_y = y + 20 + row * 29
+        item_y = y + 22 + row * 33
         style = STYLES[series_id]
         canvas.line(
             item_x,
@@ -260,7 +260,7 @@ def _legend(
             item_x + 38,
             item_y + 6,
             style.label,
-            size=18.5,
+            size=22,
             weight=600,
         )
 
@@ -278,7 +278,7 @@ def _curve_panel(
 ) -> str:
     canvas = SvgCanvas(
         660,
-        560,
+        600,
         title=f"Figure 3{panel_label.strip('()')}: {title}",
         description=(
             "Principal-test save rate against blackout duration. Student curves "
@@ -296,7 +296,7 @@ def _curve_panel(
     )
 
     x0, x1 = 88.0, 632.0
-    y0, y1 = 105.0, 465.0
+    y0, y1 = 105.0, 385.0
     y_max = 1.005
 
     def x_for(step: int) -> float:
@@ -357,13 +357,13 @@ def _curve_panel(
         comparison_x - 5,
         y0 - 7,
         "400 ms",
-        size=18,
+        size=22,
         fill=PALETTE["muted"],
         anchor="end",
     )
     canvas.text(
         (x0 + x1) / 2,
-        538,
+        450,
         "blackout duration (ms)",
         size=22,
         weight=600,
@@ -441,33 +441,37 @@ def _curve_panel(
         x=99,
         y=legend_y,
         columns=2,
-        column_width=205,
+        column_width=245,
     )
     return canvas.render()
 
 
 def _contrast_panel(statistics: dict[str, Any]) -> str:
     canvas = SvgCanvas(
-        660,
-        560,
+        1200,
+        410,
         title="Figure 3c: predeclared 400 millisecond contrasts",
         description=(
             "Forest plot of paired save-rate differences at the predeclared "
             "400 millisecond blackout with 95 percent bootstrap intervals."
         ),
     )
-    _panel_heading(canvas, "(c)", "400 ms contrasts")
+    canvas.text(18, 38, "(c)", size=30, weight=700)
+    canvas.text(70, 38, "400 ms contrasts", size=28, weight=700)
+    canvas.line(18, 55, 1182, 55, stroke=PALETTE["grid"], stroke_width=1.5)
     canvas.text(
         18,
         82,
-        "estimate [paired 95% interval]",
-        size=20,
+        "Comparison",
+        size=24,
         fill=PALETTE["muted"],
         weight=600,
     )
 
-    x0, x1 = 250.0, 638.0
-    y_axis = 486.0
+    canvas.text(570, 82, "Estimate [95% interval]", size=24,
+                fill=PALETTE["muted"], weight=600, anchor="end")
+    x0, x1 = 620.0, 1170.0
+    y_axis = 350.0
     domain_min, domain_max = -5.0, 70.0
 
     def x_for(value: float) -> float:
@@ -490,7 +494,7 @@ def _contrast_panel(statistics: dict[str, Any]) -> str:
             x,
             y_axis + 28,
             f"{tick:.0f}",
-            size=20,
+            size=24,
             fill=PALETTE["muted"],
             anchor="middle",
         )
@@ -505,15 +509,15 @@ def _contrast_panel(statistics: dict[str, Any]) -> str:
     )
     canvas.text(
         (x0 + x1) / 2,
-        538,
+        403,
         "save-rate difference (percentage points)",
-        size=21,
+        size=24,
         weight=600,
         anchor="middle",
     )
-    canvas.line(18, 295, 638, 295, stroke=PALETTE["grid"], stroke_width=1.2)
+    canvas.line(18, 216, 1182, 216, stroke=PALETTE["grid"], stroke_width=1.2)
 
-    row_positions = (128.0, 190.0, 252.0, 338.0, 400.0, 462.0)
+    row_positions = (112.0, 154.0, 196.0, 244.0, 286.0, 328.0)
     differences = statistics["planned_differences_at_20_steps"]
     for y, (key, label, style_id) in zip(
         row_positions, CONTRASTS, strict=True
@@ -525,12 +529,12 @@ def _contrast_panel(statistics: dict[str, Any]) -> str:
             for value in comparison["percentile_95_interval_points"]
         )
         style = STYLES[style_id]
-        canvas.text(232, y - 6, label, size=20, weight=700, anchor="end")
+        canvas.text(18, y + 8, label, size=26, weight=700)
         canvas.text(
-            232,
-            y + 17,
+            570,
+            y + 8,
             f"{estimate:+.1f} [{lower:.1f}, {upper:.1f}] pp",
-            size=16.5,
+            size=24,
             fill=PALETTE["muted"],
             anchor="end",
         )
@@ -579,7 +583,7 @@ def render_svgs(statistics: dict[str, Any]) -> dict[str, str]:
             series_ids=PANEL_A,
             y_min=0.30,
             y_ticks=(0.4, 0.6, 0.8, 1.0),
-            legend_y=354,
+            legend_y=475,
             subtitle="five-seed mean; paired 95% intervals",
         ),
         "figure3b_recurrent_comparison.svg": _curve_panel(
@@ -589,7 +593,7 @@ def render_svgs(statistics: dict[str, Any]) -> dict[str, str]:
             series_ids=PANEL_B,
             y_min=0.90,
             y_ticks=(0.90, 0.95, 1.0),
-            legend_y=352,
+            legend_y=475,
             subtitle="five-seed mean; expanded 90–100% scale",
         ),
         "figure3c_400ms_contrasts.svg": _contrast_panel(statistics),

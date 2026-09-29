@@ -430,16 +430,8 @@ def _panel(
                 anchor=anchor,
             )
 
-    if cost == "parameters":
-        canvas.text(
-            (x0 + x1) / 2,
-            590,
-            "seed points are slightly offset where parameter counts are identical",
-            size=14.5,
-            fill=PALETTE["muted"],
-            anchor="middle",
-        )
-    else:
+    # Parameter-count offsets are explained in the manuscript caption.
+    if cost != "parameters":
         canvas.text(
             x0 + 10,
             y1 - 14,
