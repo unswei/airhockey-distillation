@@ -1,6 +1,22 @@
 # Project status
 
-Last updated: 2026-08-15
+Last updated: 2026-09-30
+
+## Submission audit (30 September)
+
+- Numerical recheck of the existing 48,600 principal episode rows reproduces
+  all 42 family confidence intervals and 18 stored paired contrasts; all 77
+  manuscript table values match. `scripts/audit_submission_numbers.py` reports
+  835 passing checks; seven figure tests pass.
+- Existing release, test, analysis and V4 experiment-host checksum manifests
+  were reverified successfully. No policies were rerun or results altered.
+- The documented independent backup still contains Stage B only; all 56
+  manifest entries pass fresh local verification. A durable second copy of
+  principal checkpoints, datasets and raw records remains unconfirmed.
+- The manuscript now has code/compact-artefact pointers, meaningful CPU
+  specifications and the precise definition of block-mean latency p95.
+- The current paper is full prose and builds to ten A4 pages; the August
+  production-stage description below is historical.
 
 ## Current phase
 
