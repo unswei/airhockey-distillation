@@ -2,6 +2,22 @@
 
 Last updated: 2026-09-30
 
+## Supplementary observation-noise experiment (30 September)
+
+- Completed a [separate frozen-policy noise evaluation](docs/observation_noise_v1.md):
+  21,600 episodes, 225 fresh shots, 0/1/5 mm synthetic position noise,
+  0/400 ms blackouts, teacher and all five seeds of k=0, k=4 and GRU-64.
+  Conditions and analysis were fixed before evaluation; no retraining.
+- At 5 mm/400 ms, k=0 saves 98.5% and GRU-64 92.9%; their paired difference
+  is 5.6 points [2.8, 9.0]. Support-shot uncertainty remains broad. This is
+  one synthetic noise model on the existing task, not hardware validation.
+- Added the complete compact episode archive, reproducible paired analysis,
+  protocol and tests, and integrated the qualified results throughout the manuscript. Original
+  principal evidence is unchanged. The noise-run source and raw evidence have
+  a verified local second copy; full principal backup remains outstanding.
+- The noise extension is included in the `acra-2026-submission` release,
+  using the existing tag rather than introducing another release name.
+
 ## Post-hoc subgroup analysis (30 September)
 
 - Added a separate [alias/support and target-side breakdown](docs/principal_subgroups_posthoc_v1.md)

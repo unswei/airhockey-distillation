@@ -20,6 +20,15 @@ from airhockey_distill.principal_sweep import load_principal_protocol
 from plot_paper_figure3 import load_statistics
 
 
+def comparison_table_source(source: str) -> str:
+    """Scope the principal audit by label, not labels reused in other tables."""
+    tables = re.findall(r"\\begin\{table\*?\}.*?\\end\{table\*?\}", source, re.S)
+    matches = [t for t in tables if r"\label{tab:complete-comparison}" in t]
+    if len(matches) != 1:
+        raise ValueError("expected exactly one labelled principal comparison table")
+    return matches[0]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--raw-root", type=Path, required=True)
@@ -90,7 +99,7 @@ def main() -> None:
     labels = {"Feed-forward": "feed_forward", "Ten-step stack": "finite_stack_10",
               "GRU-64": "gru_n64", **{f"Structured $k={k}$": f"structured_k{k}" for k in (0, 1, 2, 4)}}
     table_rows = 0
-    for line in args.paper.read_text().splitlines():
+    for line in comparison_table_source(args.paper.read_text()).splitlines():
         cells = [c.strip() for c in line.split("&")]
         if cells[0] not in labels:
             continue

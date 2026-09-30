@@ -27,6 +27,7 @@ dist/
 !/results/README.md
 !/results/*.json
 !/results/principal_sweep_v1_efficiency_table.csv
+!/results/observation_noise_v1_episodes.json.gz
 *.ckpt
 *.h5
 *.hdf5

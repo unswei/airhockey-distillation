@@ -1,0 +1,2542 @@
+{
+  "analysis": {
+    "alias_families_are_indivisible_units": true,
+    "bootstrap": "paired_training_seeds_and_target_stratified_shot_units",
+    "bootstrap_replicates": 10000,
+    "bootstrap_seed": 29302026,
+    "groups": [
+      "all",
+      "alias",
+      "support"
+    ],
+    "intervals": "pointwise_percentile_95_not_multiplicity_adjusted",
+    "primary_comparisons": [
+      "noise_minus_clean",
+      "structured_k0_minus_gru_n64",
+      "structured_k0_minus_structured_k4",
+      "structured_k0_minus_teacher"
+    ],
+    "primary_measure": "save_rate",
+    "scope": "All prespecified conditions are reported. One noise trace per shot unit; fresh shots from the existing distribution, not new dynamics or a robot test. No model selection, retraining or changes to the principal test."
+  },
+  "classification": "supplementary_frozen_policy_evaluation_not_principal_test",
+  "episode_rows": 21600,
+  "experiment_id": "observation_noise_v1",
+  "groups": {
+    "alias": {
+      "by_blackout_ms": {
+        "0": {
+          "0": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 900,
+                "outcomes": {
+                  "returned": 900
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 900,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 100.0,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 100.0
+                }
+              },
+              "structured_k0": {
+                "episodes": 900,
+                "outcomes": {
+                  "returned": 900
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 900,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 100.0,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 100.0
+                }
+              },
+              "structured_k4": {
+                "episodes": 900,
+                "outcomes": {
+                  "returned": 900
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 900,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 100.0,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 100.0
+                }
+              },
+              "teacher": {
+                "episodes": 180,
+                "outcomes": {
+                  "returned": 180
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 180,
+                "seed_save_rates_percent": {
+                  "frozen": 100.0
+                }
+              }
+            }
+          },
+          "1": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 900,
+                "outcomes": {
+                  "returned": 900
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 900,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 100.0,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 100.0
+                }
+              },
+              "structured_k0": {
+                "episodes": 900,
+                "outcomes": {
+                  "returned": 900
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 900,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 100.0,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 100.0
+                }
+              },
+              "structured_k4": {
+                "episodes": 900,
+                "outcomes": {
+                  "returned": 900
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 900,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 100.0,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 100.0
+                }
+              },
+              "teacher": {
+                "episodes": 180,
+                "outcomes": {
+                  "returned": 180
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 180,
+                "seed_save_rates_percent": {
+                  "frozen": 100.0
+                }
+              }
+            }
+          },
+          "5": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": -1.3333333333333286,
+                "pointwise_95_interval_points": [
+                  -3.3333333333333286,
+                  0.0
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": -0.3333333333333286,
+                "pointwise_95_interval_points": [
+                  -1.1111111111111143,
+                  0.0
+                ]
+              },
+              "teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": 1.3333333333333286,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  3.3333333333333286
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": 0.3333333333333286,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  1.1111111111111143
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 900,
+                "outcomes": {
+                  "arrested": 1,
+                  "goal_conceded": 5,
+                  "returned": 887,
+                  "timeout_after_contact": 7
+                },
+                "pointwise_95_interval_percent": [
+                  96.66666666666667,
+                  100.0
+                ],
+                "save_rate_percent": 98.66666666666667,
+                "saves": 888,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 96.66666666666667,
+                  "14305": 100.0,
+                  "14306": 99.44444444444444,
+                  "14307": 97.22222222222221
+                }
+              },
+              "structured_k0": {
+                "episodes": 900,
+                "outcomes": {
+                  "returned": 900
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 900,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 100.0,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 100.0
+                }
+              },
+              "structured_k4": {
+                "episodes": 900,
+                "outcomes": {
+                  "goal_conceded": 1,
+                  "returned": 897,
+                  "timeout_after_contact": 2
+                },
+                "pointwise_95_interval_percent": [
+                  98.88888888888889,
+                  100.0
+                ],
+                "save_rate_percent": 99.66666666666667,
+                "saves": 897,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 99.44444444444444,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 98.88888888888889
+                }
+              },
+              "teacher": {
+                "episodes": 180,
+                "outcomes": {
+                  "returned": 180
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 180,
+                "seed_save_rates_percent": {
+                  "frozen": 100.0
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "0": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": 0.6666666666666714,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  2.444444444444443
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 900,
+                "outcomes": {
+                  "arrested": 1,
+                  "goal_conceded": 4,
+                  "returned": 893,
+                  "timeout_after_contact": 2
+                },
+                "pointwise_95_interval_percent": [
+                  97.55555555555556,
+                  100.0
+                ],
+                "save_rate_percent": 99.33333333333333,
+                "saves": 894,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 96.66666666666667,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 100.0
+                }
+              },
+              "structured_k0": {
+                "episodes": 900,
+                "outcomes": {
+                  "arrested": 9,
+                  "returned": 891
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 900,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 100.0,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 100.0
+                }
+              },
+              "structured_k4": {
+                "episodes": 900,
+                "outcomes": {
+                  "arrested": 3,
+                  "returned": 897
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 900,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 100.0,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 100.0
+                }
+              },
+              "teacher": {
+                "episodes": 180,
+                "outcomes": {
+                  "arrested": 2,
+                  "returned": 178
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 180,
+                "seed_save_rates_percent": {
+                  "frozen": 100.0
+                }
+              }
+            }
+          },
+          "1": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": -0.22222222222221433,
+                "pointwise_95_interval_points": [
+                  -1.3333333333333286,
+                  0.6666666666666714
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": -0.3333333333333286,
+                "pointwise_95_interval_points": [
+                  -1.3333333333333286,
+                  0.0
+                ]
+              },
+              "teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": 0.8888888888888857,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  2.666666666666657
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": 0.3333333333333286,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  1.3333333333333286
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 900,
+                "outcomes": {
+                  "arrested": 4,
+                  "goal_conceded": 5,
+                  "returned": 888,
+                  "timeout_after_contact": 3
+                },
+                "pointwise_95_interval_percent": [
+                  97.33333333333334,
+                  100.0
+                ],
+                "save_rate_percent": 99.11111111111111,
+                "saves": 892,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 96.66666666666667,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 98.88888888888889
+                }
+              },
+              "structured_k0": {
+                "episodes": 900,
+                "outcomes": {
+                  "arrested": 8,
+                  "returned": 892
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 900,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 100.0,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 100.0
+                }
+              },
+              "structured_k4": {
+                "episodes": 900,
+                "outcomes": {
+                  "arrested": 2,
+                  "goal_conceded": 2,
+                  "returned": 895,
+                  "timeout_after_contact": 1
+                },
+                "pointwise_95_interval_percent": [
+                  98.66666666666667,
+                  100.0
+                ],
+                "save_rate_percent": 99.66666666666667,
+                "saves": 897,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 100.0,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 98.33333333333333
+                }
+              },
+              "teacher": {
+                "episodes": 180,
+                "outcomes": {
+                  "arrested": 2,
+                  "returned": 178
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 180,
+                "seed_save_rates_percent": {
+                  "frozen": 100.0
+                }
+              }
+            }
+          },
+          "5": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": -5.222222222222214,
+                "pointwise_95_interval_points": [
+                  -8.777777777777786,
+                  -2.3333333333333286
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": -3.8888888888888857,
+                "pointwise_95_interval_points": [
+                  -9.111111111111114,
+                  -0.3333333333333286
+                ]
+              },
+              "teacher": {
+                "estimate_points": -1.6666666666666714,
+                "pointwise_95_interval_points": [
+                  -3.8888888888888857,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": 5.888888888888886,
+                "pointwise_95_interval_points": [
+                  2.555555555555557,
+                  10.0
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": 3.8888888888888857,
+                "pointwise_95_interval_points": [
+                  0.3333333333333286,
+                  9.111111111111114
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": 1.6666666666666714,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  3.8888888888888857
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 900,
+                "outcomes": {
+                  "arrested": 5,
+                  "goal_conceded": 44,
+                  "returned": 842,
+                  "timeout_after_contact": 9
+                },
+                "pointwise_95_interval_percent": [
+                  90.0,
+                  97.44444444444444
+                ],
+                "save_rate_percent": 94.11111111111111,
+                "saves": 847,
+                "seed_save_rates_percent": {
+                  "14303": 96.11111111111111,
+                  "14304": 90.0,
+                  "14305": 97.22222222222221,
+                  "14306": 95.0,
+                  "14307": 92.22222222222223
+                }
+              },
+              "structured_k0": {
+                "episodes": 900,
+                "outcomes": {
+                  "arrested": 10,
+                  "returned": 890
+                },
+                "pointwise_95_interval_percent": [
+                  100.0,
+                  100.0
+                ],
+                "save_rate_percent": 100.0,
+                "saves": 900,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 100.0,
+                  "14305": 100.0,
+                  "14306": 100.0,
+                  "14307": 100.0
+                }
+              },
+              "structured_k4": {
+                "episodes": 900,
+                "outcomes": {
+                  "arrested": 5,
+                  "goal_conceded": 26,
+                  "returned": 860,
+                  "timeout_after_contact": 9
+                },
+                "pointwise_95_interval_percent": [
+                  90.88888888888889,
+                  99.66666666666667
+                ],
+                "save_rate_percent": 96.11111111111111,
+                "saves": 865,
+                "seed_save_rates_percent": {
+                  "14303": 100.0,
+                  "14304": 97.77777777777777,
+                  "14305": 95.55555555555556,
+                  "14306": 100.0,
+                  "14307": 87.22222222222223
+                }
+              },
+              "teacher": {
+                "episodes": 180,
+                "outcomes": {
+                  "arrested": 2,
+                  "goal_conceded": 3,
+                  "returned": 175
+                },
+                "pointwise_95_interval_percent": [
+                  96.11111111111111,
+                  100.0
+                ],
+                "save_rate_percent": 98.33333333333333,
+                "saves": 177,
+                "seed_save_rates_percent": {
+                  "frozen": 98.33333333333333
+                }
+              }
+            }
+          }
+        }
+      },
+      "shots_per_policy_condition": 180
+    },
+    "all": {
+      "by_blackout_ms": {
+        "0": {
+          "0": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": -0.8000000000000114,
+                "pointwise_95_interval_points": [
+                  -2.2222222222222143,
+                  0.44444444444444287
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": 0.08888888888887436,
+                "pointwise_95_interval_points": [
+                  -0.9777777777777885,
+                  1.1555555555555515
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": -0.5333333333333456,
+                "pointwise_95_interval_points": [
+                  -1.8666666666666742,
+                  0.62222222222222
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 1125,
+                "outcomes": {
+                  "returned": 1118,
+                  "timeout_after_contact": 7
+                },
+                "pointwise_95_interval_percent": [
+                  98.31111111111112,
+                  100.0
+                ],
+                "save_rate_percent": 99.37777777777778,
+                "saves": 1118,
+                "seed_save_rates_percent": {
+                  "14303": 99.11111111111111,
+                  "14304": 99.55555555555556,
+                  "14305": 99.55555555555556,
+                  "14306": 99.55555555555556,
+                  "14307": 99.11111111111111
+                }
+              },
+              "structured_k0": {
+                "episodes": 1125,
+                "outcomes": {
+                  "arrested": 3,
+                  "goal_conceded": 2,
+                  "returned": 1106,
+                  "timeout_after_contact": 14
+                },
+                "pointwise_95_interval_percent": [
+                  97.15555555555555,
+                  99.64444444444445
+                ],
+                "save_rate_percent": 98.57777777777777,
+                "saves": 1109,
+                "seed_save_rates_percent": {
+                  "14303": 99.55555555555556,
+                  "14304": 98.22222222222223,
+                  "14305": 98.66666666666667,
+                  "14306": 99.11111111111111,
+                  "14307": 97.33333333333334
+                }
+              },
+              "structured_k4": {
+                "episodes": 1125,
+                "outcomes": {
+                  "goal_conceded": 2,
+                  "returned": 1108,
+                  "timeout_after_contact": 15
+                },
+                "pointwise_95_interval_percent": [
+                  96.97777777777777,
+                  99.73333333333333
+                ],
+                "save_rate_percent": 98.4888888888889,
+                "saves": 1108,
+                "seed_save_rates_percent": {
+                  "14303": 99.11111111111111,
+                  "14304": 98.66666666666667,
+                  "14305": 97.77777777777777,
+                  "14306": 98.66666666666667,
+                  "14307": 98.22222222222223
+                }
+              },
+              "teacher": {
+                "episodes": 225,
+                "outcomes": {
+                  "goal_conceded": 1,
+                  "returned": 223,
+                  "timeout_after_contact": 1
+                },
+                "pointwise_95_interval_percent": [
+                  97.77777777777777,
+                  100.0
+                ],
+                "save_rate_percent": 99.11111111111111,
+                "saves": 223,
+                "seed_save_rates_percent": {
+                  "frozen": 99.11111111111111
+                }
+              }
+            }
+          },
+          "1": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": -0.17777777777777715,
+                "pointwise_95_interval_points": [
+                  -0.7111111111111086,
+                  0.0
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": -0.2666666666666515,
+                "pointwise_95_interval_points": [
+                  -1.0666666666666487,
+                  0.2666666666666657
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": 0.08888888888887436,
+                "pointwise_95_interval_points": [
+                  -0.3555555555555543,
+                  0.7111111111111086
+                ]
+              },
+              "teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": -0.8888888888888857,
+                "pointwise_95_interval_points": [
+                  -1.955555555555549,
+                  0.08888888888887436
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": -0.2666666666666515,
+                "pointwise_95_interval_points": [
+                  -1.2444444444444542,
+                  0.6222222222222342
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": -0.7999999999999972,
+                "pointwise_95_interval_points": [
+                  -2.0444444444444514,
+                  0.2666666666666657
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 1125,
+                "outcomes": {
+                  "returned": 1116,
+                  "timeout_after_contact": 9
+                },
+                "pointwise_95_interval_percent": [
+                  98.04444444444445,
+                  100.0
+                ],
+                "save_rate_percent": 99.2,
+                "saves": 1116,
+                "seed_save_rates_percent": {
+                  "14303": 99.11111111111111,
+                  "14304": 99.11111111111111,
+                  "14305": 99.55555555555556,
+                  "14306": 99.55555555555556,
+                  "14307": 98.66666666666667
+                }
+              },
+              "structured_k0": {
+                "episodes": 1125,
+                "outcomes": {
+                  "arrested": 1,
+                  "goal_conceded": 2,
+                  "returned": 1105,
+                  "timeout_after_contact": 17
+                },
+                "pointwise_95_interval_percent": [
+                  96.8,
+                  99.55555555555556
+                ],
+                "save_rate_percent": 98.31111111111112,
+                "saves": 1106,
+                "seed_save_rates_percent": {
+                  "14303": 98.66666666666667,
+                  "14304": 97.77777777777777,
+                  "14305": 99.11111111111111,
+                  "14306": 98.66666666666667,
+                  "14307": 97.33333333333334
+                }
+              },
+              "structured_k4": {
+                "episodes": 1125,
+                "outcomes": {
+                  "goal_conceded": 1,
+                  "returned": 1109,
+                  "timeout_after_contact": 15
+                },
+                "pointwise_95_interval_percent": [
+                  97.24444444444444,
+                  99.73333333333333
+                ],
+                "save_rate_percent": 98.57777777777777,
+                "saves": 1109,
+                "seed_save_rates_percent": {
+                  "14303": 98.66666666666667,
+                  "14304": 98.66666666666667,
+                  "14305": 98.66666666666667,
+                  "14306": 98.66666666666667,
+                  "14307": 98.22222222222223
+                }
+              },
+              "teacher": {
+                "episodes": 225,
+                "outcomes": {
+                  "arrested": 1,
+                  "returned": 222,
+                  "timeout_after_contact": 2
+                },
+                "pointwise_95_interval_percent": [
+                  97.77777777777777,
+                  100.0
+                ],
+                "save_rate_percent": 99.11111111111111,
+                "saves": 223,
+                "seed_save_rates_percent": {
+                  "frozen": 99.11111111111111
+                }
+              }
+            }
+          },
+          "5": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": -1.5111111111111057,
+                "pointwise_95_interval_points": [
+                  -3.37777777777778,
+                  -0.17777777777777715
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": -0.17777777777776294,
+                "pointwise_95_interval_points": [
+                  -0.8888888888888999,
+                  0.6222222222222203
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": 0.44444444444442865,
+                "pointwise_95_interval_points": [
+                  -0.44444444444444287,
+                  1.51111111111112
+                ]
+              },
+              "teacher": {
+                "estimate_points": -0.44444444444444287,
+                "pointwise_95_interval_points": [
+                  -1.3333333333333428,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": 0.5333333333333314,
+                "pointwise_95_interval_points": [
+                  -0.7111111111110944,
+                  2.2222222222222285
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": -0.5333333333333172,
+                "pointwise_95_interval_points": [
+                  -1.4222222222222314,
+                  0.3555555555555401
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": -0.2666666666666657,
+                "pointwise_95_interval_points": [
+                  -1.24444444444444,
+                  0.4444444444444571
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 1125,
+                "outcomes": {
+                  "arrested": 1,
+                  "goal_conceded": 7,
+                  "returned": 1100,
+                  "timeout_after_contact": 17
+                },
+                "pointwise_95_interval_percent": [
+                  95.73333333333333,
+                  99.46666666666667
+                ],
+                "save_rate_percent": 97.86666666666667,
+                "saves": 1101,
+                "seed_save_rates_percent": {
+                  "14303": 98.66666666666667,
+                  "14304": 96.0,
+                  "14305": 98.66666666666667,
+                  "14306": 99.11111111111111,
+                  "14307": 96.88888888888889
+                }
+              },
+              "structured_k0": {
+                "episodes": 1125,
+                "outcomes": {
+                  "arrested": 1,
+                  "goal_conceded": 3,
+                  "returned": 1106,
+                  "timeout_after_contact": 15
+                },
+                "pointwise_95_interval_percent": [
+                  97.06666666666666,
+                  99.55555555555556
+                ],
+                "save_rate_percent": 98.4,
+                "saves": 1107,
+                "seed_save_rates_percent": {
+                  "14303": 98.66666666666667,
+                  "14304": 97.77777777777777,
+                  "14305": 98.66666666666667,
+                  "14306": 98.66666666666667,
+                  "14307": 98.22222222222223
+                }
+              },
+              "structured_k4": {
+                "episodes": 1125,
+                "outcomes": {
+                  "goal_conceded": 1,
+                  "returned": 1113,
+                  "timeout_after_contact": 11
+                },
+                "pointwise_95_interval_percent": [
+                  97.77777777777777,
+                  99.82222222222222
+                ],
+                "save_rate_percent": 98.93333333333332,
+                "saves": 1113,
+                "seed_save_rates_percent": {
+                  "14303": 99.11111111111111,
+                  "14304": 98.66666666666667,
+                  "14305": 99.55555555555556,
+                  "14306": 99.11111111111111,
+                  "14307": 98.22222222222223
+                }
+              },
+              "teacher": {
+                "episodes": 225,
+                "outcomes": {
+                  "goal_conceded": 1,
+                  "returned": 222,
+                  "timeout_after_contact": 2
+                },
+                "pointwise_95_interval_percent": [
+                  97.33333333333334,
+                  100.0
+                ],
+                "save_rate_percent": 98.66666666666667,
+                "saves": 222,
+                "seed_save_rates_percent": {
+                  "frozen": 98.66666666666667
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "0": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": 1.3333333333333286,
+                "pointwise_95_interval_points": [
+                  -0.26666666666667993,
+                  3.37777777777778
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": 0.5333333333333314,
+                "pointwise_95_interval_points": [
+                  -0.5333333333333172,
+                  1.7799999999999752
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": 0.799999999999983,
+                "pointwise_95_interval_points": [
+                  -0.8888888888888857,
+                  2.6666666666666714
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 1125,
+                "outcomes": {
+                  "arrested": 1,
+                  "goal_conceded": 8,
+                  "returned": 1088,
+                  "timeout_after_contact": 28
+                },
+                "pointwise_95_interval_percent": [
+                  94.31111111111112,
+                  98.75555555555555
+                ],
+                "save_rate_percent": 96.8,
+                "saves": 1089,
+                "seed_save_rates_percent": {
+                  "14303": 96.88888888888889,
+                  "14304": 94.22222222222221,
+                  "14305": 97.33333333333334,
+                  "14306": 97.33333333333334,
+                  "14307": 98.22222222222223
+                }
+              },
+              "structured_k0": {
+                "episodes": 1125,
+                "outcomes": {
+                  "arrested": 10,
+                  "goal_conceded": 3,
+                  "returned": 1094,
+                  "timeout_after_contact": 18
+                },
+                "pointwise_95_interval_percent": [
+                  96.35555555555555,
+                  99.55555555555556
+                ],
+                "save_rate_percent": 98.13333333333333,
+                "saves": 1104,
+                "seed_save_rates_percent": {
+                  "14303": 98.66666666666667,
+                  "14304": 98.22222222222223,
+                  "14305": 98.22222222222223,
+                  "14306": 98.22222222222223,
+                  "14307": 97.33333333333334
+                }
+              },
+              "structured_k4": {
+                "episodes": 1125,
+                "outcomes": {
+                  "arrested": 3,
+                  "goal_conceded": 1,
+                  "returned": 1095,
+                  "timeout_after_contact": 26
+                },
+                "pointwise_95_interval_percent": [
+                  95.82222222222222,
+                  99.11111111111111
+                ],
+                "save_rate_percent": 97.6,
+                "saves": 1098,
+                "seed_save_rates_percent": {
+                  "14303": 96.88888888888889,
+                  "14304": 97.77777777777777,
+                  "14305": 97.33333333333334,
+                  "14306": 98.22222222222223,
+                  "14307": 97.77777777777777
+                }
+              },
+              "teacher": {
+                "episodes": 225,
+                "outcomes": {
+                  "arrested": 2,
+                  "goal_conceded": 2,
+                  "returned": 217,
+                  "timeout_after_contact": 4
+                },
+                "pointwise_95_interval_percent": [
+                  95.11111111111111,
+                  99.11111111111111
+                ],
+                "save_rate_percent": 97.33333333333334,
+                "saves": 219,
+                "seed_save_rates_percent": {
+                  "frozen": 97.33333333333334
+                }
+              }
+            }
+          },
+          "1": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  -0.8888888888888999,
+                  0.8888888888888857
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": -0.08888888888887436,
+                "pointwise_95_interval_points": [
+                  -0.8888888888888999,
+                  0.6222222222222058
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": -0.08888888888887436,
+                "pointwise_95_interval_points": [
+                  -1.4222222222222314,
+                  0.8888888888888999
+                ]
+              },
+              "teacher": {
+                "estimate_points": -0.4444444444444571,
+                "pointwise_95_interval_points": [
+                  -1.3333333333333428,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": 1.2444444444444542,
+                "pointwise_95_interval_points": [
+                  -0.3555555555555543,
+                  3.3777777777777658
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": 0.5333333333333314,
+                "pointwise_95_interval_points": [
+                  -0.7999999999999972,
+                  2.044444444444437
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": 1.1555555555555657,
+                "pointwise_95_interval_points": [
+                  -0.17777777777777715,
+                  2.7555555555555458
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 1125,
+                "outcomes": {
+                  "arrested": 4,
+                  "goal_conceded": 8,
+                  "returned": 1085,
+                  "timeout_after_contact": 28
+                },
+                "pointwise_95_interval_percent": [
+                  94.31111111111112,
+                  98.75555555555555
+                ],
+                "save_rate_percent": 96.8,
+                "saves": 1089,
+                "seed_save_rates_percent": {
+                  "14303": 97.33333333333334,
+                  "14304": 94.22222222222221,
+                  "14305": 97.33333333333334,
+                  "14306": 97.77777777777777,
+                  "14307": 97.33333333333334
+                }
+              },
+              "structured_k0": {
+                "episodes": 1125,
+                "outcomes": {
+                  "arrested": 9,
+                  "goal_conceded": 3,
+                  "returned": 1094,
+                  "timeout_after_contact": 19
+                },
+                "pointwise_95_interval_percent": [
+                  96.35555555555555,
+                  99.46666666666667
+                ],
+                "save_rate_percent": 98.04444444444445,
+                "saves": 1103,
+                "seed_save_rates_percent": {
+                  "14303": 97.77777777777777,
+                  "14304": 98.66666666666667,
+                  "14305": 97.77777777777777,
+                  "14306": 98.22222222222223,
+                  "14307": 97.77777777777777
+                }
+              },
+              "structured_k4": {
+                "episodes": 1125,
+                "outcomes": {
+                  "arrested": 4,
+                  "goal_conceded": 4,
+                  "returned": 1093,
+                  "timeout_after_contact": 24
+                },
+                "pointwise_95_interval_percent": [
+                  95.46666666666667,
+                  99.11111111111111
+                ],
+                "save_rate_percent": 97.51111111111112,
+                "saves": 1097,
+                "seed_save_rates_percent": {
+                  "14303": 97.33333333333334,
+                  "14304": 98.22222222222223,
+                  "14305": 98.22222222222223,
+                  "14306": 98.22222222222223,
+                  "14307": 95.55555555555556
+                }
+              },
+              "teacher": {
+                "episodes": 225,
+                "outcomes": {
+                  "arrested": 2,
+                  "goal_conceded": 1,
+                  "returned": 216,
+                  "timeout_after_contact": 6
+                },
+                "pointwise_95_interval_percent": [
+                  94.66666666666667,
+                  98.66666666666667
+                ],
+                "save_rate_percent": 96.88888888888889,
+                "saves": 218,
+                "seed_save_rates_percent": {
+                  "frozen": 96.88888888888889
+                }
+              }
+            }
+          },
+          "5": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": -3.9111111111111114,
+                "pointwise_95_interval_points": [
+                  -6.933333333333337,
+                  -1.3333333333333428
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": 0.3555555555555685,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  1.066666666666677
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": -3.1111111111111,
+                "pointwise_95_interval_points": [
+                  -7.555555555555557,
+                  0.0
+                ]
+              },
+              "teacher": {
+                "estimate_points": -1.3333333333333428,
+                "pointwise_95_interval_points": [
+                  -3.1111111111111,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": 5.6000000000000085,
+                "pointwise_95_interval_points": [
+                  2.75555555555556,
+                  8.977777777777789
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": 4.0,
+                "pointwise_95_interval_points": [
+                  1.0666666666666487,
+                  8.088888888888889
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": 2.4888888888888943,
+                "pointwise_95_interval_points": [
+                  0.26666666666667993,
+                  4.9777777777777885
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 1125,
+                "outcomes": {
+                  "arrested": 6,
+                  "goal_conceded": 48,
+                  "returned": 1039,
+                  "timeout_after_contact": 32
+                },
+                "pointwise_95_interval_percent": [
+                  88.88888888888889,
+                  96.08888888888889
+                ],
+                "save_rate_percent": 92.88888888888889,
+                "saves": 1045,
+                "seed_save_rates_percent": {
+                  "14303": 94.22222222222221,
+                  "14304": 88.44444444444444,
+                  "14305": 95.55555555555556,
+                  "14306": 94.22222222222221,
+                  "14307": 92.0
+                }
+              },
+              "structured_k0": {
+                "episodes": 1125,
+                "outcomes": {
+                  "arrested": 11,
+                  "goal_conceded": 1,
+                  "returned": 1097,
+                  "timeout_after_contact": 16
+                },
+                "pointwise_95_interval_percent": [
+                  96.88888888888889,
+                  99.73333333333333
+                ],
+                "save_rate_percent": 98.4888888888889,
+                "saves": 1108,
+                "seed_save_rates_percent": {
+                  "14303": 99.11111111111111,
+                  "14304": 98.22222222222223,
+                  "14305": 99.11111111111111,
+                  "14306": 98.66666666666667,
+                  "14307": 97.33333333333334
+                }
+              },
+              "structured_k4": {
+                "episodes": 1125,
+                "outcomes": {
+                  "arrested": 5,
+                  "goal_conceded": 26,
+                  "returned": 1058,
+                  "timeout_after_contact": 36
+                },
+                "pointwise_95_interval_percent": [
+                  89.86666666666666,
+                  97.95555555555555
+                ],
+                "save_rate_percent": 94.4888888888889,
+                "saves": 1063,
+                "seed_save_rates_percent": {
+                  "14303": 97.77777777777777,
+                  "14304": 96.0,
+                  "14305": 93.77777777777779,
+                  "14306": 97.77777777777777,
+                  "14307": 87.1111111111111
+                }
+              },
+              "teacher": {
+                "episodes": 225,
+                "outcomes": {
+                  "arrested": 2,
+                  "goal_conceded": 4,
+                  "returned": 214,
+                  "timeout_after_contact": 5
+                },
+                "pointwise_95_interval_percent": [
+                  93.33333333333333,
+                  98.22222222222223
+                ],
+                "save_rate_percent": 96.0,
+                "saves": 216,
+                "seed_save_rates_percent": {
+                  "frozen": 96.0
+                }
+              }
+            }
+          }
+        }
+      },
+      "shots_per_policy_condition": 225
+    },
+    "support": {
+      "by_blackout_ms": {
+        "0": {
+          "0": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": -4.0,
+                "pointwise_95_interval_points": [
+                  -11.1111111111111,
+                  2.2222222222222285
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": 0.44444444444444287,
+                "pointwise_95_interval_points": [
+                  -4.8888888888889,
+                  5.7777777777777715
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": -2.6666666666666714,
+                "pointwise_95_interval_points": [
+                  -9.333333333333329,
+                  3.1111111111111143
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 225,
+                "outcomes": {
+                  "returned": 218,
+                  "timeout_after_contact": 7
+                },
+                "pointwise_95_interval_percent": [
+                  91.55555555555556,
+                  100.0
+                ],
+                "save_rate_percent": 96.88888888888889,
+                "saves": 218,
+                "seed_save_rates_percent": {
+                  "14303": 95.55555555555556,
+                  "14304": 97.77777777777777,
+                  "14305": 97.77777777777777,
+                  "14306": 97.77777777777777,
+                  "14307": 95.55555555555556
+                }
+              },
+              "structured_k0": {
+                "episodes": 225,
+                "outcomes": {
+                  "arrested": 3,
+                  "goal_conceded": 2,
+                  "returned": 206,
+                  "timeout_after_contact": 14
+                },
+                "pointwise_95_interval_percent": [
+                  85.77777777777777,
+                  98.22222222222223
+                ],
+                "save_rate_percent": 92.88888888888889,
+                "saves": 209,
+                "seed_save_rates_percent": {
+                  "14303": 97.77777777777777,
+                  "14304": 91.11111111111111,
+                  "14305": 93.33333333333333,
+                  "14306": 95.55555555555556,
+                  "14307": 86.66666666666667
+                }
+              },
+              "structured_k4": {
+                "episodes": 225,
+                "outcomes": {
+                  "goal_conceded": 2,
+                  "returned": 208,
+                  "timeout_after_contact": 15
+                },
+                "pointwise_95_interval_percent": [
+                  84.88888888888889,
+                  98.66666666666667
+                ],
+                "save_rate_percent": 92.44444444444444,
+                "saves": 208,
+                "seed_save_rates_percent": {
+                  "14303": 95.55555555555556,
+                  "14304": 93.33333333333333,
+                  "14305": 88.88888888888889,
+                  "14306": 93.33333333333333,
+                  "14307": 91.11111111111111
+                }
+              },
+              "teacher": {
+                "episodes": 45,
+                "outcomes": {
+                  "goal_conceded": 1,
+                  "returned": 43,
+                  "timeout_after_contact": 1
+                },
+                "pointwise_95_interval_percent": [
+                  88.88888888888889,
+                  100.0
+                ],
+                "save_rate_percent": 95.55555555555556,
+                "saves": 43,
+                "seed_save_rates_percent": {
+                  "frozen": 95.55555555555556
+                }
+              }
+            }
+          },
+          "1": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": -0.8888888888888857,
+                "pointwise_95_interval_points": [
+                  -3.555555555555557,
+                  0.0
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": -1.3333333333333286,
+                "pointwise_95_interval_points": [
+                  -5.333333333333314,
+                  1.3333333333333286
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": 0.44444444444444287,
+                "pointwise_95_interval_points": [
+                  -1.7777777777777857,
+                  3.555555555555557
+                ]
+              },
+              "teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": -4.444444444444443,
+                "pointwise_95_interval_points": [
+                  -9.777777777777771,
+                  0.44444444444444287
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": -1.3333333333333286,
+                "pointwise_95_interval_points": [
+                  -6.2222222222222285,
+                  3.1111111111111285
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": -4.0,
+                "pointwise_95_interval_points": [
+                  -10.222222222222214,
+                  1.3333333333333428
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 225,
+                "outcomes": {
+                  "returned": 216,
+                  "timeout_after_contact": 9
+                },
+                "pointwise_95_interval_percent": [
+                  90.22222222222223,
+                  100.0
+                ],
+                "save_rate_percent": 96.0,
+                "saves": 216,
+                "seed_save_rates_percent": {
+                  "14303": 95.55555555555556,
+                  "14304": 95.55555555555556,
+                  "14305": 97.77777777777777,
+                  "14306": 97.77777777777777,
+                  "14307": 93.33333333333333
+                }
+              },
+              "structured_k0": {
+                "episodes": 225,
+                "outcomes": {
+                  "arrested": 1,
+                  "goal_conceded": 2,
+                  "returned": 205,
+                  "timeout_after_contact": 17
+                },
+                "pointwise_95_interval_percent": [
+                  84.0,
+                  97.77777777777777
+                ],
+                "save_rate_percent": 91.55555555555556,
+                "saves": 206,
+                "seed_save_rates_percent": {
+                  "14303": 93.33333333333333,
+                  "14304": 88.88888888888889,
+                  "14305": 95.55555555555556,
+                  "14306": 93.33333333333333,
+                  "14307": 86.66666666666667
+                }
+              },
+              "structured_k4": {
+                "episodes": 225,
+                "outcomes": {
+                  "goal_conceded": 1,
+                  "returned": 209,
+                  "timeout_after_contact": 15
+                },
+                "pointwise_95_interval_percent": [
+                  86.22222222222223,
+                  98.66666666666667
+                ],
+                "save_rate_percent": 92.88888888888889,
+                "saves": 209,
+                "seed_save_rates_percent": {
+                  "14303": 93.33333333333333,
+                  "14304": 93.33333333333333,
+                  "14305": 93.33333333333333,
+                  "14306": 93.33333333333333,
+                  "14307": 91.11111111111111
+                }
+              },
+              "teacher": {
+                "episodes": 45,
+                "outcomes": {
+                  "arrested": 1,
+                  "returned": 42,
+                  "timeout_after_contact": 2
+                },
+                "pointwise_95_interval_percent": [
+                  88.88888888888889,
+                  100.0
+                ],
+                "save_rate_percent": 95.55555555555556,
+                "saves": 43,
+                "seed_save_rates_percent": {
+                  "frozen": 95.55555555555556
+                }
+              }
+            }
+          },
+          "5": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": -2.2222222222222143,
+                "pointwise_95_interval_points": [
+                  -7.111111111111114,
+                  0.8888888888888857
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": -0.8888888888888857,
+                "pointwise_95_interval_points": [
+                  -4.444444444444457,
+                  3.1111111111111143
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": 3.555555555555557,
+                "pointwise_95_interval_points": [
+                  0.44444444444442865,
+                  8.444444444444457
+                ]
+              },
+              "teacher": {
+                "estimate_points": -2.2222222222222285,
+                "pointwise_95_interval_points": [
+                  -6.666666666666671,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": -2.6666666666666714,
+                "pointwise_95_interval_points": [
+                  -7.555555555555571,
+                  1.3333333333333428
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": -4.0,
+                "pointwise_95_interval_points": [
+                  -8.444444444444443,
+                  -0.8888888888888857
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": -1.3333333333333286,
+                "pointwise_95_interval_points": [
+                  -6.222222222222214,
+                  2.2222222222222285
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 225,
+                "outcomes": {
+                  "goal_conceded": 2,
+                  "returned": 213,
+                  "timeout_after_contact": 10
+                },
+                "pointwise_95_interval_percent": [
+                  88.0,
+                  100.0
+                ],
+                "save_rate_percent": 94.66666666666667,
+                "saves": 213,
+                "seed_save_rates_percent": {
+                  "14303": 93.33333333333333,
+                  "14304": 93.33333333333333,
+                  "14305": 93.33333333333333,
+                  "14306": 97.77777777777777,
+                  "14307": 95.55555555555556
+                }
+              },
+              "structured_k0": {
+                "episodes": 225,
+                "outcomes": {
+                  "arrested": 1,
+                  "goal_conceded": 3,
+                  "returned": 206,
+                  "timeout_after_contact": 15
+                },
+                "pointwise_95_interval_percent": [
+                  85.33333333333334,
+                  97.77777777777777
+                ],
+                "save_rate_percent": 92.0,
+                "saves": 207,
+                "seed_save_rates_percent": {
+                  "14303": 93.33333333333333,
+                  "14304": 88.88888888888889,
+                  "14305": 93.33333333333333,
+                  "14306": 93.33333333333333,
+                  "14307": 91.11111111111111
+                }
+              },
+              "structured_k4": {
+                "episodes": 225,
+                "outcomes": {
+                  "returned": 216,
+                  "timeout_after_contact": 9
+                },
+                "pointwise_95_interval_percent": [
+                  91.11111111111111,
+                  100.0
+                ],
+                "save_rate_percent": 96.0,
+                "saves": 216,
+                "seed_save_rates_percent": {
+                  "14303": 95.55555555555556,
+                  "14304": 95.55555555555556,
+                  "14305": 97.77777777777777,
+                  "14306": 95.55555555555556,
+                  "14307": 95.55555555555556
+                }
+              },
+              "teacher": {
+                "episodes": 45,
+                "outcomes": {
+                  "goal_conceded": 1,
+                  "returned": 42,
+                  "timeout_after_contact": 2
+                },
+                "pointwise_95_interval_percent": [
+                  86.66666666666667,
+                  100.0
+                ],
+                "save_rate_percent": 93.33333333333333,
+                "saves": 42,
+                "seed_save_rates_percent": {
+                  "frozen": 93.33333333333333
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "0": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              },
+              "teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": 3.999999999999986,
+                "pointwise_95_interval_points": [
+                  -1.7777777777777857,
+                  11.111111111111114
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": 2.666666666666657,
+                "pointwise_95_interval_points": [
+                  -2.666666666666657,
+                  8.89999999999985
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": 3.999999999999986,
+                "pointwise_95_interval_points": [
+                  -4.444444444444443,
+                  13.333333333333329
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 225,
+                "outcomes": {
+                  "goal_conceded": 4,
+                  "returned": 195,
+                  "timeout_after_contact": 26
+                },
+                "pointwise_95_interval_percent": [
+                  76.44444444444444,
+                  95.11111111111111
+                ],
+                "save_rate_percent": 86.66666666666667,
+                "saves": 195,
+                "seed_save_rates_percent": {
+                  "14303": 84.44444444444444,
+                  "14304": 84.44444444444444,
+                  "14305": 86.66666666666667,
+                  "14306": 86.66666666666667,
+                  "14307": 91.11111111111111
+                }
+              },
+              "structured_k0": {
+                "episodes": 225,
+                "outcomes": {
+                  "arrested": 1,
+                  "goal_conceded": 3,
+                  "returned": 203,
+                  "timeout_after_contact": 18
+                },
+                "pointwise_95_interval_percent": [
+                  81.77777777777779,
+                  97.77777777777777
+                ],
+                "save_rate_percent": 90.66666666666666,
+                "saves": 204,
+                "seed_save_rates_percent": {
+                  "14303": 93.33333333333333,
+                  "14304": 91.11111111111111,
+                  "14305": 91.11111111111111,
+                  "14306": 91.11111111111111,
+                  "14307": 86.66666666666667
+                }
+              },
+              "structured_k4": {
+                "episodes": 225,
+                "outcomes": {
+                  "goal_conceded": 1,
+                  "returned": 198,
+                  "timeout_after_contact": 26
+                },
+                "pointwise_95_interval_percent": [
+                  79.11111111111111,
+                  95.55555555555556
+                ],
+                "save_rate_percent": 88.0,
+                "saves": 198,
+                "seed_save_rates_percent": {
+                  "14303": 84.44444444444444,
+                  "14304": 88.88888888888889,
+                  "14305": 86.66666666666667,
+                  "14306": 91.11111111111111,
+                  "14307": 88.88888888888889
+                }
+              },
+              "teacher": {
+                "episodes": 45,
+                "outcomes": {
+                  "goal_conceded": 2,
+                  "returned": 39,
+                  "timeout_after_contact": 4
+                },
+                "pointwise_95_interval_percent": [
+                  75.55555555555556,
+                  95.55555555555556
+                ],
+                "save_rate_percent": 86.66666666666667,
+                "saves": 39,
+                "seed_save_rates_percent": {
+                  "frozen": 86.66666666666667
+                }
+              }
+            }
+          },
+          "1": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": 0.8888888888888857,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  3.555555555555543
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": -0.44444444444442865,
+                "pointwise_95_interval_points": [
+                  -4.444444444444443,
+                  3.1111111111111
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": 0.8888888888888857,
+                "pointwise_95_interval_points": [
+                  -2.6666666666666714,
+                  4.888888888888886
+                ]
+              },
+              "teacher": {
+                "estimate_points": -2.2222222222222285,
+                "pointwise_95_interval_points": [
+                  -6.666666666666671,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": 2.6666666666666714,
+                "pointwise_95_interval_points": [
+                  -3.1111111111111143,
+                  8.444444444444443
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": 1.3333333333333428,
+                "pointwise_95_interval_points": [
+                  -4.444444444444443,
+                  7.1111111111111
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": 5.777777777777786,
+                "pointwise_95_interval_points": [
+                  -0.8888888888888857,
+                  13.777777777777771
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 225,
+                "outcomes": {
+                  "goal_conceded": 3,
+                  "returned": 197,
+                  "timeout_after_contact": 25
+                },
+                "pointwise_95_interval_percent": [
+                  77.77777777777779,
+                  95.55555555555556
+                ],
+                "save_rate_percent": 87.55555555555556,
+                "saves": 197,
+                "seed_save_rates_percent": {
+                  "14303": 86.66666666666667,
+                  "14304": 84.44444444444444,
+                  "14305": 86.66666666666667,
+                  "14306": 88.88888888888889,
+                  "14307": 91.11111111111111
+                }
+              },
+              "structured_k0": {
+                "episodes": 225,
+                "outcomes": {
+                  "arrested": 1,
+                  "goal_conceded": 3,
+                  "returned": 202,
+                  "timeout_after_contact": 19
+                },
+                "pointwise_95_interval_percent": [
+                  81.77777777777779,
+                  97.33333333333334
+                ],
+                "save_rate_percent": 90.22222222222223,
+                "saves": 203,
+                "seed_save_rates_percent": {
+                  "14303": 88.88888888888889,
+                  "14304": 93.33333333333333,
+                  "14305": 88.88888888888889,
+                  "14306": 91.11111111111111,
+                  "14307": 88.88888888888889
+                }
+              },
+              "structured_k4": {
+                "episodes": 225,
+                "outcomes": {
+                  "arrested": 2,
+                  "goal_conceded": 2,
+                  "returned": 198,
+                  "timeout_after_contact": 23
+                },
+                "pointwise_95_interval_percent": [
+                  80.44444444444444,
+                  96.0
+                ],
+                "save_rate_percent": 88.88888888888889,
+                "saves": 200,
+                "seed_save_rates_percent": {
+                  "14303": 86.66666666666667,
+                  "14304": 91.11111111111111,
+                  "14305": 91.11111111111111,
+                  "14306": 91.11111111111111,
+                  "14307": 84.44444444444444
+                }
+              },
+              "teacher": {
+                "episodes": 45,
+                "outcomes": {
+                  "goal_conceded": 1,
+                  "returned": 38,
+                  "timeout_after_contact": 6
+                },
+                "pointwise_95_interval_percent": [
+                  73.33333333333333,
+                  93.33333333333333
+                ],
+                "save_rate_percent": 84.44444444444444,
+                "saves": 38,
+                "seed_save_rates_percent": {
+                  "frozen": 84.44444444444444
+                }
+              }
+            }
+          },
+          "5": {
+            "noise_minus_clean": {
+              "gru_n64": {
+                "estimate_points": 1.3333333333333286,
+                "pointwise_95_interval_points": [
+                  -1.3333333333333428,
+                  5.333333333333314
+                ]
+              },
+              "structured_k0": {
+                "estimate_points": 1.7777777777777857,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  5.333333333333343
+                ]
+              },
+              "structured_k4": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  -2.6666666666666714,
+                  3.555555555555543
+                ]
+              },
+              "teacher": {
+                "estimate_points": 0.0,
+                "pointwise_95_interval_points": [
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            "paired_policy_contrasts": {
+              "structured_k0_minus_gru_n64": {
+                "estimate_points": 4.444444444444443,
+                "pointwise_95_interval_points": [
+                  -1.333333333333329,
+                  11.555555555555557
+                ]
+              },
+              "structured_k0_minus_structured_k4": {
+                "estimate_points": 4.444444444444443,
+                "pointwise_95_interval_points": [
+                  -0.8888888888888857,
+                  10.666666666666657
+                ]
+              },
+              "structured_k0_minus_teacher": {
+                "estimate_points": 5.7777777777777715,
+                "pointwise_95_interval_points": [
+                  -2.6666666666666714,
+                  15.111111111111128
+                ]
+              }
+            },
+            "policies": {
+              "gru_n64": {
+                "episodes": 225,
+                "outcomes": {
+                  "arrested": 1,
+                  "goal_conceded": 4,
+                  "returned": 197,
+                  "timeout_after_contact": 23
+                },
+                "pointwise_95_interval_percent": [
+                  78.22222222222223,
+                  95.55555555555556
+                ],
+                "save_rate_percent": 88.0,
+                "saves": 198,
+                "seed_save_rates_percent": {
+                  "14303": 86.66666666666667,
+                  "14304": 82.22222222222221,
+                  "14305": 88.88888888888889,
+                  "14306": 91.11111111111111,
+                  "14307": 91.11111111111111
+                }
+              },
+              "structured_k0": {
+                "episodes": 225,
+                "outcomes": {
+                  "arrested": 1,
+                  "goal_conceded": 1,
+                  "returned": 207,
+                  "timeout_after_contact": 16
+                },
+                "pointwise_95_interval_percent": [
+                  84.44444444444444,
+                  98.66666666666667
+                ],
+                "save_rate_percent": 92.44444444444444,
+                "saves": 208,
+                "seed_save_rates_percent": {
+                  "14303": 95.55555555555556,
+                  "14304": 91.11111111111111,
+                  "14305": 95.55555555555556,
+                  "14306": 93.33333333333333,
+                  "14307": 86.66666666666667
+                }
+              },
+              "structured_k4": {
+                "episodes": 225,
+                "outcomes": {
+                  "returned": 198,
+                  "timeout_after_contact": 27
+                },
+                "pointwise_95_interval_percent": [
+                  79.11111111111111,
+                  95.55555555555556
+                ],
+                "save_rate_percent": 88.0,
+                "saves": 198,
+                "seed_save_rates_percent": {
+                  "14303": 88.88888888888889,
+                  "14304": 88.88888888888889,
+                  "14305": 86.66666666666667,
+                  "14306": 88.88888888888889,
+                  "14307": 86.66666666666667
+                }
+              },
+              "teacher": {
+                "episodes": 45,
+                "outcomes": {
+                  "goal_conceded": 1,
+                  "returned": 39,
+                  "timeout_after_contact": 5
+                },
+                "pointwise_95_interval_percent": [
+                  75.55555555555556,
+                  95.55555555555556
+                ],
+                "save_rate_percent": 86.66666666666667,
+                "saves": 39,
+                "seed_save_rates_percent": {
+                  "frozen": 86.66666666666667
+                }
+              }
+            }
+          }
+        }
+      },
+      "shots_per_policy_condition": 45
+    }
+  },
+  "provenance": {
+    "analysis_script_sha256": "d2a83bc18bf38b9ce50e37424255939a5c1906eb74d05f45e96966c70c1eed0e",
+    "bootstrap_helper_sha256": "f8cdaef22477f89fd64c20812e7dc85ebb591d5543c4acc2d4e7b7708bab2c44",
+    "config_sha256": "ef0d38f612bde6cd77720b6af3945994a55a90dcc41cea249446f24f6bc5ac0b",
+    "opening_sha256": "fdab476e8f9efd7192f51f6310c04c52a6cf10abb6ba95ef2b1f734167d07124",
+    "raw_results_sha256": {
+      "gru_n64-14303": "8ae38be6afc3de209145641ddd0e567038b2b70c249ba018d41b1b9bae006272",
+      "gru_n64-14304": "458fcefcda1da2352f7861334144d6ba3e97c6b73e86d0b3b3faaa31aa19b4ae",
+      "gru_n64-14305": "e16980858591f240e92dfebb1c90926fe3e820eaa05dafe9765d8458b01f20e5",
+      "gru_n64-14306": "379aef34465e860891abf46eff2a19158bfdb914042088cb669a777783315494",
+      "gru_n64-14307": "245498690680f347946524cbe0c975381ba9f7212f58c90a81ebc64a1e17a4a0",
+      "structured_k0-14303": "19415dc6f66c913bc3299dc3631e53a5755f151cde5b6d95e646d9b9af4192c1",
+      "structured_k0-14304": "84bca4e5c53fc7a36dfa810491fb666800ade0c3f1ebb2fda00f51fc8ee0b7d4",
+      "structured_k0-14305": "91af2d302244e969ddec230b6efa5f0ec7f582b41a126d011c0568acdce381f0",
+      "structured_k0-14306": "12e691b186939a8e7142e23fdb7a519af2268f01a4ea94b711d39da3d2e73442",
+      "structured_k0-14307": "bd4a622b84165d403a5aa823cdf3ba720d2a7159c1cb1caa56d6e3cae2271fbd",
+      "structured_k4-14303": "5257672c0638d84665386ebb9c48409bc9545ecad7cffeb3ec6614a02a311a27",
+      "structured_k4-14304": "3af304cd11e2e41a824ce26967c91217ee8e4706c9ea25c25f4e5e6e1275f5dc",
+      "structured_k4-14305": "ac9713c108b2f2bf3a8ba55f8d27053d008b3d17c9ab43d21cc262cfbb201a20",
+      "structured_k4-14306": "13f0e215d90243138db8a219e963889813dfde021a804700eef57bd3931fec16",
+      "structured_k4-14307": "fba957ddc09e1d618cdb876cef1c66a5af7afc3b6d52edd6283cff74d09f7c34",
+      "teacher": "05f6aa7a8482d1e9c1e7bcc6d241e7f640fa441549f2f43a399a7d263a71cb59"
+    }
+  }
+}

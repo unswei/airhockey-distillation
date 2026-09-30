@@ -1,0 +1,46 @@
+schema_version: 1
+distribution_id: direct_launch_noise_v1
+launch_mode: direct_launch
+status: supplementary_noise_study
+purpose: Fresh shots from the existing distribution for frozen-policy noise evaluation.
+geometry:
+  table_length: 1.948
+  table_width: 1.038
+  goal_width: 0.25
+  defending_goal_plane_x: -0.974
+  defender_approach_plane_x: -0.65
+sampling:
+  launch_x: [0.45, 0.65]
+  ballistic_approach_time_seconds: [0.36, 0.75]
+  realised_approach_time_target_seconds: [0.4, 1.0]
+  lateral_launch_regions:
+    left: [-0.36, -0.16]
+    centre: [-0.03, 0.03]
+    right: [0.16, 0.36]
+  goal_target_regions:
+    near_post_left: [-0.095, -0.088]
+    goal_centre: [-0.020, 0.020]
+    near_post_right: [0.088, 0.095]
+  observation_aliasing:
+    blackout_start_observation_step: 5
+    policy_step_seconds: 0.02
+    launch_region: centre
+    rendezvous_x: [0.28, 0.34]
+    rendezvous_y: 0.0
+    longitudinal_speed: [1.8, 2.6]
+    target_regions: [near_post_left, near_post_right]
+splits:
+  noise_test:
+    seed: 930306
+    alias_families: 90
+    support_shots_per_launch_target_pair:
+      left->near_post_left: 20
+      left->goal_centre: 2
+      left->near_post_right: 0
+      centre->near_post_left: 0
+      centre->goal_centre: 0
+      centre->near_post_right: 0
+      right->near_post_left: 0
+      right->goal_centre: 3
+      right->near_post_right: 20
+    purpose: supplementary noise evaluation only, not a replacement principal test
