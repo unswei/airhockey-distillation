@@ -2,6 +2,19 @@
 
 Last updated: 2026-09-30
 
+## Post-hoc subgroup analysis (30 September)
+
+- Added a separate [alias/support and target-side breakdown](docs/principal_subgroups_posthoc_v1.md)
+  of all existing principal-test records, with paired, target-stratified
+  bootstrap intervals. All 216 policy-seed/horizon rates reconcile with the
+  original statistics; no policies or training were rerun.
+- Every structured model saves all alias shots at all tested horizons. At
+  500 ms, support-shot rates range from 70.2% to 79.6% across structured ranks;
+  subgroup uncertainty limits the architecture comparison.
+- The manuscript incorporates the breakdown as post hoc and qualifies its
+  ceiling, extrapolation and finite-history claims. Original result files
+  and principal intervals remain unchanged.
+
 ## Submission audit (30 September)
 
 - Numerical recheck of the existing 48,600 principal episode rows reproduces
